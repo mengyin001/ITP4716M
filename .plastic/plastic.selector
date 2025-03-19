@@ -1,4 +1,4 @@
-repository "Game/ITP4716M@33261882769270@cloud"
+repository "ITP4716/ITP4716@33261882769270@cloud"
   path "/"
     br "/main"
     co "/main"
