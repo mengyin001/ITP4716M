@@ -1,4 +1,0 @@
-repository "ITP4716/ITP4716@33261882769270@cloud"
-  path "/"
-    br "/main"
-    co "/main"
