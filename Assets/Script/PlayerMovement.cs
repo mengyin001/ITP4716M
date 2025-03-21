@@ -6,12 +6,12 @@ public class PlayerMovement : MonoBehaviour
     public float moveSpeed = 5f;
     private Rigidbody2D rb;
     private Vector2 movement;
-    private Animator animator; // 新增动画控制器引用
+    private Animator animator;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>(); // 初始化动画组件
+        animator = GetComponent<Animator>();
     }
 
     void Update()
@@ -21,14 +21,20 @@ public class PlayerMovement : MonoBehaviour
         movement.y = Input.GetAxis("Vertical");
 
         // 计算实际移动速度（矢量长度）
-        float speed = Mathf.Sqrt(movement.x * movement.x + movement.y * movement.y);
+        float speed = movement.magnitude; // Use magnitude for speed
 
         // 更新 Animator 参数
         animator.SetFloat("speed", speed);
 
-        //反轉
-        bool flipped = movement.x > 0;
-        this.transform.rotation = Quaternion.Euler(new Vector3(0f, flipped ? -180f : 0f, 0f));
+        // 反转角色
+        if (movement.x < 0)
+        {
+            transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, 0f)); // Face right
+        }
+        else if (movement.x > 0)
+        {
+            transform.rotation = Quaternion.Euler(new Vector3(0f, 180f, 0f)); // Face left
+        }
     }
 
     void FixedUpdate()
