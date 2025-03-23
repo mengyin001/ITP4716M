@@ -32,13 +32,13 @@ public class EnemyController : MonoBehaviour
         anim = GetComponent<Animator>();
     }
 
-    private void FixedUpdate()//死亡不移动
+    private void FixedUpdate()
     {
         if( !isDie)
             Move();
         SetAnimation();
     }
-    void Move()//追踪移动方向
+    void Move()
     {
         if (MovementInput.magnitude > 0.1f && currentSpeed >= 0)
         {
@@ -58,7 +58,7 @@ public class EnemyController : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
         }
     }
-    public void Attack()//判断发动攻击
+    public void Attack()
     {
         if (isAttack)
         {
@@ -75,7 +75,7 @@ public class EnemyController : MonoBehaviour
         isAttack = true;
     }
 
-    public void EnemyHurt()//受伤动画播放
+    public void EnemyHurt()
     {
         //isHurt = true;
         anim.SetTrigger("isHurt");
@@ -98,20 +98,20 @@ public class EnemyController : MonoBehaviour
         yield return new WaitForSeconds(KnockbackForceDuration);
         isHurt = false;
     }*/
-    public void EnemyDie()//死亡
+    public void EnemyDie()
     {
         rb.linearVelocity = Vector2.zero;//死亡不能动
         isDie = true;
         enemyCollider.enabled = false;//禁用rigidbody
     }
 
-    void SetAnimation()//播放动画
+    void SetAnimation()
     {
         anim.SetBool("isWalk", MovementInput.magnitude > 0);
         anim.SetBool("isDie", isDie);
     }
 
-    public void DestroyEnemy()//oject消失
+    public void DestroyEnemy()
     {
         Destroy(this.gameObject);//销毁的对象
     }
