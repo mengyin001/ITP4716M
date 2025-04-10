@@ -7,15 +7,19 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 movement;
     private Animator animator;
+    public GameObject[] guns;       //Gun list
+    int gunNum = 0;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        guns[0].SetActive(true);    //default gun0 active
     }
 
     void Update()
     {
+        SwitchGun();
         // 获取输入并计算移动速度
         movement.x = Input.GetAxis("Horizontal");
         movement.y = Input.GetAxis("Vertical");
@@ -48,5 +52,22 @@ public class PlayerMovement : MonoBehaviour
         // 计算动画参数
         bool isMoving = movement.magnitude > 0; // 判断角色是否在移动
         animator.SetBool("isMoving", isMoving); // 设置动画参数
+    }
+
+    void SwitchGun(){
+        if(Input.GetKeyDown(KeyCode.Q)){            // Q and E switch gun
+            guns[gunNum].SetActive(false);
+            if (--gunNum < 0){
+                gunNum = guns.Length - 1;
+            }
+            guns[gunNum].SetActive(true);
+        }
+        if(Input.GetKeyDown(KeyCode.E)){
+            guns[gunNum].SetActive(false);
+            if (++gunNum > guns.Length - 1){
+                gunNum = 0;
+            }
+            guns[gunNum].SetActive(true);
+        }
     }
 }
