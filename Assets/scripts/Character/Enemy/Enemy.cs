@@ -1,88 +1,39 @@
-﻿using System.Collections;
-using System.IO;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using Pathfinding;
-using NUnit.Framework;
-using System.Collections.Generic;
-using UnityEngine.UIElements;
 
-public class Enemy : MonoBehaviour
+public class Enemy : Character
 {
-    [Header("ÊôÐÔ")]
-    [SerializeField] protected float maxHealth;
-    [SerializeField] protected float currentHealth;
-    [SerializeField] private Transform player;
 
-    [SerializeField] private float chaseDistance = 3f; // ×·»÷¾àÀë
-    [SerializeField] private float attackDistance = 0.8f; // ¹¥»÷¾àÀë
-    [SerializeField] private float invulnerableDuration = 1f; // ÎÞµÐ³ÖÐøÊ±¼ä
+    public UnityEvent<Vector2> OnMovementInput;
+    public UnityEvent OnAttack;
 
-    [Header("¹¥»÷")]
-    public float meleetAttackDamage;//½üÕ½¹¥»÷ÉËº¦
-    public LayerMask playerLayer;//±íÊ¾Íæ¼ÒÍ¼²ã
-    public float AttackDelay = 2f;//ÀäÈ´Ê±¼ä
+    [SerializeField]
+    private Transform player;
 
-    private bool isAttack = true;
-    private SpriteRenderer sr;
-    private bool invulnerable;
-
-    public UnityEvent<Vector2> OnMovementInput ;// ÒÆ¶¯ÊäÈëÊÂ¼þ
-    public UnityEvent OnHurt;// ÊÜÉËÊÂ¼þ
-    public UnityEvent OnDie;// ËÀÍöÊÂ¼þ
-    public UnityEvent OnAttack;// ¹¥»÷ÊÂ¼þ
+    [SerializeField] private float chaseDistance = 3f;//׷������
+    [SerializeField] private float attackDistance = 0.8f;//��������
 
     private Seeker seeker;
-    private List<Vector3> pathPointList = new List<Vector3>();//Â·¾¶µãÁÐ±í
-    private int currentIndex = 0;//Â·¾¶µãµÄË÷Òý
-    private float pathGenerateInterval = 0.5f;//Ã¿0.5ÃëÉú³ÉÒ»´ÎÂ·¾¶
-    private float pathGenerateTimer = 0f;//¼ÆÊ±Æ÷
+    private List<Vector3> pathPointList;//·�����б�
+    private int currentIndex = 0;//·���������
+    private float pathGenerateInterval = 0.5f; //ÿ0.5������һ��·��
+    private float pathGenerateTimer = 0f;//��ʱ��
 
+    [Header("����")]
+    public float meleetAttackDamage;//��ս�����˺�
+    public LayerMask playerLayer;//��ʾ���ͼ��
+    public float AttackCooldownDuration = 2f;//��ȴʱ��
+
+    private bool isAttack = true;
+
+    private SpriteRenderer sr;
     private void Awake()
     {
-        sr = GetComponent<SpriteRenderer>();// ³õÊ¼»¯µ±Ç°ÉúÃüÖµ
         seeker = GetComponent<Seeker>();
-    }
-    protected virtual void OnEnable()
-    {
-        currentHealth = maxHealth;
-    }
-
-    public virtual void TakeDamage(float damage)
-    {
-        if (invulnerable)
-            return;
-
-        if (currentHealth - damage > 0f)
-        {
-            currentHealth -= damage;// ¼õÉÙÉúÃüÖµ
-            StartCoroutine(InvulnerableCoroutine()); // Æô¶¯ÎÞµÐÊ±¼äÐ­³Ì
-            // Ö´ÐÐ½ÇÉ«ÊÜÉË¶¯»­
-            OnHurt?.Invoke();
-        }
-        else
-        {
-            // ËÀÍö
-            Die();
-        }
-    }
-
-    public virtual void Die()
-    {
-        currentHealth = 0f;
-        // Ö´ÐÐ½ÇÉ«ËÀÍö¶¯»­
-        OnDie?.Invoke();
-        // ÕâÀï¿ÉÒÔÌí¼ÓÆäËûËÀÍö´¦ÀíÂß¼­£¬±ÈÈç½ûÓÃµÐÈË
-        gameObject.SetActive(false); // ¼ÙÉè½ûÓÃµÐÈË
-    }
-
-    // ÎÞµÐ
-    protected virtual IEnumerator InvulnerableCoroutine()
-    {
-        invulnerable = true;// ÉèÖÃÎÞµÐ×´Ì¬
-        // µÈ´ýÎÞµÐÊ±¼ä
-        yield return new WaitForSeconds(invulnerableDuration);// µÈ´ýÎÞµÐÊ±¼ä
-        invulnerable = false;// ÖØÖÃÎÞµÐ×´Ì¬
+        sr = GetComponent<SpriteRenderer>();
     }
 
     private void Update()
@@ -92,24 +43,24 @@ public class Enemy : MonoBehaviour
 
         float distance = Vector2.Distance(player.position, transform.position);
 
-        if (distance < chaseDistance) // Ð¡ÓÚ×·»÷¾àÀë
+        if (distance < chaseDistance) // С��׷������
         {
             AutoPath();
             if (pathPointList == null)
                 return;
-            if (distance <= attackDistance) // ÊÇ·ñ´¦ÓÚ¹¥»÷¾àÀë
+            if (distance <= attackDistance) // �Ƿ��ڹ�������
             {
 
-                // ¹¥»÷Íæ¼Ò
-                OnMovementInput?.Invoke(Vector2.zero); // Í£Ö¹ÒÆ¶¯
+                // �������
+                OnMovementInput?.Invoke(Vector2.zero); // ֹͣ�ƶ�
                 if (isAttack)
                 {
                     isAttack = false;
-                    OnAttack?.Invoke();// ´¥·¢¹¥»÷ÊÂ¼þ
-                    StartCoroutine(nameof(AttackCooldownCoroutine));// Æô¶¯¹¥»÷ÀäÈ´Ê±¼ä
+                    OnAttack?.Invoke();// ���������¼�
+                    StartCoroutine(nameof(AttackCooldownCoroutine));// ����������ȴʱ��
                 }
 
-                //ÈËÎï·­×ª
+                //���﷭ת
                 float x = player.position.x - transform.position.x;
                 if (x > 0)
                 {
@@ -122,7 +73,7 @@ public class Enemy : MonoBehaviour
             }
             else
             {
-                // ×·»÷Íæ¼Ò
+                // ׷�����
                 //Vector2 direction = player.position - transform.position;
                 if (currentIndex >= 0 && currentIndex < pathPointList.Count)
                 {
@@ -131,35 +82,36 @@ public class Enemy : MonoBehaviour
                 }
                 else
                 {
-                    // ´¦ÀíË÷ÒýÎÞÐ§µÄÇé¿ö£¬ÀýÈçÖØÖÃË÷Òý
-                    currentIndex = 0; // »òÕßÄã¿ÉÒÔÑ¡ÔñÆäËûÂß¼­
+                    // ����������Ч�������������������
+                    currentIndex = 0; // ���������ѡ�������߼�
                 }
 
             }
         }
         else
         {
-            // ·ÅÆú×·»÷
+            // ����׷��
             OnMovementInput?.Invoke(Vector2.zero);
         }
     }
-
-    //×Ô¶¯Ñ°Â·
+    //�Զ�Ѱ·
     private void AutoPath()
     {
         pathGenerateTimer += Time.deltaTime;
 
-        //Ã¿¸ôÒ»¶¨Ê±¼äÀ´»ñÈ¡Â·¾¶µã
+        //���һ��ʱ������ȡ·����
         if (pathGenerateTimer >= pathGenerateInterval)
         {
             GeneratePath(player.position);
-            pathGenerateTimer = 0;
+            pathGenerateTimer = 0;//���ü�ʱ��
         }
-        //µ±Â·¾¶µãÁÐ±íÎª¿ÕÊ±£¬½øÐÐÂ·¾¶¼ÆËã
+
+
+        //��·�����б�Ϊ��ʱ������·������
         if (pathPointList == null || pathPointList.Count <= 0)
         {
             GeneratePath(player.position);
-        } //µ±µÐÈËµ½´ïµ±Ç°Â·¾¶µã£¬µÝÔöË÷ÒýcurrentIndex²¢½øÐÐÂ·¾¶¼ÆËã
+        }//�����˵��ﵱǰ·����ʱ����������currentIndex������·������
         else if (Vector2.Distance(transform.position, pathPointList[currentIndex]) <= 0.1f)
         {
             currentIndex++;
@@ -168,42 +120,40 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    //»ñÈ¡Â·¾¶µã
+    //��ȡ·����
     private void GeneratePath(Vector3 target)
     {
         currentIndex = 0;
-        //Èý¸ö²ÎÊý£ºÆðµã£¬ÖÕµã£¬»Øµ÷º¯Êý
+        //������������㡢�յ㡢�ص�����
         seeker.StartPath(transform.position, target, Path =>
         {
-            pathPointList = Path.vectorPath;
+            pathPointList = Path.vectorPath;//Path.vectorPath�����˴���㵽�յ������·��
         });
     }
-
-    //½üÕ½¹¥»÷
+    //���˽�ս����
     private void MeleeAttackEvent()
     {
-        //¼ì²âÅö×²
+        //�����ײ
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, attackDistance, playerLayer);
         foreach (Collider2D hitCollider in hitColliders)
         {
             hitCollider.GetComponent<PlayerHealth>().TakeDamage(meleetAttackDamage);
         }
     }
-
-    //¹¥»÷ÀäÈ´Ê±¼ä
+    //������ȴʱ��
 
     IEnumerator AttackCooldownCoroutine()
     {
-        yield return new WaitForSeconds(AttackDelay);// µÈ´ýÀäÈ´Ê±¼ä
-        isAttack = true;// ÖØÖÃ¹¥»÷×´Ì¬
+        yield return new WaitForSeconds(AttackCooldownDuration);// �ȴ���ȴʱ��
+        isAttack = true;// ���ù���״̬
     }
 
     public void OnDrawGizmosSelected()
     {
-        //ÏÔÊ¾¹¥»÷·¶Î§
+        //��ʾ������Χ
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackDistance);
-        //ÏÔÊ¾×·»÷·¶Î§
+        //��ʾ׷����Χ
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, chaseDistance);
 
