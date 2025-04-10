@@ -1,54 +1,57 @@
-ï»¿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    [Header("å±æ€§")]
+    [Header("ÊôĞÔ")]
     [SerializeField] private float currentSpeed = 0;
+
     public Vector2 MovementInput { get; set; }
-    [Header("æ”»å‡»")]
+    [Header("¹¥»÷")]
     [SerializeField] private bool isAttack = true;
-    [SerializeField] private float attackCoolDuration = 1;//å†·å´æ—¶é—´
-    /*
-    [Header("å‡»é€€")]
-    [SerializeField] private bool isKnockback=true;
-    [SerializeField] private float KnockbackForce = 10f;
-    [SerializeField] private float KnockbackForceDuration = 0.1f;
-    */
+    [SerializeField] private float attackCoolDuration = 1;
+
+    [Header("»÷ÍË")]
+    [SerializeField] private bool isKnokback = true;
+    [SerializeField] private float KnokbackForce = 10f;
+    [SerializeField] private float KnokbackForceDuration = 0.1f;
+
     private Rigidbody2D rb;
     private Collider2D enemyCollider;
     private SpriteRenderer sr;
     private Animator anim;
 
     private bool isHurt;
-    private bool isDie;
-
+    private bool isDead;
+    
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
-       // enemyCollider = GetComponent<Collider2D>();
+        enemyCollider = GetComponent<Collider2D>();
         anim = GetComponent<Animator>();
     }
 
     private void FixedUpdate()
     {
-        if( !isDie)
+        if(!isHurt && !isDead)
             Move();
+
         SetAnimation();
     }
+
     void Move()
     {
         if (MovementInput.magnitude > 0.1f && currentSpeed >= 0)
         {
             rb.linearVelocity = MovementInput * currentSpeed;
-            
-            if (MovementInput.x < 0)//å·¦
+            //µĞÈË×óÓÒ·­×ª
+            if (MovementInput.x < 0)//×ó
             {
                 sr.flipX = false;
             }
-            if (MovementInput.x > 0)//å³
+            if (MovementInput.x > 0)//ÓÒ
             {
                 sr.flipX = true;
             }
@@ -58,6 +61,7 @@ public class EnemyController : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
         }
     }
+
     public void Attack()
     {
         if (isAttack)
@@ -67,7 +71,7 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    IEnumerator AttackCoroutine()//æ”»å‡»åè®®
+    IEnumerator AttackCoroutine()//¹¥»÷Ğ­Òé
     {
         anim.SetTrigger("isAttack");
 
@@ -77,14 +81,15 @@ public class EnemyController : MonoBehaviour
 
     public void EnemyHurt()
     {
-        //isHurt = true;
+        isHurt = true;
         anim.SetTrigger("isHurt");
     }
-    /*
+
     public void Knockback(Vector3 pos)
     {
-        //æ–½åŠ å‡»é€€æ•ˆæœ
-        if(!isKnockback || !isDie){
+        //Ê©¼Ó»÷ÍËĞ§¹û
+        if (!isKnokback || isDead)
+        {
             return;
         }
 
@@ -93,28 +98,28 @@ public class EnemyController : MonoBehaviour
 
     IEnumerator KnockbackCoroutine(Vector3 pos)
     {
-        var direction = (transform.position - pos).normalized;//å‡»é€€æ–¹å‘
-        rb.AddForce(direction * KnockbackForce, ForceMode2D.Impulse);
-        yield return new WaitForSeconds(KnockbackForceDuration);
+        var direction = (transform.position - pos).normalized;
+        rb.AddForce(direction * KnokbackForce, ForceMode2D.Impulse);
+        yield return new WaitForSeconds(KnokbackForceDuration);
         isHurt = false;
-    }*/
-    public void EnemyDie()
+
+    }
+
+    public void EnemyDead()
     {
-        rb.linearVelocity = Vector2.zero;//æ­»äº¡ä¸èƒ½åŠ¨
-        isDie = true;
-        enemyCollider.enabled = false;//ç¦ç”¨rigidbody
+        rb.linearVelocity = Vector2.zero;
+        isDead = true;
+        enemyCollider.enabled = false;//½ûÓÃÅö×²Ìå
     }
 
     void SetAnimation()
     {
         anim.SetBool("isWalk", MovementInput.magnitude > 0);
-        anim.SetBool("isDie", isDie);
+        anim.SetBool("isDead", isDead);
     }
 
     public void DestroyEnemy()
     {
-        Destroy(this.gameObject);//é”€æ¯çš„å¯¹è±¡
+        Destroy(this.gameObject);
     }
-
-    
 }
