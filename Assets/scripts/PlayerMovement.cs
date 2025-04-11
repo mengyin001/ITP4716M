@@ -9,12 +9,15 @@ public class PlayerMovement : MonoBehaviour
     private Animator animator;
     public GameObject[] guns;       //Gun list
     int gunNum = 0;
+    private Vector2 mousePos;
+    private float flipY;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         guns[0].SetActive(true);    //default gun0 active
+        flipY = transform.localScale.y; 
     }
 
     void Update()
@@ -32,13 +35,16 @@ public class PlayerMovement : MonoBehaviour
         UpdateAnimation(movement);
 
         // 反转角色
-        if (movement.x < 0)
+        mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);     //flip
+        if (mousePos.x < transform.position.x)
         {
-            transform.rotation = Quaternion.Euler(new Vector3(0f, 0f, 0f)); // Face right
+            // Face left
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
-        else if (movement.x > 0)
+        else
         {
-            transform.rotation = Quaternion.Euler(new Vector3(0f, 180f, 0f)); // Face left
+            // Face right
+            transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
     }
 

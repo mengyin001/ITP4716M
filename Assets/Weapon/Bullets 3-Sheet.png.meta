@@ -150,6 +150,32 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -584,7 +610,26 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Bullets 3-Sheet_0: -3085142695361948922
+      Bullets 3-Sheet_1: 1358672787600598275
+      Bullets 3-Sheet_10: 2051567686866088220
+      Bullets 3-Sheet_11: 5199403968304400621
+      Bullets 3-Sheet_12: 4648096688207436839
+      Bullets 3-Sheet_13: -3168418222336244170
+      Bullets 3-Sheet_14: 2505377825754457452
+      Bullets 3-Sheet_15: 4298123796768999568
+      Bullets 3-Sheet_16: -2557674086491980839
+      Bullets 3-Sheet_17: 7517006259138997307
+      Bullets 3-Sheet_18: 897185707753455655
+      Bullets 3-Sheet_2: -5699319708670782070
+      Bullets 3-Sheet_3: -8684525837257662277
+      Bullets 3-Sheet_4: 5831243134798559990
+      Bullets 3-Sheet_5: 3113419903773521641
+      Bullets 3-Sheet_6: 8070332078047901210
+      Bullets 3-Sheet_7: 4637523308435029318
+      Bullets 3-Sheet_8: -8709089909571601114
+      Bullets 3-Sheet_9: -5994545035396407994
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

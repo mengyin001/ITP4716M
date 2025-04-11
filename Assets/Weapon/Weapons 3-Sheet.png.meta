@@ -285,6 +285,32 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -1709,7 +1735,71 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Weapons 3-Sheet_0: 9081183472738709166
+      Weapons 3-Sheet_1: 5090394947121574566
+      Weapons 3-Sheet_10: 6520657254835269760
+      Weapons 3-Sheet_11: 3360411694612735486
+      Weapons 3-Sheet_12: 4103465367142834429
+      Weapons 3-Sheet_13: -1196387083553374940
+      Weapons 3-Sheet_14: -2900579292629927445
+      Weapons 3-Sheet_15: -3812001716724724695
+      Weapons 3-Sheet_16: 3138583178952774821
+      Weapons 3-Sheet_17: -8180007324896582301
+      Weapons 3-Sheet_18: 6679420020112455739
+      Weapons 3-Sheet_19: 5249686646669128087
+      Weapons 3-Sheet_2: -6073214192452326999
+      Weapons 3-Sheet_20: -5381707257332094873
+      Weapons 3-Sheet_21: 5229349776925953575
+      Weapons 3-Sheet_22: -7705607874511703199
+      Weapons 3-Sheet_23: 8043313936925078622
+      Weapons 3-Sheet_24: 5438736926977868035
+      Weapons 3-Sheet_25: -1042809801847320564
+      Weapons 3-Sheet_26: -4425146310881199738
+      Weapons 3-Sheet_27: 3841789644837131749
+      Weapons 3-Sheet_28: 381397238388674789
+      Weapons 3-Sheet_29: 3406794693836659873
+      Weapons 3-Sheet_3: -8170970485699851627
+      Weapons 3-Sheet_30: -7320395265930468756
+      Weapons 3-Sheet_31: 8367579292425959555
+      Weapons 3-Sheet_32: 5808952519464081729
+      Weapons 3-Sheet_33: -8498352010546263702
+      Weapons 3-Sheet_34: 2233152213581096682
+      Weapons 3-Sheet_35: -1205910154105131897
+      Weapons 3-Sheet_36: -5568587071119027175
+      Weapons 3-Sheet_37: 8970212997073423884
+      Weapons 3-Sheet_38: 3481395682312184627
+      Weapons 3-Sheet_39: 3843657002246053512
+      Weapons 3-Sheet_4: -5623299871150871834
+      Weapons 3-Sheet_40: -3127800462933183150
+      Weapons 3-Sheet_41: -5040382983709890173
+      Weapons 3-Sheet_42: 3405195799598381035
+      Weapons 3-Sheet_43: 4698700647576155045
+      Weapons 3-Sheet_44: -8665701974594209488
+      Weapons 3-Sheet_45: 8924045752009221412
+      Weapons 3-Sheet_46: -192251359288172456
+      Weapons 3-Sheet_47: 4192386388746285407
+      Weapons 3-Sheet_48: 261710005718170079
+      Weapons 3-Sheet_49: 7352847173764763492
+      Weapons 3-Sheet_5: -8013186449685633251
+      Weapons 3-Sheet_50: -9151945525610221442
+      Weapons 3-Sheet_51: -8658351532299306122
+      Weapons 3-Sheet_52: -1468345881511828925
+      Weapons 3-Sheet_53: 5493812770705026979
+      Weapons 3-Sheet_54: -7468181803207826722
+      Weapons 3-Sheet_55: 6398881092346017774
+      Weapons 3-Sheet_56: 5321396142904443175
+      Weapons 3-Sheet_57: 3955793955453706384
+      Weapons 3-Sheet_58: -6139058631612185215
+      Weapons 3-Sheet_59: 233546692030967509
+      Weapons 3-Sheet_6: -2833967232172858150
+      Weapons 3-Sheet_60: -5225982131629189910
+      Weapons 3-Sheet_61: -1670953623685008244
+      Weapons 3-Sheet_62: -1600724120593287304
+      Weapons 3-Sheet_63: 7579102868417219560
+      Weapons 3-Sheet_7: 3670099789148942258
+      Weapons 3-Sheet_8: -6896066630479096108
+      Weapons 3-Sheet_9: -7573523917160023731
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -85,7 +85,7 @@ public class EnemyController : MonoBehaviour
         anim.SetTrigger("isHurt");
     }
 
-    public void Knockback(Vector3 pos)
+   /*  public void Knockback(Vector3 pos)
     {
         //施加击退效果
         if (!isKnokback || isDead)
@@ -103,7 +103,7 @@ public class EnemyController : MonoBehaviour
         yield return new WaitForSeconds(KnokbackForceDuration);
         isHurt = false;
 
-    }
+    }*/
 
     public void EnemyDead()
     {

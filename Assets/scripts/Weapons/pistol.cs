@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class pistol : MonoBehaviour
 {
@@ -9,7 +9,7 @@ public class pistol : MonoBehaviour
     private Transform shellPos;
     private Vector2 mousePos;
     private Vector2 direction;
-    private float timer;
+    private float timer=0;
     private float flipY;
     private Animator animator;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -37,17 +37,16 @@ public class pistol : MonoBehaviour
     void Shoot(){
         direction = (mousePos-new Vector2(transform.position.x, transform.position.y)).normalized;      //detect mouse direction
         transform.right=direction;
-        if(timer!=0){
-            timer -= Time.deltaTime;        //gun cooldown time
-            if (timer<=0){
-                timer = 0;
-            }
+        if (timer > 0)
+        {
+            timer -= Time.deltaTime; // 減少計時器
         }
-        if(Input.GetButton("Fire1")){
-            if (timer == 0){
-                Fire();
-                timer = interval;
-            }
+
+        // 檢查開火輸入和計時器
+        if (Input.GetButtonDown("Fire1") && timer <= 0)
+        {
+            Fire();
+            timer = interval; // 重置計時器
         }
     }
     
@@ -55,7 +54,6 @@ public class pistol : MonoBehaviour
         animator.SetTrigger("Shoot");
         GameObject bullet=Instantiate(bulletPrefab,muzzlePos.position,Quaternion.identity);      //shoot
         bullet.GetComponent<Bullet>().SetSpeed(direction);
-
         Instantiate(shellPrefab,shellPos.position,shellPos.rotation);
     }
 }

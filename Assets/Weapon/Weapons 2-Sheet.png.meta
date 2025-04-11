@@ -264,6 +264,32 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -1534,7 +1560,64 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Weapons 2-Sheet_0: 4371079567834484094
+      Weapons 2-Sheet_1: -5437381548112346356
+      Weapons 2-Sheet_10: -4923549202574728560
+      Weapons 2-Sheet_11: 47659816925604485
+      Weapons 2-Sheet_12: -8893278292649385183
+      Weapons 2-Sheet_13: 3024804378922402542
+      Weapons 2-Sheet_14: -7179655822794254922
+      Weapons 2-Sheet_15: 3598734918729521941
+      Weapons 2-Sheet_16: 4408798002222357755
+      Weapons 2-Sheet_17: 2234236931664062819
+      Weapons 2-Sheet_18: -2215631748155589700
+      Weapons 2-Sheet_19: -6426072366001579053
+      Weapons 2-Sheet_2: -3690127582907008043
+      Weapons 2-Sheet_20: 8048312858933412734
+      Weapons 2-Sheet_21: -2817379425341756017
+      Weapons 2-Sheet_22: 6750645954142767681
+      Weapons 2-Sheet_23: 6580821464147773534
+      Weapons 2-Sheet_24: 2305140923471033620
+      Weapons 2-Sheet_25: -6640194685784651272
+      Weapons 2-Sheet_26: 4602081218813688611
+      Weapons 2-Sheet_27: 2443877758890082366
+      Weapons 2-Sheet_28: -4773650984614287146
+      Weapons 2-Sheet_29: -4272341293040230309
+      Weapons 2-Sheet_3: -3345833182228899905
+      Weapons 2-Sheet_30: 8014628072933122910
+      Weapons 2-Sheet_31: -2645462286942009894
+      Weapons 2-Sheet_32: 7171013749716855635
+      Weapons 2-Sheet_33: -6120400240083545076
+      Weapons 2-Sheet_34: -5762606456482874159
+      Weapons 2-Sheet_35: 6639139531114352868
+      Weapons 2-Sheet_36: -9110895462403921767
+      Weapons 2-Sheet_37: -3111437616664939309
+      Weapons 2-Sheet_38: 8020242407995012231
+      Weapons 2-Sheet_39: 2751206893256410913
+      Weapons 2-Sheet_4: 3632833148999712676
+      Weapons 2-Sheet_40: 6285696080765703804
+      Weapons 2-Sheet_41: 627324554940929078
+      Weapons 2-Sheet_42: -5679250055990368484
+      Weapons 2-Sheet_43: -3306266100928235284
+      Weapons 2-Sheet_44: -1212066903017310052
+      Weapons 2-Sheet_45: 5564870762471921287
+      Weapons 2-Sheet_46: 5635932497406197205
+      Weapons 2-Sheet_47: 6230092861008422163
+      Weapons 2-Sheet_48: 1717060572729538780
+      Weapons 2-Sheet_49: 7023441132699333214
+      Weapons 2-Sheet_5: -5405454093637804187
+      Weapons 2-Sheet_50: 8992253964196387630
+      Weapons 2-Sheet_51: 8531907061010225818
+      Weapons 2-Sheet_52: 6059289131661569068
+      Weapons 2-Sheet_53: -157608579067082015
+      Weapons 2-Sheet_54: 4904799862299402705
+      Weapons 2-Sheet_55: -3709487206782551501
+      Weapons 2-Sheet_56: -510143954812532751
+      Weapons 2-Sheet_6: -8302093457291078883
+      Weapons 2-Sheet_7: -2015600175008061320
+      Weapons 2-Sheet_8: -2413220436549406992
+      Weapons 2-Sheet_9: -136067539422680259
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

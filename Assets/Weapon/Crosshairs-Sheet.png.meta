@@ -141,6 +141,32 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -509,7 +535,23 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Crosshairs-Sheet_0: 1185193076472663609
+      Crosshairs-Sheet_1: 4262313152471471869
+      Crosshairs-Sheet_10: 3788469941594870873
+      Crosshairs-Sheet_11: -4316217176770884435
+      Crosshairs-Sheet_12: 3388530241253302252
+      Crosshairs-Sheet_13: -4417812402367644728
+      Crosshairs-Sheet_14: 5150109648842638840
+      Crosshairs-Sheet_15: -6665532144423265573
+      Crosshairs-Sheet_2: 6665260682589821417
+      Crosshairs-Sheet_3: 3416639823652501013
+      Crosshairs-Sheet_4: -6790665485130825734
+      Crosshairs-Sheet_5: -7824461110860522901
+      Crosshairs-Sheet_6: 2170842037928812553
+      Crosshairs-Sheet_7: 8403208959863354995
+      Crosshairs-Sheet_8: -706036328060010918
+      Crosshairs-Sheet_9: -2160466560160028452
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
