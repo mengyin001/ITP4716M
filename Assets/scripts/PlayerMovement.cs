@@ -61,14 +61,14 @@ public class PlayerMovement : MonoBehaviour
     }
 
     void SwitchGun(){
-        if(Input.GetKeyDown(KeyCode.Q)){            // Q and E switch gun
+        if(Input.GetKeyDown(KeyCode.Q)){            // Q and T switch gun
             guns[gunNum].SetActive(false);
             if (--gunNum < 0){
                 gunNum = guns.Length - 1;
             }
             guns[gunNum].SetActive(true);
         }
-        if(Input.GetKeyDown(KeyCode.E)){
+        if(Input.GetKeyDown(KeyCode.T)){
             guns[gunNum].SetActive(false);
             if (++gunNum > guns.Length - 1){
                 gunNum = 0;
