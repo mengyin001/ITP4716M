@@ -138,6 +138,7 @@ public class TutorialTaskSystem : MonoBehaviour
         {
             InitializeCurrentTask();
             UpdateTaskDisplay();
+            underTip.gameObject.SetActive(true);
         }
         else
         {
