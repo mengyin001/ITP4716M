@@ -72,7 +72,7 @@ public class HealthSystem : MonoBehaviour
         // 测试按键：按J消耗能量（新增测试代码）
         if (Input.GetKeyDown(KeyCode.J))
         {
-            ConsumeEnergy(20);
+            ConsumeEnergy(5);
         }
     }
 
