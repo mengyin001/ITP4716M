@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Fristlevel.unity
     guid: bceecf07196943e4295ff0c18a6a096a
+  - enabled: 1
+    path: Assets/Scenes/Teachlevel.unity
+    guid: e9791b2d95c836e49b9eff8f70e559a7
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
