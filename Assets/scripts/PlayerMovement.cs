@@ -56,8 +56,8 @@ public class PlayerMovement : MonoBehaviour
     private void UpdateAnimation(Vector2 movement)
     {
         // 计算动画参数
-        bool isMoving = movement.magnitude > 0; // 判断角色是否在移动
-        animator.SetBool("isMoving", isMoving); // 设置动画参数
+        bool isWalk = movement.magnitude > 0; // 判断角色是否在移动
+        animator.SetBool("isWalk", isWalk); // 设置动画参数
     }
 
     void SwitchGun(){
