@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    [Header("ÊôÐÔ")]
+    [Header("ï¿½ï¿½ï¿½ï¿½")]
     [SerializeField] private float currentSpeed = 0;
 
     public Vector2 MovementInput { get; set; }
-    [Header("¹¥»÷")]
+    [Header("ï¿½ï¿½ï¿½ï¿½")]
     [SerializeField] private bool isAttack = true;
     [SerializeField] private float attackCoolDuration = 1;
 
-    [Header("»÷ÍË")]
+    [Header("ï¿½ï¿½ï¿½ï¿½")]
     [SerializeField] private bool isKnokback = true;
     [SerializeField] private float KnokbackForce = 10f;
     [SerializeField] private float KnokbackForceDuration = 0.1f;
@@ -24,7 +24,11 @@ public class EnemyController : MonoBehaviour
 
     private bool isHurt;
     private bool isDead;
-    
+
+    private Vector2 lastMovementInput = Vector2.zero;
+    private const float movementThreshold = 0.1f;
+    private const float animationThreshold = 0.05f;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -45,21 +49,22 @@ public class EnemyController : MonoBehaviour
     {
         if (MovementInput.magnitude > 0.1f && currentSpeed >= 0)
         {
-            rb.linearVelocity = MovementInput * currentSpeed;
-            //µÐÈË×óÓÒ·­×ª
-            if (MovementInput.x < 0)//×ó
+            Vector2 targetVelocity = MovementInput * currentSpeed;
+            rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * 10f);            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò·ï¿½×ª
+            if (MovementInput.x < 0)//ï¿½ï¿½
             {
                 sr.flipX = false;
             }
-            if (MovementInput.x > 0)//ÓÒ
+            if (MovementInput.x > 0)//ï¿½ï¿½
             {
                 sr.flipX = true;
             }
         }
         else
         {
-            rb.linearVelocity = Vector2.zero;
+            rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, Vector2.zero, Time.fixedDeltaTime * 10f);
         }
+        lastMovementInput = MovementInput;
     }
 
     public void Attack()
@@ -71,7 +76,7 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    IEnumerator AttackCoroutine()//¹¥»÷Ð­Òé
+    IEnumerator AttackCoroutine()//ï¿½ï¿½ï¿½ï¿½Ð­ï¿½ï¿½
     {
         anim.SetTrigger("isAttack");
 
@@ -83,11 +88,12 @@ public class EnemyController : MonoBehaviour
     {
         isHurt = true;
         anim.SetTrigger("isHurt");
+        enemyCollider.enabled = false;
     }
 
-   /*  public void Knockback(Vector3 pos)
+     public void Knockback(Vector3 pos)
     {
-        //Ê©¼Ó»÷ÍËÐ§¹û
+        //Ê©ï¿½Ó»ï¿½ï¿½ï¿½Ð§ï¿½ï¿½
         if (!isKnokback || isDead)
         {
             return;
@@ -102,19 +108,24 @@ public class EnemyController : MonoBehaviour
         rb.AddForce(direction * KnokbackForce, ForceMode2D.Impulse);
         yield return new WaitForSeconds(KnokbackForceDuration);
         isHurt = false;
+        enemyCollider.enabled = true;
 
-    }*/
+    }
 
     public void EnemyDead()
     {
         rb.linearVelocity = Vector2.zero;
         isDead = true;
-        enemyCollider.enabled = false;//½ûÓÃÅö×²Ìå
+        enemyCollider.enabled = false;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×²ï¿½ï¿½
     }
 
     void SetAnimation()
     {
-        anim.SetBool("isWalk", MovementInput.magnitude > 0);
+        bool isMoving = Mathf.Abs(MovementInput.x) > animationThreshold || Mathf.Abs(MovementInput.y) > animationThreshold;
+        if (isMoving != anim.GetBool("isWalk"))
+        {
+            anim.SetBool("isWalk", isMoving);
+        }
         anim.SetBool("isDead", isDead);
     }
 

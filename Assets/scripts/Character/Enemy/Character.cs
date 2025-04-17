@@ -8,7 +8,6 @@ public class Character : MonoBehaviour
 {
     [Header(" Ù–‘")]
     [SerializeField] protected float maxHealth;
-
     [SerializeField] protected float currentHealth;
 
     [Header("Œﬁµ–")]
