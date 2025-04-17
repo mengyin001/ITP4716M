@@ -1933,8 +1933,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Task List
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1bcef3924e267224e9cd2aec29c3076a, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 1bcef3924e267224e9cd2aec29c3076a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4326,8 +4326,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Empty
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1bcef3924e267224e9cd2aec29c3076a, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 1bcef3924e267224e9cd2aec29c3076a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4462,8 +4462,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Please Click "A" to complete the task
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 1bcef3924e267224e9cd2aec29c3076a, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 1bcef3924e267224e9cd2aec29c3076a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
