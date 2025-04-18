@@ -609,7 +609,6 @@ GameObject:
   - component: {fileID: 1336583123}
   - component: {fileID: 1336583122}
   - component: {fileID: 1336583121}
-  - component: {fileID: 1336583124}
   - component: {fileID: 1336583125}
   m_Layer: 5
   m_Name: Button
@@ -684,7 +683,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1336583125}
         m_TargetAssemblyTypeName: SceneChanger, Assembly-CSharp
-        m_MethodName: GoToTeachLevel
+        m_MethodName: GoToScenName
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -732,30 +731,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1336583119}
   m_CullTransparentMesh: 1
---- !u!114 &1336583124
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1336583119}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bcc761f0bc757ca46a06e4cc0851ee16, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 100
-  currentHealth: 0
-  healthSlider: {fileID: 0}
-  healthText: {fileID: 0}
-  maxEnergy: 100
-  currentEnergy: 0
-  energySlider: {fileID: 0}
-  energyText: {fileID: 0}
-  autoRegen: 0
-  regenRate: 1
-  autoRegenEn: 0
-  regenRateEn: 1
 --- !u!114 &1336583125
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -768,6 +743,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb722ea87e0e64a4e9bd6eeae297ee30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ScenName: Teachlevel
 --- !u!1 &1343818701
 GameObject:
   m_ObjectHideFlags: 0

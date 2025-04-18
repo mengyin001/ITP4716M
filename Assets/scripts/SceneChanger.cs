@@ -3,9 +3,10 @@ using UnityEngine.SceneManagement;
 
 public class SceneChanger : MonoBehaviour
 {
-    public void GoToTeachLevel()
+    public string ScenName;
+    public void GoToScenName()
     {
-        SceneManager.LoadScene("Teachlevel");
+        SceneManager.LoadScene(ScenName);
     }
    
 }

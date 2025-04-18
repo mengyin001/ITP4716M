@@ -16,15 +16,15 @@ public class DialogueSystem : MonoBehaviour
 
     [Header("UI组件")]
     [SerializeField] private TextMeshProUGUI nameText;    // 角色名字文本
-    [SerializeField] private TextMeshProUGUI contentText;  // 对话内容文本
-    [SerializeField] private GameObject dialoguePanel;     // 对话框面板
+    [SerializeField] private TextMeshProUGUI contentText; // 对话内容文本
+    [SerializeField] private GameObject dialoguePanel;    // 对话框面板
 
     [Header("对话配置")]
     [SerializeField] private List<DialogueEntry> dialogues = new List<DialogueEntry>();
 
     [Header("初始设置")]
-    [SerializeField] private bool startOnAwake = true;     // 游戏开始时自动播放
-    [SerializeField] private float startDelay = 1f;        // 初始对话延迟时间
+    [SerializeField] private bool startOnAwake = true;    // 游戏开始时自动播放
+    [SerializeField] private float startDelay = 1f;       // 初始对话延迟时间
 
     private bool isDialogueActive = false;
     private int currentDialogueIndex = 0;
@@ -42,7 +42,11 @@ public class DialogueSystem : MonoBehaviour
 
     void Update()
     {
-        if (isDialogueActive && Input.GetKeyDown(KeyCode.Space))
+        // 检测多种输入方式
+        if (isDialogueActive && (
+            Input.GetMouseButtonDown(0) ||       // 鼠标左键
+            Input.GetKeyDown(KeyCode.Return) ||  // 回车键
+            Input.GetKeyDown(KeyCode.E)))        // E键
         {
             HandleDialogueInput();
         }
@@ -93,9 +97,12 @@ public class DialogueSystem : MonoBehaviour
 
     private void CompleteCurrentSentence()
     {
-        if (typingCoroutine != null) StopCoroutine(typingCoroutine);
-        contentText.text = dialogues[currentDialogueIndex].dialogueContent;
-        isTyping = false;
+        if (typingCoroutine != null) 
+        {
+            StopCoroutine(typingCoroutine);
+            contentText.text = dialogues[currentDialogueIndex].dialogueContent;
+            isTyping = false;
+        }
     }
 
     private void ShowNextSentence()
@@ -113,8 +120,12 @@ public class DialogueSystem : MonoBehaviour
 
     private void EndDialogue()
     {
+        // 重置所有对话元素
         dialoguePanel.SetActive(false);
+        nameText.text = "";
+        contentText.text = "";
         isDialogueActive = false;
+        currentDialogueIndex = 0;
         Debug.Log("对话流程结束");
     }
 
@@ -129,7 +140,7 @@ public class DialogueSystem : MonoBehaviour
             },
             new DialogueEntry{
                 characterName = "向导",
-                dialogueContent = "按空格键继续对话...",
+                dialogueContent = "使用左键/Enter/E键继续对话...",
                 textSpeed = 0.03f
             },
             new DialogueEntry{
