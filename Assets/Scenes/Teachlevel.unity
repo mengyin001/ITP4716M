@@ -1007,7 +1007,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 0}
   m_FillRect: {fileID: 1280415012}
   m_HandleRect: {fileID: 0}
@@ -3222,7 +3222,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 0}
   m_FillRect: {fileID: 313946148}
   m_HandleRect: {fileID: 0}
@@ -5720,6 +5720,7 @@ GameObject:
   - component: {fileID: 1913852830}
   - component: {fileID: 1913852829}
   - component: {fileID: 1913852828}
+  - component: {fileID: 1913852832}
   - component: {fileID: 1913852831}
   m_Layer: 5
   m_Name: Button
@@ -5792,9 +5793,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1913852831}
-        m_TargetAssemblyTypeName: SceneChanger, Assembly-CSharp
-        m_MethodName: GoToScenName
+      - m_Target: {fileID: 1913852832}
+        m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
+        m_MethodName: ResumeGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5802,6 +5803,18 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1913852831}
+        m_TargetAssemblyTypeName: SwitchScene, Assembly-CSharp
+        m_MethodName: NextScene
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Startup
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &1913852829
@@ -5851,10 +5864,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1913852826}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb722ea87e0e64a4e9bd6eeae297ee30, type: 3}
+  m_Script: {fileID: 11500000, guid: 919dfb08106f5474cb2fe1dd6214dddc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ScenName: Startup
+--- !u!114 &1913852832
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1913852826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73ace083cab218043bfb8ea261e0dcbe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1932726010
 GameObject:
   m_ObjectHideFlags: 0
