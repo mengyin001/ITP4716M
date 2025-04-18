@@ -26,6 +26,10 @@ public class DialogueSystem : MonoBehaviour
     [SerializeField] private bool startOnAwake = true;    // 游戏开始时自动播放
     [SerializeField] private float startDelay = 1f;       // 初始对话延迟时间
 
+    [Header("时间控制")]
+    [SerializeField] private bool freezeTimeDuringDialogue = true; // 是否在对话时暂停游戏时间
+    private float originalTimeScale; // 保存原始时间流速
+
     private bool isDialogueActive = false;
     private int currentDialogueIndex = 0;
     private Coroutine typingCoroutine;
@@ -51,7 +55,11 @@ public class DialogueSystem : MonoBehaviour
             HandleDialogueInput();
         }
     }
-
+    void Awake()
+    {
+        // 初始化时间流速
+        originalTimeScale = Time.timeScale;
+    }
     void HandleDialogueInput()
     {
         if (isTyping)
@@ -67,6 +75,12 @@ public class DialogueSystem : MonoBehaviour
     // ========== 对话控制方法 ==========
     public void StartDialogue()
     {
+        if (freezeTimeDuringDialogue)
+        {
+            originalTimeScale = Time.timeScale;
+            Time.timeScale = 0f;
+        }
+
         dialoguePanel.SetActive(true);
         currentDialogueIndex = 0;
         isDialogueActive = true;
@@ -90,7 +104,7 @@ public class DialogueSystem : MonoBehaviour
         foreach (char letter in entry.dialogueContent.ToCharArray())
         {
             contentText.text += letter;
-            yield return new WaitForSeconds(entry.textSpeed);
+            yield return new WaitForSecondsRealtime(entry.textSpeed);
         }
         isTyping = false;
     }
@@ -102,6 +116,7 @@ public class DialogueSystem : MonoBehaviour
             StopCoroutine(typingCoroutine);
             contentText.text = dialogues[currentDialogueIndex].dialogueContent;
             isTyping = false;
+            typingCoroutine = null;
         }
     }
 
@@ -120,13 +135,26 @@ public class DialogueSystem : MonoBehaviour
 
     private void EndDialogue()
     {
-        // 重置所有对话元素
+        if (freezeTimeDuringDialogue)
+        {
+            Time.timeScale = originalTimeScale;
+        }
+
         dialoguePanel.SetActive(false);
         nameText.text = "";
         contentText.text = "";
         isDialogueActive = false;
         currentDialogueIndex = 0;
         Debug.Log("对话流程结束");
+    }
+
+    // 确保异常情况下恢复时间
+    void OnDestroy()
+    {
+        if (freezeTimeDuringDialogue && Time.timeScale == 0f)
+        {
+            Time.timeScale = originalTimeScale;
+        }
     }
 
     // ========== 示例数据 ==========
