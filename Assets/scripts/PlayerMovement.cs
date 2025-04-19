@@ -17,11 +17,14 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         guns[0].SetActive(true);    //default gun0 active
-        flipY = transform.localScale.y; 
+        flipY = transform.localScale.y;
+        mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
     }
 
     void Update()
     {
+        if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
+            return;
         SwitchGun();
         // 获取输入并计算移动速度
         movement.x = Input.GetAxis("Horizontal");

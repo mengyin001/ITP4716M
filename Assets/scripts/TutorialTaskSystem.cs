@@ -63,6 +63,8 @@ public class TutorialTaskSystem : MonoBehaviour
 
     void HandleTaskProgress(Task currentTask)
     {
+        if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
+            return;
         // 长按任务检测
         if (currentTask.requiredHoldTime > 0)
         {
