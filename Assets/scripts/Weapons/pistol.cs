@@ -35,6 +35,9 @@ public class pistol : MonoBehaviour
     }
 
     void Shoot(){
+        if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
+            return;
+        direction = (mousePos - new Vector2(transform.position.x, transform.position.y)).normalized;
         direction = (mousePos-new Vector2(transform.position.x, transform.position.y)).normalized;      //detect mouse direction
         transform.right=direction;
         if (timer > 0)

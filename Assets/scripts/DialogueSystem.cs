@@ -5,6 +5,7 @@ using TMPro;
 
 public class DialogueSystem : MonoBehaviour
 {
+    public static DialogueSystem Instance;
     [System.Serializable]
     public class DialogueEntry
     {
@@ -30,7 +31,7 @@ public class DialogueSystem : MonoBehaviour
     [SerializeField] private bool freezeTimeDuringDialogue = true; // 是否在对话时暂停游戏时间
     private float originalTimeScale; // 保存原始时间流速
 
-    private bool isDialogueActive = false;
+    public bool isDialogueActive = false;
     private int currentDialogueIndex = 0;
     private Coroutine typingCoroutine;
     private bool isTyping = false;
@@ -57,6 +58,7 @@ public class DialogueSystem : MonoBehaviour
     }
     void Awake()
     {
+        Instance = this;
         // 初始化时间流速
         originalTimeScale = Time.timeScale;
     }
