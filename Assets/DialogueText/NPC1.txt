@@ -1,0 +1,3 @@
+NPC|NPC: Hello!  @0.05
+NPC|NPC: Please done the task @0.05
+Player|ME: OK @0.05

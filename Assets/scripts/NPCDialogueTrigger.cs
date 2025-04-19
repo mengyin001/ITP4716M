@@ -1,47 +1,89 @@
 ﻿using UnityEngine;
+using TMPro;
 
-[RequireComponent(typeof(Collider2D))]
 public class NPCDialogueTrigger : MonoBehaviour
 {
-    [Header("交互提示")]
-    [SerializeField] private GameObject interactPrompt; // 按E交互提示图标
-
     [Header("对话配置")]
-    [SerializeField] private bool oneTimeDialogue = true; // 是否只触发一次对话
+    public TextAsset dialogueFile; // 需要加载的新对话文件
+    public float triggerDistance = 2f; // 触发距离
+    public KeyCode interactKey = KeyCode.E; // 互动按键
 
-    private bool playerInRange = false;
-    private bool hasTriggered = false;
+    [Header("提示UI")]
+    public TextMeshProUGUI interactPrompt; // 显示"按E对话"的文本
+
+    private GameObject player;
+    private bool isInRange;
+    private bool hasInteracted;
+
+    void Start()
+    {
+        player = GameObject.FindGameObjectWithTag("Player");
+        interactPrompt.gameObject.SetActive(false);
+    }
 
     void Update()
     {
-        // 显示/隐藏交互提示
-        if (interactPrompt != null)
-            interactPrompt.SetActive(playerInRange && !DialogueSystem.Instance.isDialogueActive);
+        if (player == null) return;
 
-        // 检测交互输入
-        if (playerInRange && Input.GetKeyDown(KeyCode.E))
+        // 计算距离
+        float distance = Vector3.Distance(transform.position, player.transform.position);
+
+        // 距离检测
+        if (distance <= triggerDistance && !DialogueSystem.Instance.isDialogueActive)
         {
-            if (!DialogueSystem.Instance.isDialogueActive && (!oneTimeDialogue || !hasTriggered))
+            if (!isInRange)
             {
-                DialogueSystem.Instance.StartDialogue();
-                hasTriggered = true;
+                OnEnterRange();
+            }
+
+            // 输入检测
+            if (Input.GetKeyDown(interactKey))
+            {
+                TriggerDialogue();
             }
         }
-    }
-
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Player"))
+        else if (isInRange)
         {
-            playerInRange = true;
+            OnExitRange();
         }
     }
 
-    void OnTriggerExit2D(Collider2D other)
+    void OnEnterRange()
     {
-        if (other.CompareTag("Player"))
+        isInRange = true;
+        interactPrompt.gameObject.SetActive(true);
+        interactPrompt.text = $"Click {interactKey} to talk";
+    }
+
+    void OnExitRange()
+    {
+        isInRange = false;
+        interactPrompt.gameObject.SetActive(false);
+    }
+
+    void TriggerDialogue()
+    {
+        if (dialogueFile == null)
         {
-            playerInRange = false;
+            Debug.LogError("未分配对话文件！");
+            return;
         }
+
+        // 加载新对话
+        DialogueSystem.Instance.LoadNewDialogue(dialogueFile);
+        DialogueSystem.Instance.StartDialogue();
+
+        // 隐藏提示
+        interactPrompt.gameObject.SetActive(false);
+
+        // 防止重复触发
+        hasInteracted = true;
+    }
+
+    // 可视化触发范围（仅在编辑器显示）
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, triggerDistance);
     }
 }

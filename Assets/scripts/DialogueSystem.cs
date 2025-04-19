@@ -2,85 +2,166 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
+using System.Text.RegularExpressions;
 
 public class DialogueSystem : MonoBehaviour
 {
     public static DialogueSystem Instance;
+
     [System.Serializable]
     public class DialogueEntry
     {
-        public string characterName;     // 角色名字
+        public string characterID;
+        public string characterName;
         [TextArea(3, 10)]
-        public string dialogueContent;   // 对话内容
-        public float textSpeed = 0.05f;  // 每个字符显示间隔时间（秒）
+        public string dialogueContent;
+        public float textSpeed = 0.05f;
+        public Sprite characterIcon;
     }
 
-    [Header("UI组件")]
-    [SerializeField] private TextMeshProUGUI nameText;    // 角色名字文本
-    [SerializeField] private TextMeshProUGUI contentText; // 对话内容文本
-    [SerializeField] private GameObject dialoguePanel;    // 对话框面板
+    [System.Serializable]
+    public class CharacterIconConfig
+    {
+        public string characterID;
+        public Sprite icon;
+    }
 
-    [Header("对话配置")]
-    [SerializeField] private List<DialogueEntry> dialogues = new List<DialogueEntry>();
+    [Header("UI Components")]
+    [SerializeField] private TextMeshProUGUI nameText;
+    [SerializeField] private TextMeshProUGUI contentText;
+    [SerializeField] private GameObject dialoguePanel;
+    [SerializeField] private Image characterImage;
 
-    [Header("初始设置")]
-    [SerializeField] private bool startOnAwake = true;    // 游戏开始时自动播放
-    [SerializeField] private float startDelay = 1f;       // 初始对话延迟时间
+    [Header("Text Configuration")]
+    [SerializeField] private TextAsset dialogueFile;
+    [SerializeField] private string entrySeparator = "\\n";
+    [SerializeField] private char parameterSeparator = '@';
 
-    [Header("时间控制")]
-    [SerializeField] private bool freezeTimeDuringDialogue = true; // 是否在对话时暂停游戏时间
-    private float originalTimeScale; // 保存原始时间流速
+    [Header("Character Icons")]
+    [SerializeField] private List<CharacterIconConfig> iconConfigs = new List<CharacterIconConfig>();
 
-    public bool isDialogueActive = false;
+    [Header("Settings")]
+    [SerializeField] private bool startOnAwake = true;
+    [SerializeField] private float startDelay = 1f;
+    [SerializeField] private bool freezeTimeDuringDialogue = true;
+
+    private List<DialogueEntry> dialogues = new List<DialogueEntry>();
     private int currentDialogueIndex = 0;
     private Coroutine typingCoroutine;
     private bool isTyping = false;
+    private float originalTimeScale;
+    public bool isDialogueActive { get; private set; }
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            ParseDialogueFile();
+            originalTimeScale = Time.timeScale;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     IEnumerator Start()
     {
         if (startOnAwake)
         {
-            yield return new WaitForSeconds(startDelay); // 延迟启动
+            yield return new WaitForSeconds(startDelay);
             StartDialogue();
         }
     }
 
     void Update()
     {
-        // 检测多种输入方式
-        if (isDialogueActive && (
-            Input.GetMouseButtonDown(0) ||       // 鼠标左键
-            Input.GetKeyDown(KeyCode.Return) ||  // 回车键
-            Input.GetKeyDown(KeyCode.E)))        // E键
+        if (isDialogueActive && (Input.GetMouseButtonDown(0) ||
+            Input.GetKeyDown(KeyCode.Return) ||
+            Input.GetKeyDown(KeyCode.E)))
         {
             HandleDialogueInput();
         }
     }
-    void Awake()
+
+    void ParseDialogueFile()
     {
-        Instance = this;
-        // 初始化时间流速
-        originalTimeScale = Time.timeScale;
-    }
-    void HandleDialogueInput()
-    {
-        if (isTyping)
+        dialogues.Clear();
+
+        if (dialogueFile == null)
         {
-            CompleteCurrentSentence();
+            Debug.LogWarning("Dialogue file not assigned!");
+            return;
         }
-        else
+
+        string[] entries = Regex.Split(dialogueFile.text, entrySeparator + "(?m)");
+
+        foreach (string entry in entries)
         {
-            ShowNextSentence();
+            if (string.IsNullOrWhiteSpace(entry)) continue;
+
+            string processedEntry = entry.Trim();
+            string[] splitParams = Regex.Split(processedEntry, @"\s*" + parameterSeparator + @"\s*");
+
+            // Parse character ID and name
+            string[] roleData = splitParams[0].Split(new[] { '|' }, 2);
+            if (roleData.Length < 2)
+            {
+                Debug.LogWarning($"Invalid role format: {splitParams[0]}");
+                continue;
+            }
+
+            string characterID = roleData[0].Trim();
+            string[] nameContent = roleData[1].Split(new[] { ':' }, 2);
+
+            if (nameContent.Length < 2)
+            {
+                Debug.LogWarning($"Invalid dialogue format: {roleData[1]}");
+                continue;
+            }
+
+            DialogueEntry newEntry = new DialogueEntry
+            {
+                characterID = characterID,
+                characterName = nameContent[0].Trim(),
+                dialogueContent = nameContent[1].Trim().Replace("\\n", "\n")
+            };
+
+            // Find icon configuration
+            CharacterIconConfig config = iconConfigs.Find(c => c.characterID == characterID);
+            if (config != null)
+            {
+                newEntry.characterIcon = config.icon;
+            }
+
+            // Parse text speed
+            if (splitParams.Length > 1)
+            {
+                if (float.TryParse(splitParams[1], out float speed))
+                {
+                    newEntry.textSpeed = Mathf.Clamp(speed, 0.01f, 0.2f);
+                }
+            }
+
+            dialogues.Add(newEntry);
         }
     }
 
-    // ========== 对话控制方法 ==========
     public void StartDialogue()
     {
+        if (dialogues.Count == 0)
+        {
+            Debug.LogWarning("No dialogues loaded!");
+            return;
+        }
+
         dialoguePanel.SetActive(true);
         currentDialogueIndex = 0;
         isDialogueActive = true;
         ShowSentence(currentDialogueIndex);
+
         if (freezeTimeDuringDialogue)
         {
             originalTimeScale = Time.timeScale;
@@ -90,34 +171,56 @@ public class DialogueSystem : MonoBehaviour
 
     private void ShowSentence(int index)
     {
-        if (index >= dialogues.Count) return;
+        if (index < 0 || index >= dialogues.Count) return;
 
         DialogueEntry entry = dialogues[index];
         nameText.text = entry.characterName;
         contentText.text = "";
 
-        typingCoroutine = StartCoroutine(TypeSentence(entry));
+        // Set character icon
+        if (entry.characterIcon != null)
+        {
+            characterImage.sprite = entry.characterIcon;
+            characterImage.gameObject.SetActive(true);
+        }
+        else
+        {
+            characterImage.gameObject.SetActive(false);
+        }
+
+        typingCoroutine = StartCoroutine(TypeText(entry));
     }
 
-    IEnumerator TypeSentence(DialogueEntry entry)
+    IEnumerator TypeText(DialogueEntry entry)
     {
         isTyping = true;
-        foreach (char letter in entry.dialogueContent.ToCharArray())
+        foreach (char c in entry.dialogueContent.ToCharArray())
         {
-            contentText.text += letter;
+            contentText.text += c;
             yield return new WaitForSecondsRealtime(entry.textSpeed);
         }
         isTyping = false;
     }
 
-    private void CompleteCurrentSentence()
+    private void HandleDialogueInput()
     {
-        if (typingCoroutine != null) 
+        if (isTyping)
+        {
+            CompleteCurrentLine();
+        }
+        else
+        {
+            ShowNextSentence();
+        }
+    }
+
+    private void CompleteCurrentLine()
+    {
+        if (typingCoroutine != null)
         {
             StopCoroutine(typingCoroutine);
             contentText.text = dialogues[currentDialogueIndex].dialogueContent;
             isTyping = false;
-            typingCoroutine = null;
         }
     }
 
@@ -134,21 +237,28 @@ public class DialogueSystem : MonoBehaviour
         }
     }
 
-    private void EndDialogue()
+    public void EndDialogue()
     {
         if (freezeTimeDuringDialogue)
         {
             Time.timeScale = originalTimeScale;
         }
+
         dialoguePanel.SetActive(false);
-        nameText.text = "";
-        contentText.text = "";
+        contentText.text = string.Empty;
+        nameText.text = string.Empty;
+        characterImage.gameObject.SetActive(false);
         isDialogueActive = false;
         currentDialogueIndex = 0;
-        Debug.Log("对话流程结束");
     }
 
-    // 确保异常情况下恢复时间
+    public void LoadNewDialogue(TextAsset newDialogueFile)
+    {
+        dialogueFile = newDialogueFile;
+        ParseDialogueFile();
+        currentDialogueIndex = 0;
+    }
+
     void OnDestroy()
     {
         if (freezeTimeDuringDialogue && Time.timeScale == 0f)
@@ -157,25 +267,18 @@ public class DialogueSystem : MonoBehaviour
         }
     }
 
-    // ========== 示例数据 ==========
-    private void Reset()
+    // Editor helper
+#if UNITY_EDITOR
+    [ContextMenu("Generate Example TXT")]
+    void GenerateExampleTXT()
     {
-        dialogues = new List<DialogueEntry>{
-            new DialogueEntry{
-                characterName = "系统",
-                dialogueContent = "欢迎来到冒险世界！",
-                textSpeed = 0.05f
-            },
-            new DialogueEntry{
-                characterName = "向导",
-                dialogueContent = "使用左键/Enter/E键继续对话...",
-                textSpeed = 0.03f
-            },
-            new DialogueEntry{
-                characterName = "NPC",
-                dialogueContent = "前方城堡有重要线索，小心行动！",
-                textSpeed = 0.04f
-            }
-        };
+        string exampleText =
+            "hero|勇者: 这里就是魔王城吗？ @0.04\n" +
+            "npc|村长: 要小心啊！\\n魔王的陷阱无处不在 @0.06\n" +
+            "boss|魔王: 你终于来了... @0.08";
+
+        System.IO.File.WriteAllText(Application.dataPath + "/ExampleDialogue.txt", exampleText);
+        UnityEditor.AssetDatabase.Refresh();
     }
+#endif
 }

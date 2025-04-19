@@ -57,6 +57,5 @@ public class pistol : MonoBehaviour
         animator.SetTrigger("Shoot");
         GameObject bullet=Instantiate(bulletPrefab,muzzlePos.position,Quaternion.identity);      //shoot
         bullet.GetComponent<Bullet>().SetSpeed(direction);
-        Instantiate(shellPrefab,shellPos.position,shellPos.rotation);
     }
 }
