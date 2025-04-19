@@ -77,16 +77,15 @@ public class DialogueSystem : MonoBehaviour
     // ========== 对话控制方法 ==========
     public void StartDialogue()
     {
+        dialoguePanel.SetActive(true);
+        currentDialogueIndex = 0;
+        isDialogueActive = true;
+        ShowSentence(currentDialogueIndex);
         if (freezeTimeDuringDialogue)
         {
             originalTimeScale = Time.timeScale;
             Time.timeScale = 0f;
         }
-
-        dialoguePanel.SetActive(true);
-        currentDialogueIndex = 0;
-        isDialogueActive = true;
-        ShowSentence(currentDialogueIndex);
     }
 
     private void ShowSentence(int index)
@@ -141,7 +140,6 @@ public class DialogueSystem : MonoBehaviour
         {
             Time.timeScale = originalTimeScale;
         }
-
         dialoguePanel.SetActive(false);
         nameText.text = "";
         contentText.text = "";
