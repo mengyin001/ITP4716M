@@ -15,7 +15,7 @@ MonoBehaviour:
   itemID: 001
   itemName: Recovery medicine
   icon: {fileID: 1018383391595562092, guid: 368f625759658cb48893fcaad6b9eddb, type: 3}
-  itemHeld: 15
+  itemHeld: 12
   description: Restore blood volume
   itemType: 0
   weight: 0.1

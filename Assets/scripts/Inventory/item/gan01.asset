@@ -15,11 +15,11 @@ MonoBehaviour:
   itemID: 001
   itemName: shortGan01
   icon: {fileID: -442042463007990425, guid: 9b703c6a1ef575f4a8cc69f3bdecd48a, type: 3}
+  itemHeld: 5
   description: 
   itemType: 1
-  maxStack: 1
   weight: 0.1
-  isUnique: 0
+  isUnique: 1
   usePrefab: {fileID: 0}
   restoreHealth: 0
   attackBonus: 0

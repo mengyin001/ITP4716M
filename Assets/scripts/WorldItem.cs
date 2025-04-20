@@ -22,10 +22,12 @@ public class WordItem : MonoBehaviour
         {
             playerInventory.itemList.Add(thisItem);
             InventoryManager.CreateNewItem(thisItem);
+            thisItem.itemHeld += 1;
         }
         else
         {
             thisItem.itemHeld += 1;
         }
+        InventoryManager.RefreshItem();
     }
 }
