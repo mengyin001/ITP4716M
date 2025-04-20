@@ -11,6 +11,8 @@ public class PlayerMovement : MonoBehaviour
     int gunNum = 0;
     private Vector2 mousePos;
     private float flipY;
+    public GameObject myBag;
+    bool isOpen;
 
     void Start()
     {
@@ -25,6 +27,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
+        OpenMyBag();
         SwitchGun();
         // 获取输入并计算移动速度
         movement.x = Input.GetAxis("Horizontal");
@@ -37,6 +40,7 @@ public class PlayerMovement : MonoBehaviour
         animator.SetFloat("speed", speed);
         UpdateAnimation(movement);
 
+       
         // 反转角色
         mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);     //flip
         if (mousePos.x < transform.position.x)
@@ -50,7 +54,14 @@ public class PlayerMovement : MonoBehaviour
             transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
     }
-
+    void OpenMyBag()
+    {
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            isOpen = !isOpen;
+            myBag.SetActive(isOpen);
+        }
+    }
     void FixedUpdate()
     {
         // 应用移动（保留原有物理逻辑）

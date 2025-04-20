@@ -176,7 +176,7 @@ public class DialogueSystem : MonoBehaviour
         if (iconAnimator != null)
         {
             iconAnimator.enabled = true;
-            iconAnimator.Play("IconPulse", -1, 0f);
+            iconAnimator.Play("IconPulse", 0, 0f);
         }
     }
 
