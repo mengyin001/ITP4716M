@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Startup.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   - enabled: 1
+    path: Assets/Scenes/LoadingScence.unity
+    guid: a788d89e12ca16141be37fb53479d4bf
+  - enabled: 1
     path: Assets/Scenes/Fristlevel.unity
     guid: bceecf07196943e4295ff0c18a6a096a
   - enabled: 1
