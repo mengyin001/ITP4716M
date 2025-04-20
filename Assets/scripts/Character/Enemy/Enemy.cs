@@ -19,7 +19,6 @@ public class Enemy : Character
     [SerializeField] private bool shouldPatrol = true;
     [SerializeField] private List<Transform> patrolPoints;
     [SerializeField] private float patrolPointReachedDistance = 0.5f;
-    [SerializeField] private float patrolSpeed = 1f;
     [SerializeField] private float waitTimeAtPoint = 1f;
 
 
@@ -36,7 +35,6 @@ public class Enemy : Character
     private float pathGenerateTimer = 0f;//¼ÆÊ±Æ÷
 
     private Animator animator;
-    private bool isDead = true;
     private bool isAttack = true;
     private bool isChasing = false;
     private int currentPatrolPointIndex = 0;
@@ -70,7 +68,7 @@ public class Enemy : Character
             if (isChasing)
             {
                 isChasing = false;
-                OnMovementInput?.Invoke(Vector2.zero);
+                //OnMovementInput?.Invoke(Vector2.zero);
                 pathPointList = null; // Clear path
             }
 
@@ -107,7 +105,14 @@ public class Enemy : Character
 
             // Flip sprite based on player position
             float x = player.position.x - transform.position.x;
-            sr.flipX = x > 0;
+            if (x > 0)
+            {
+                sr.flipX = true;
+            }
+            else
+            {
+                sr.flipX = false;
+            }
         }
         else
         {
@@ -191,7 +196,7 @@ public class Enemy : Character
         {
             // Move toward patrol point
             Vector2 direction = (currentPatrolPoint.position - transform.position).normalized;
-            OnMovementInput?.Invoke(direction * patrolSpeed);
+            OnMovementInput?.Invoke(direction);
 
 
             // Flip sprite based on movement direction

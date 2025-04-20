@@ -2049,11 +2049,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentSpeed: 2
-  isAttack: 1
   attackCoolDuration: 0
-  isKnokback: 0
-  KnokbackForce: 10
-  KnokbackForceDuration: 0.1
 --- !u!114 &1118518586
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2066,9 +2062,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e239991bad3c9294faed4e178d6378b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 10
   currentHealth: 100
-  invulnerable: 1
+  invulnerable: 0
   invulnerableDuration: 0
   OnHurt:
     m_PersistentCalls:
@@ -2138,9 +2133,8 @@ MonoBehaviour:
   - {fileID: 1966969368}
   - {fileID: 1299646196}
   patrolPointReachedDistance: 0.5
-  patrolSpeed: 1
   waitTimeAtPoint: 1
-  meleetAttackDamage: 0
+  meleetAttackDamage: 10
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -2449,8 +2443,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1269618292}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.7492125, y: 1.3391087, z: -10.014614}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -8.619212, y: 1.1991087, z: -9.014614}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2479,7 +2473,7 @@ Transform:
   - {fileID: 924178263}
   - {fileID: 431241254}
   - {fileID: 1694943009}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1966969368}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1282217644
 GameObject:
@@ -4035,7 +4029,8 @@ Transform:
   m_LocalPosition: {x: 4.87, y: 0.14, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1269618293}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1971587697 stripped
@@ -4458,5 +4453,4 @@ SceneRoots:
   - {fileID: 615645607}
   - {fileID: 113038889}
   - {fileID: 1299646196}
-  - {fileID: 1269618293}
   - {fileID: 1966969368}
