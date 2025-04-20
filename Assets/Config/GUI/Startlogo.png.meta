@@ -1,0 +1,494 @@
+fileFormatVersion: 2
+guid: a64d57c66dc6f604fa9acf18bf2bdd20
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 8436750256060508716
+    second: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+      (1)_0
+  - first:
+      213: -2172650135348338608
+    second: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+      (1)_1
+  - first:
+      213: -3007643339421649524
+    second: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+      (1)_2
+  - first:
+      213: -2856821346317059879
+    second: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+      (1)_3
+  - first:
+      213: 1475593706783126765
+    second: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+      (1)_4
+  - first:
+      213: -3770092400078231911
+    second: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+      (1)_5
+  - first:
+      213: 5059810768474821594
+    second: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+      (1)_6
+  - first:
+      213: -5822104117558418552
+    second: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+      (1)_7
+  - first:
+      213: 6719149646420456489
+    second: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+      (1)_8
+  - first:
+      213: -2188521402474575917
+    second: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+      (1)_9
+  - first:
+      213: 2151276714747571016
+    second: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+      (1)_10
+  - first:
+      213: -1395479770750433801
+    second: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+      (1)_11
+  - first:
+      213: -5073426298566046116
+    second: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+      (1)_12
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+        (1)_0
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 481
+        width: 126
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2a2c2778ab551570800000000000000
+      internalID: 8436750256060508716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+        (1)_1
+      rect:
+        serializedVersion: 2
+        x: 217
+        y: 481
+        width: 138
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 050ab5d863239d1e0800000000000000
+      internalID: -2172650135348338608
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+        (1)_2
+      rect:
+        serializedVersion: 2
+        x: 360
+        y: 481
+        width: 140
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c85f3b66154b246d0800000000000000
+      internalID: -3007643339421649524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+        (1)_3
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 481
+        width: 138
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d8b4022f188a58d0800000000000000
+      internalID: -2856821346317059879
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+        (1)_4
+      rect:
+        serializedVersion: 2
+        x: 656
+        y: 481
+        width: 136
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: de43c9588ac5a7410800000000000000
+      internalID: 1475593706783126765
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+        (1)_5
+      rect:
+        serializedVersion: 2
+        x: 795
+        y: 481
+        width: 128
+        height: 188
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 996efeadfe0fdabc0800000000000000
+      internalID: -3770092400078231911
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+        (1)_6
+      rect:
+        serializedVersion: 2
+        x: 264
+        y: 335
+        width: 106
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad353adf51f083640800000000000000
+      internalID: 5059810768474821594
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+        (1)_7
+      rect:
+        serializedVersion: 2
+        x: 372
+        y: 335
+        width: 115
+        height: 131
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8836793e62bb33fa0800000000000000
+      internalID: -5822104117558418552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+        (1)_8
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 335
+        width: 114
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 924359bf0073f3d50800000000000000
+      internalID: 6719149646420456489
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+        (1)_9
+      rect:
+        serializedVersion: 2
+        x: 616
+        y: 335
+        width: 140
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d7c926316fc0a1e0800000000000000
+      internalID: -2188521402474575917
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+        (1)_10
+      rect:
+        serializedVersion: 2
+        x: 185
+        y: 95
+        width: 198
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84b291c26cedadd10800000000000000
+      internalID: 2151276714747571016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+        (1)_11
+      rect:
+        serializedVersion: 2
+        x: 388
+        y: 95
+        width: 272
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f54d25ca8242ace0800000000000000
+      internalID: -1395479770750433801
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e
+        (1)_12
+      rect:
+        serializedVersion: 2
+        x: 677
+        y: 95
+        width: 180
+        height: 225
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5e88df59a19799b0800000000000000
+      internalID: -5073426298566046116
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e (1)_0: 8436750256060508716
+      A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e (1)_1: -2172650135348338608
+      A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e (1)_10: 2151276714747571016
+      A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e (1)_11: -1395479770750433801
+      A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e (1)_12: -5073426298566046116
+      A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e (1)_2: -3007643339421649524
+      A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e (1)_3: -2856821346317059879
+      A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e (1)_4: 1475593706783126765
+      A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e (1)_5: -3770092400078231911
+      A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e (1)_6: 5059810768474821594
+      A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e (1)_7: -5822104117558418552
+      A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e (1)_8: 6719149646420456489
+      A_pixel_art_style_image_featuring_the_phrase_Escape_from_Vtc_in_a_bold_retro_font_The_text_should_have_a_dark_gloomy_color_palette_to_convey_a_sense_of_desolation_with_a_pixelated_appearance_that_captures_the_e (1)_9: -2188521402474575917
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
