@@ -1,259 +1,286 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.Events;
 using Pathfinding;
+using System.Collections.Generic;
+using System.Collections;
 
+[RequireComponent(typeof(Seeker), typeof(SpriteRenderer), typeof(Animator))]
 public class Enemy : Character
 {
+    [Header("Chase Settings")]
+    [SerializeField] private Transform _playerTarget;
+    [SerializeField] private float _chaseRadius = 3f;
+    [SerializeField] private float _attackRadius = 0.8f;
+    [SerializeField] private float _pathUpdateInterval = 0.5f;
 
+    [Header("Patrol Settings")]
+    [SerializeField] private bool _enablePatrol = true;
+    [SerializeField] private float _patrolSpeed = 1f;
+    [SerializeField] private float _waypointReachThreshold = 0.5f;
+    [SerializeField] private float _waypointWaitTime = 1f;
+    [SerializeField] private PatrolPath _patrolPath;
+
+    [Header("Combat Settings")]
+    [SerializeField] private float _attackDamage = 10f;
+    [SerializeField] private LayerMask _playerLayer;
+    [SerializeField] private float _attackCooldown = 2f;
+
+    // Events
     public UnityEvent<Vector2> OnMovementInput;
     public UnityEvent OnAttack;
 
-    [Header("Chase Settings")]
-    [SerializeField] private Transform player;
-    [SerializeField] private float chaseDistance = 3f;//×·»÷¾àÀë
-    [SerializeField] private float attackDistance = 0.8f;//¹¥»÷¾àÀë
+    // Components
+    private Seeker _pathSeeker;
+    private SpriteRenderer _spriteRenderer;
+    private Animator _animator;
 
-    [Header("Patrol Settings")]
-    [SerializeField] private bool shouldPatrol = true;
-    [SerializeField] private List<Transform> patrolPoints;
-    [SerializeField] private float patrolPointReachedDistance = 0.5f;
-    [SerializeField] private float patrolSpeed = 1f;
-    [SerializeField] private float waitTimeAtPoint = 1f;
+    // Pathfinding
+    private Path _currentPath;
+    private int _currentWaypointIndex;
+    private float _pathUpdateTimer;
 
+    // State tracking
+    private bool _isChasing;
+    private bool _canAttack = true;
+    private bool _isWaitingAtWaypoint;
+    private float _waypointWaitTimer;
+    private int _currentPatrolIndex;
 
-
-    [Header("Attack Settings")]
-    public float meleetAttackDamage;//½üÕ½¹¥»÷ÉËº¦
-    public LayerMask playerLayer;//±íÊ¾Íæ¼ÒÍ¼²ã
-    public float AttackCooldownDuration = 2f;//ÀäÈ´Ê±¼ä
-
-    private Seeker seeker;
-    private List<Vector3> pathPointList;//Â·¾¶µãÁĞ±í
-    private int currentIndex = 0;//Â·¾¶µãµÄË÷Òı
-    private float pathGenerateInterval = 0.5f; //Ã¿0.5ÃëÉú³ÉÒ»´ÎÂ·¾¶
-    private float pathGenerateTimer = 0f;//¼ÆÊ±Æ÷
-
-    private Animator animator;
-    private bool isDead = true;
-    private bool isAttack = true;
-    private bool isChasing = false;
-    private int currentPatrolPointIndex = 0;
-    private bool isWaitingAtPoint = false;
-    private float waitTimer = 0f;
-    private SpriteRenderer sr;
+    private bool _isDead;
 
     private void Awake()
     {
-        seeker = GetComponent<Seeker>();
-        sr = GetComponent<SpriteRenderer>();
-        animator = GetComponent<Animator>();
+        _pathSeeker = GetComponent<Seeker>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _animator = GetComponent<Animator>();
     }
 
     private void Update()
     {
-        if (player == null)
-            return;
+        if (_playerTarget == null) return;
 
-        float distanceToPlayer = Vector2.Distance(player.position, transform.position);
+        UpdateAIState();
+        HandleCurrentState();
+    }
 
-        // Check if player is within chase distance
-        if (distanceToPlayer < chaseDistance)
+    private void UpdateAIState()
+    {
+        float distanceToPlayer = Vector2.Distance(transform.position, _playerTarget.position);
+        _isChasing = distanceToPlayer < _chaseRadius;
+
+        if (!_isChasing && _enablePatrol)
         {
-            isChasing = true;
-            HandleChaseBehavior(distanceToPlayer);
+            PatrolBehavior();
+        }
+    }
+
+    private void HandleCurrentState()
+    {
+        if (_isChasing)
+        {
+            ChaseBehavior();
         }
         else
         {
-            // If we were chasing but player is now out of range
-            if (isChasing)
-            {
-                isChasing = false;
-                OnMovementInput?.Invoke(Vector2.zero);
-                pathPointList = null; // Clear path
-            }
-
-            // Patrol if enabled
-            if (shouldPatrol && patrolPoints.Count > 0)
-            {
-                Patrol();
-            }
-            else
-            {
-                OnMovementInput?.Invoke(Vector2.zero);
-
-            }
-        }
-
-    }
-
-    private void HandleChaseBehavior(float distanceToPlayer)
-    {
-        AutoPath();
-        if (pathPointList == null)
-            return;
-
-        if (distanceToPlayer <= attackDistance)
-        {
-            // Attack player
             OnMovementInput?.Invoke(Vector2.zero);
-            if (isAttack)
-            {
-                isAttack = false;
-                OnAttack?.Invoke();
-                StartCoroutine(nameof(AttackCooldownCoroutine));
-            }
-
-            // Flip sprite based on player position
-            float x = player.position.x - transform.position.x;
-            sr.flipX = x > 0;
-        }
-        else
-        {
-            // Chase player
-            if (currentIndex >= 0 && currentIndex < pathPointList.Count)
-            {
-                Vector2 direction = (pathPointList[currentIndex] - transform.position).normalized;
-                OnMovementInput?.Invoke(direction);
-
-            }
-            else
-            {
-                currentIndex = 0;
-            }
-        }
-    }
-    //×Ô¶¯Ñ°Â·
-    private void AutoPath()
-    {
-        pathGenerateTimer += Time.deltaTime;
-
-        //¼ä¸ôÒ»¶¨Ê±¼äÀ´»ñÈ¡Â·¾¶µã
-        if (pathGenerateTimer >= pathGenerateInterval)
-        {
-            GeneratePath(player.position);
-            pathGenerateTimer = 0;//ÖØÖÃ¼ÆÊ±Æ÷
-        }
-
-
-        //µ±Â·¾¶µãÁĞ±íÎª¿ÕÊ±£¬½øĞĞÂ·¾¶¼ÆËã
-        if (pathPointList == null || pathPointList.Count <= 0)
-        {
-            GeneratePath(player.position);
-        }//µ±µĞÈËµ½´ïµ±Ç°Â·¾¶µãÊ±£¬µİÔöË÷ÒıcurrentIndex²¢½øĞĞÂ·¾¶¼ÆËã
-        else if (Vector2.Distance(transform.position, pathPointList[currentIndex]) <= 0.1f)
-        {
-            currentIndex++;
-            if (currentIndex >= pathPointList.Count)
-                GeneratePath(player.position);
         }
     }
 
-    //»ñÈ¡Â·¾¶µã
-    private void GeneratePath(Vector3 target)
+    #region Chase Logic
+    private void ChaseBehavior()
     {
-        currentIndex = 0;
-        //Èı¸ö²ÎÊı£ºÆğµã¡¢ÖÕµã¡¢»Øµ÷º¯Êı
-        seeker.StartPath(transform.position, target, Path =>
-        {
-            pathPointList = Path.vectorPath;//Path.vectorPath°üº¬ÁË´ÓÆğµãµ½ÖÕµãµÄÍêÕûÂ·¾¶
-        });
+        UpdatePathToTarget();
+        HandleTargetDistance();
+
+        if (_currentPath == null) return;
+
+        MoveAlongPath();
+        UpdateSpriteOrientation(_playerTarget.position);
     }
-    //µĞÈË½üÕ½¹¥»÷
 
-    private void Patrol()
+    private void UpdatePathToTarget()
     {
-        if (isWaitingAtPoint)
-        {
-            waitTimer += Time.deltaTime;
-            if (waitTimer >= waitTimeAtPoint)
-            {
-                isWaitingAtPoint = false;
-                waitTimer = 0f;
-                MoveToNextPatrolPoint();
+        _pathUpdateTimer += Time.deltaTime;
 
-            }
+        if (_pathUpdateTimer >= _pathUpdateInterval)
+        {
+            _pathSeeker.StartPath(transform.position, _playerTarget.position, OnPathGenerated);
+            _pathUpdateTimer = 0;
+        }
+    }
+
+    private void OnPathGenerated(Path path)
+    {
+        if (!path.error)
+        {
+            _currentPath = path;
+            _currentWaypointIndex = 0;
+        }
+    }
+
+    private void HandleTargetDistance()
+    {
+        float distance = Vector2.Distance(transform.position, _playerTarget.position);
+
+        if (distance <= _attackRadius && _canAttack)
+        {
+            ExecuteAttack();
+        }
+    }
+
+    private void MoveAlongPath()
+    {
+        if (_currentWaypointIndex >= _currentPath.vectorPath.Count)
+        {
+            _currentPath = null;
             return;
         }
 
-        Transform currentPatrolPoint = patrolPoints[currentPatrolPointIndex];
-        float distanceToPoint = Vector2.Distance(transform.position, currentPatrolPoint.position);
+        Vector2 direction = ((Vector2)_currentPath.vectorPath[_currentWaypointIndex] - (Vector2)transform.position).normalized;
+        OnMovementInput?.Invoke(direction);
 
-        if (distanceToPoint <= patrolPointReachedDistance)
+        if (Vector2.Distance(transform.position, _currentPath.vectorPath[_currentWaypointIndex]) < 0.1f)
         {
-            // Reached patrol point
-            isWaitingAtPoint = true;
-            OnMovementInput?.Invoke(Vector2.zero);
+            _currentWaypointIndex++;
+        }
+    }
+    #endregion
 
+    #region Combat Logic
+    private void ExecuteAttack()
+    {
+        _canAttack = false;
+        OnAttack?.Invoke();
+        StartCoroutine(AttackCooldown());
+    }
+
+    // Animation Event
+    private void ApplyMeleeDamage()
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, _attackRadius, _playerLayer);
+
+        foreach (var hit in hits)
+        {
+            if (hit.TryGetComponent<PlayerHealth>(out var health))
+            {
+                health.TakeDamage(_attackDamage);
+            }
+        }
+    }
+
+    private IEnumerator AttackCooldown()
+    {
+        yield return new WaitForSeconds(_attackCooldown);
+        _canAttack = true;
+    }
+    #endregion
+
+    #region Patrol Logic
+    private void PatrolBehavior()
+    {
+        if (_patrolPath == null || _patrolPath.Waypoints.Count == 0) return;
+
+        HandleWaypointWaiting();
+        MoveToCurrentWaypoint();
+    }
+
+    private void HandleWaypointWaiting()
+    {
+        if (_isWaitingAtWaypoint)
+        {
+            _waypointWaitTimer += Time.deltaTime;
+
+            if (_waypointWaitTimer >= _waypointWaitTime)
+            {
+                _isWaitingAtWaypoint = false;
+                _waypointWaitTimer = 0;
+                UpdatePatrolWaypoint();
+            }
+        }
+    }
+
+    private void MoveToCurrentWaypoint()
+    {
+        Vector2 currentWaypoint = _patrolPath.Waypoints[_currentPatrolIndex].position;
+        float distance = Vector2.Distance(transform.position, currentWaypoint);
+
+        if (distance <= _waypointReachThreshold)
+        {
+            _isWaitingAtWaypoint = true;
+            OnMovementInput?.Invoke(Vector2.zero);
         }
         else
         {
-            // Move toward patrol point
-            Vector2 direction = (currentPatrolPoint.position - transform.position).normalized;
-            OnMovementInput?.Invoke(direction * patrolSpeed);
-
-
-            // Flip sprite based on movement direction
-            sr.flipX = direction.x > 0;
+            Vector2 direction = (currentWaypoint - (Vector2)transform.position).normalized;
+            OnMovementInput?.Invoke(direction * _patrolSpeed);
+            UpdateSpriteOrientation(currentWaypoint);
         }
     }
 
-    private void MoveToNextPatrolPoint()
+    private void UpdatePatrolWaypoint()
     {
-        currentPatrolPointIndex++;
-        if (currentPatrolPointIndex >= patrolPoints.Count)
+        _currentPatrolIndex = (_currentPatrolIndex + 1) % _patrolPath.Waypoints.Count;
+    }
+    #endregion
+
+    private void UpdateSpriteOrientation(Vector3 targetPosition)
+    {
+        _spriteRenderer.flipX = targetPosition.x > transform.position.x;
+    }
+
+    public override void Die()
+    {
+        if (_isDead) return; // é˜²æ­¢é‡å¤æ‰§è¡Œ
+        _isDead = true;
+        base.Die();
+        // å»¶è¿Ÿå…³é—­ Colliderï¼ˆå¯é€‰ï¼‰
+        StartCoroutine(DisableColliderAfterDeath());
+        _animator.SetTrigger("isDie");
+        enabled = false;
+    }
+
+    private IEnumerator DisableColliderAfterDeath()
+    {
+        // ç­‰å¾…ä¸€å¸§ç¡®ä¿åŠ¨ç”»æ’­æ”¾
+        yield return new WaitForEndOfFrame();
+
+        Collider2D collider = GetComponent<Collider2D>();
+        if (collider != null)
         {
-            currentPatrolPointIndex = 0;
+            collider.enabled = false;
         }
     }
 
-    private void MeleeAttackEvent()
+    private void OnDrawGizmosSelected()
     {
-        //¼ì²âÅö×²
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, attackDistance, playerLayer);
-        foreach (Collider2D hitCollider in hitColliders)
-        {
-            hitCollider.GetComponent<PlayerHealth>().TakeDamage(meleetAttackDamage);
-        }
-    }
-    //¹¥»÷ÀäÈ´Ê±¼ä
-
-    IEnumerator AttackCooldownCoroutine()
-    {
-        yield return new WaitForSeconds(AttackCooldownDuration);// µÈ´ıÀäÈ´Ê±¼ä
-        isAttack = true;// ÖØÖÃ¹¥»÷×´Ì¬
-    }
-
-
-    public void OnDrawGizmosSelected()
-    {
-        // Attack range
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackDistance);
-
-        // Chase range
+        // Draw chase radius
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, chaseDistance);
+        Gizmos.DrawWireSphere(transform.position, _chaseRadius);
 
-        // Patrol path
-        if (shouldPatrol && patrolPoints.Count > 1)
+        // Draw attack radius
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, _attackRadius);
+
+        // Draw patrol path
+        if (_patrolPath != null)
         {
             Gizmos.color = Color.blue;
-            for (int i = 0; i < patrolPoints.Count; i++)
+            for (int i = 0; i < _patrolPath.Waypoints.Count; i++)
             {
-                if (patrolPoints[i] == null) continue;
+                if (_patrolPath.Waypoints[i] == null) continue;
 
-                Gizmos.DrawSphere(patrolPoints[i].position, 0.2f);
-                if (i < patrolPoints.Count - 1 && patrolPoints[i + 1] != null)
+                Gizmos.DrawSphere(_patrolPath.Waypoints[i].position, 0.2f);
+                if (i < _patrolPath.Waypoints.Count - 1 && _patrolPath.Waypoints[i + 1] != null)
                 {
-                    Gizmos.DrawLine(patrolPoints[i].position, patrolPoints[i + 1].position);
-                }
-                else if (i == patrolPoints.Count - 1 && patrolPoints[0] != null)
-                {
-                    Gizmos.DrawLine(patrolPoints[i].position, patrolPoints[0].position);
+                    Gizmos.DrawLine(_patrolPath.Waypoints[i].position, _patrolPath.Waypoints[i + 1].position);
                 }
             }
         }
     }
+}
+
+[System.Serializable]
+public class PatrolPath
+{
+    public List<Transform> Waypoints = new List<Transform>();
 }

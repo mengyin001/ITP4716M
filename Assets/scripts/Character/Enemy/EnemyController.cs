@@ -88,7 +88,6 @@ public class EnemyController : MonoBehaviour
     {
         isHurt = true;
         anim.SetTrigger("isHurt");
-        enemyCollider.enabled = false;
     }
 
      public void Knockback(Vector3 pos)

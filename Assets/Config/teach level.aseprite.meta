@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 263d78497caa057408f846613b29022d
+guid: f359fd24bc9a45c419442424297b7cb9
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -123,9 +123,9 @@ ScriptedImporter:
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
   animatedSpriteImportData:
-  - name: teach level 1
+  - name: teach level
     originalName: 
-    pivot: {x: 0.5228717, y: 0}
+    pivot: {x: 0.49796334, y: 0}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -133,9 +133,9 @@ ScriptedImporter:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 1574
+      width: 491
       height: 433
-    spriteID: 2e937689648faeb4daeafeb4a7639069
+    spriteID: aaba1ba4872d01046aae86cea0082a9d
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -147,8 +147,8 @@ ScriptedImporter:
   spriteSheetImportData: []
   asepriteLayers:
   - layerIndex: 0
-    guid: 1315563502
-    name: teach level 1
+    guid: -654066499
+    name: teach level
     layerFlags: 0
     layerType: 0
     blendMode: 0
@@ -157,11 +157,11 @@ ScriptedImporter:
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: -204
+        x: 0
         y: 0
-        width: 1574
+        width: 491
         height: 433
-      spriteId: 2e937689648faeb4daeafeb4a7639069
+      spriteId: aaba1ba4872d01046aae86cea0082a9d
     linkedCells: []
     parentIndex: -1
   platformSettings:
@@ -180,5 +180,5 @@ ScriptedImporter:
   generatePhysicsShape: 0
   secondarySpriteTextures: []
   spritePackingTag: 
-  canvasSize: {x: 1238, y: 433}
-  previousTextureSize: {x: 2048, y: 512}
+  canvasSize: {x: 489, y: 433}
+  previousTextureSize: {x: 512, y: 512}

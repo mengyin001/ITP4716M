@@ -32,6 +32,7 @@ public class DialogueSystem : MonoBehaviour
     [SerializeField] private TextMeshProUGUI contentText;
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private Image characterImage;
+    [SerializeField] private Animator iconAnimator;
 
     [Header("Text Configuration")]
     [SerializeField] private TextAsset dialogueFile;
@@ -60,6 +61,10 @@ public class DialogueSystem : MonoBehaviour
             Instance = this;
             ParseDialogueFile();
             originalTimeScale = Time.timeScale;
+            if (iconAnimator != null)
+            {
+                iconAnimator.updateMode = AnimatorUpdateMode.UnscaledTime;
+            }
         }
         else
         {
@@ -167,6 +172,12 @@ public class DialogueSystem : MonoBehaviour
             originalTimeScale = Time.timeScale;
             Time.timeScale = 0f;
         }
+
+        if (iconAnimator != null)
+        {
+            iconAnimator.enabled = true;
+            iconAnimator.Play("IconPulse", -1, 0f);
+        }
     }
 
     private void ShowSentence(int index)
@@ -182,6 +193,7 @@ public class DialogueSystem : MonoBehaviour
         {
             characterImage.sprite = entry.characterIcon;
             characterImage.gameObject.SetActive(true);
+            UpdateIconAnimation(entry.characterID);
         }
         else
         {
@@ -243,7 +255,11 @@ public class DialogueSystem : MonoBehaviour
         {
             Time.timeScale = originalTimeScale;
         }
-
+        if (iconAnimator != null)
+        {
+            iconAnimator.StopPlayback();
+            iconAnimator.enabled = false;
+        }
         dialoguePanel.SetActive(false);
         contentText.text = string.Empty;
         nameText.text = string.Empty;
@@ -264,6 +280,25 @@ public class DialogueSystem : MonoBehaviour
         if (freezeTimeDuringDialogue && Time.timeScale == 0f)
         {
             Time.timeScale = originalTimeScale;
+        }
+    }
+
+    private void UpdateIconAnimation(string characterID)
+    {
+        if (iconAnimator == null) return;
+
+        // 根据角色ID切换不同动画
+        switch (characterID)
+        {
+            case "hero":
+                iconAnimator.Play("HeroIcon");
+                break;
+            case "npc":
+                iconAnimator.Play("NpcIcon");
+                break;
+            default:
+                iconAnimator.Play("DefaultIcon");
+                break;
         }
     }
 
