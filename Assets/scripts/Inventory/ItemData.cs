@@ -1,7 +1,7 @@
 ﻿// ItemData.cs
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Inventory", menuName = "Inventory/Item")]
+[CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]
 public class ItemData : ScriptableObject
 {
     public enum ItemType { Consumable, Equipment, Material, Quest }
