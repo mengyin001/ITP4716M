@@ -1,286 +1,264 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Events;
 using Pathfinding;
-using System.Collections.Generic;
-using System.Collections;
 
-[RequireComponent(typeof(Seeker), typeof(SpriteRenderer), typeof(Animator))]
 public class Enemy : Character
 {
-    [Header("Chase Settings")]
-    [SerializeField] private Transform _playerTarget;
-    [SerializeField] private float _chaseRadius = 3f;
-    [SerializeField] private float _attackRadius = 0.8f;
-    [SerializeField] private float _pathUpdateInterval = 0.5f;
 
-    [Header("Patrol Settings")]
-    [SerializeField] private bool _enablePatrol = true;
-    [SerializeField] private float _patrolSpeed = 1f;
-    [SerializeField] private float _waypointReachThreshold = 0.5f;
-    [SerializeField] private float _waypointWaitTime = 1f;
-    [SerializeField] private PatrolPath _patrolPath;
-
-    [Header("Combat Settings")]
-    [SerializeField] private float _attackDamage = 10f;
-    [SerializeField] private LayerMask _playerLayer;
-    [SerializeField] private float _attackCooldown = 2f;
-
-    // Events
     public UnityEvent<Vector2> OnMovementInput;
     public UnityEvent OnAttack;
 
-    // Components
-    private Seeker _pathSeeker;
-    private SpriteRenderer _spriteRenderer;
-    private Animator _animator;
+    [Header("Chase Settings")]
+    [SerializeField] private Transform player;
+    [SerializeField] private float chaseDistance = 3f;//追击距离
+    [SerializeField] private float attackDistance = 0.8f;//攻击距离
 
-    // Pathfinding
-    private Path _currentPath;
-    private int _currentWaypointIndex;
-    private float _pathUpdateTimer;
+    [Header("Patrol Settings")]
+    [SerializeField] private bool shouldPatrol = true;
+    [SerializeField] private List<Transform> patrolPoints;
+    [SerializeField] private float patrolPointReachedDistance = 0.5f;
+    [SerializeField] private float waitTimeAtPoint = 1f;
 
-    // State tracking
-    private bool _isChasing;
-    private bool _canAttack = true;
-    private bool _isWaitingAtWaypoint;
-    private float _waypointWaitTimer;
-    private int _currentPatrolIndex;
 
-    private bool _isDead;
+
+    [Header("Attack Settings")]
+    public float meleetAttackDamage;//近战攻击伤害
+    public LayerMask playerLayer;//表示玩家图层
+    public float AttackCooldownDuration = 2f;//冷却时间
+
+    private Seeker seeker;
+    private List<Vector3> pathPointList;//路径点列表
+    private int currentIndex = 0;//路径点的索引
+    private float pathGenerateInterval = 0.5f; //每0.5秒生成一次路径
+    private float pathGenerateTimer = 0f;//计时器
+
+    private Animator animator;
+    private bool isAttack = true;
+    private bool isChasing = false;
+    private int currentPatrolPointIndex = 0;
+    private bool isWaitingAtPoint = false;
+    private float waitTimer = 0f;
+    private SpriteRenderer sr;
 
     private void Awake()
     {
-        _pathSeeker = GetComponent<Seeker>();
-        _spriteRenderer = GetComponent<SpriteRenderer>();
-        _animator = GetComponent<Animator>();
+        seeker = GetComponent<Seeker>();
+        sr = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
     }
 
     private void Update()
     {
-        if (_playerTarget == null) return;
+        if (player == null)
+            return;
 
-        UpdateAIState();
-        HandleCurrentState();
-    }
+        float distanceToPlayer = Vector2.Distance(player.position, transform.position);
 
-    private void UpdateAIState()
-    {
-        float distanceToPlayer = Vector2.Distance(transform.position, _playerTarget.position);
-        _isChasing = distanceToPlayer < _chaseRadius;
-
-        if (!_isChasing && _enablePatrol)
+        // Check if player is within chase distance
+        if (distanceToPlayer < chaseDistance)
         {
-            PatrolBehavior();
-        }
-    }
-
-    private void HandleCurrentState()
-    {
-        if (_isChasing)
-        {
-            ChaseBehavior();
+            isChasing = true;
+            HandleChaseBehavior(distanceToPlayer);
         }
         else
         {
+            // If we were chasing but player is now out of range
+            if (isChasing)
+            {
+                isChasing = false;
+                //OnMovementInput?.Invoke(Vector2.zero);
+                pathPointList = null; // Clear path
+            }
+
+            // Patrol if enabled
+            if (shouldPatrol && patrolPoints.Count > 0)
+            {
+                Patrol();
+            }
+            else
+            {
+                OnMovementInput?.Invoke(Vector2.zero);
+
+            }
+        }
+
+    }
+
+    private void HandleChaseBehavior(float distanceToPlayer)
+    {
+        AutoPath();
+        if (pathPointList == null)
+            return;
+
+        if (distanceToPlayer <= attackDistance)
+        {
+            // Attack player
             OnMovementInput?.Invoke(Vector2.zero);
+            if (isAttack)
+            {
+                isAttack = false;
+                OnAttack?.Invoke();
+                StartCoroutine(nameof(AttackCooldownCoroutine));
+            }
+
+            // Flip sprite based on player position
+            float x = player.position.x - transform.position.x;
+            if (x > 0)
+            {
+                sr.flipX = true;
+            }
+            else
+            {
+                sr.flipX = false;
+            }
+        }
+        else
+        {
+            // Chase player
+            if (currentIndex >= 0 && currentIndex < pathPointList.Count)
+            {
+                Vector2 direction = (pathPointList[currentIndex] - transform.position).normalized;
+                OnMovementInput?.Invoke(direction);
+
+            }
+            else
+            {
+                currentIndex = 0;
+            }
+        }
+    }
+    //自动寻路
+    private void AutoPath()
+    {
+        pathGenerateTimer += Time.deltaTime;
+
+        //间隔一定时间来获取路径点
+        if (pathGenerateTimer >= pathGenerateInterval)
+        {
+            GeneratePath(player.position);
+            pathGenerateTimer = 0;//重置计时器
+        }
+
+
+        //当路径点列表为空时，进行路径计算
+        if (pathPointList == null || pathPointList.Count <= 0)
+        {
+            GeneratePath(player.position);
+        }//当敌人到达当前路径点时，递增索引currentIndex并进行路径计算
+        else if (Vector2.Distance(transform.position, pathPointList[currentIndex]) <= 0.1f)
+        {
+            currentIndex++;
+            if (currentIndex >= pathPointList.Count)
+                GeneratePath(player.position);
         }
     }
 
-    #region Chase Logic
-    private void ChaseBehavior()
+    //获取路径点
+    private void GeneratePath(Vector3 target)
     {
-        UpdatePathToTarget();
-        HandleTargetDistance();
-
-        if (_currentPath == null) return;
-
-        MoveAlongPath();
-        UpdateSpriteOrientation(_playerTarget.position);
-    }
-
-    private void UpdatePathToTarget()
-    {
-        _pathUpdateTimer += Time.deltaTime;
-
-        if (_pathUpdateTimer >= _pathUpdateInterval)
+        currentIndex = 0;
+        //三个参数：起点、终点、回调函数
+        seeker.StartPath(transform.position, target, Path =>
         {
-            _pathSeeker.StartPath(transform.position, _playerTarget.position, OnPathGenerated);
-            _pathUpdateTimer = 0;
-        }
+            pathPointList = Path.vectorPath;//Path.vectorPath包含了从起点到终点的完整路径
+        });
     }
+    //敌人近战攻击
 
-    private void OnPathGenerated(Path path)
+    private void Patrol()
     {
-        if (!path.error)
+        if (isWaitingAtPoint)
         {
-            _currentPath = path;
-            _currentWaypointIndex = 0;
-        }
-    }
+            waitTimer += Time.deltaTime;
+            if (waitTimer >= waitTimeAtPoint)
+            {
+                isWaitingAtPoint = false;
+                waitTimer = 0f;
+                MoveToNextPatrolPoint();
 
-    private void HandleTargetDistance()
-    {
-        float distance = Vector2.Distance(transform.position, _playerTarget.position);
-
-        if (distance <= _attackRadius && _canAttack)
-        {
-            ExecuteAttack();
-        }
-    }
-
-    private void MoveAlongPath()
-    {
-        if (_currentWaypointIndex >= _currentPath.vectorPath.Count)
-        {
-            _currentPath = null;
+            }
             return;
         }
 
-        Vector2 direction = ((Vector2)_currentPath.vectorPath[_currentWaypointIndex] - (Vector2)transform.position).normalized;
-        OnMovementInput?.Invoke(direction);
+        Transform currentPatrolPoint = patrolPoints[currentPatrolPointIndex];
+        float distanceToPoint = Vector2.Distance(transform.position, currentPatrolPoint.position);
 
-        if (Vector2.Distance(transform.position, _currentPath.vectorPath[_currentWaypointIndex]) < 0.1f)
+        if (distanceToPoint <= patrolPointReachedDistance)
         {
-            _currentWaypointIndex++;
-        }
-    }
-    #endregion
-
-    #region Combat Logic
-    private void ExecuteAttack()
-    {
-        _canAttack = false;
-        OnAttack?.Invoke();
-        StartCoroutine(AttackCooldown());
-    }
-
-    // Animation Event
-    private void ApplyMeleeDamage()
-    {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, _attackRadius, _playerLayer);
-
-        foreach (var hit in hits)
-        {
-            if (hit.TryGetComponent<PlayerHealth>(out var health))
-            {
-                health.TakeDamage(_attackDamage);
-            }
-        }
-    }
-
-    private IEnumerator AttackCooldown()
-    {
-        yield return new WaitForSeconds(_attackCooldown);
-        _canAttack = true;
-    }
-    #endregion
-
-    #region Patrol Logic
-    private void PatrolBehavior()
-    {
-        if (_patrolPath == null || _patrolPath.Waypoints.Count == 0) return;
-
-        HandleWaypointWaiting();
-        MoveToCurrentWaypoint();
-    }
-
-    private void HandleWaypointWaiting()
-    {
-        if (_isWaitingAtWaypoint)
-        {
-            _waypointWaitTimer += Time.deltaTime;
-
-            if (_waypointWaitTimer >= _waypointWaitTime)
-            {
-                _isWaitingAtWaypoint = false;
-                _waypointWaitTimer = 0;
-                UpdatePatrolWaypoint();
-            }
-        }
-    }
-
-    private void MoveToCurrentWaypoint()
-    {
-        Vector2 currentWaypoint = _patrolPath.Waypoints[_currentPatrolIndex].position;
-        float distance = Vector2.Distance(transform.position, currentWaypoint);
-
-        if (distance <= _waypointReachThreshold)
-        {
-            _isWaitingAtWaypoint = true;
+            // Reached patrol point
+            isWaitingAtPoint = true;
             OnMovementInput?.Invoke(Vector2.zero);
+
         }
         else
         {
-            Vector2 direction = (currentWaypoint - (Vector2)transform.position).normalized;
-            OnMovementInput?.Invoke(direction * _patrolSpeed);
-            UpdateSpriteOrientation(currentWaypoint);
+            // Move toward patrol point
+            Vector2 direction = (currentPatrolPoint.position - transform.position).normalized;
+            OnMovementInput?.Invoke(direction);
+
+
+            // Flip sprite based on movement direction
+            sr.flipX = direction.x > 0;
         }
     }
 
-    private void UpdatePatrolWaypoint()
+    private void MoveToNextPatrolPoint()
     {
-        _currentPatrolIndex = (_currentPatrolIndex + 1) % _patrolPath.Waypoints.Count;
-    }
-    #endregion
-
-    private void UpdateSpriteOrientation(Vector3 targetPosition)
-    {
-        _spriteRenderer.flipX = targetPosition.x > transform.position.x;
-    }
-
-    public override void Die()
-    {
-        if (_isDead) return; // 防止重复执行
-        _isDead = true;
-        base.Die();
-        // 延迟关闭 Collider（可选）
-        StartCoroutine(DisableColliderAfterDeath());
-        _animator.SetTrigger("isDie");
-        enabled = false;
-    }
-
-    private IEnumerator DisableColliderAfterDeath()
-    {
-        // 等待一帧确保动画播放
-        yield return new WaitForEndOfFrame();
-
-        Collider2D collider = GetComponent<Collider2D>();
-        if (collider != null)
+        currentPatrolPointIndex++;
+        if (currentPatrolPointIndex >= patrolPoints.Count)
         {
-            collider.enabled = false;
+            currentPatrolPointIndex = 0;
         }
     }
 
-    private void OnDrawGizmosSelected()
+    private void MeleeAttackEvent()
     {
-        // Draw chase radius
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, _chaseRadius);
+        //检测碰撞
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, attackDistance, playerLayer);
+        foreach (Collider2D hitCollider in hitColliders)
+        {
+            hitCollider.GetComponent<PlayerHealth>().TakeDamage(meleetAttackDamage);
+        }
+    }
+    //攻击冷却时间
 
-        // Draw attack radius
+    IEnumerator AttackCooldownCoroutine()
+    {
+        yield return new WaitForSeconds(AttackCooldownDuration);// 等待冷却时间
+        isAttack = true;// 重置攻击状态
+    }
+
+
+    public void OnDrawGizmosSelected()
+    {
+        // Attack range
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, _attackRadius);
+        Gizmos.DrawWireSphere(transform.position, attackDistance);
 
-        // Draw patrol path
-        if (_patrolPath != null)
+        // Chase range
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, chaseDistance);
+
+        // Patrol path
+        if (shouldPatrol && patrolPoints.Count > 1)
         {
             Gizmos.color = Color.blue;
-            for (int i = 0; i < _patrolPath.Waypoints.Count; i++)
+            for (int i = 0; i < patrolPoints.Count; i++)
             {
-                if (_patrolPath.Waypoints[i] == null) continue;
+                if (patrolPoints[i] == null) continue;
 
-                Gizmos.DrawSphere(_patrolPath.Waypoints[i].position, 0.2f);
-                if (i < _patrolPath.Waypoints.Count - 1 && _patrolPath.Waypoints[i + 1] != null)
+                Gizmos.DrawSphere(patrolPoints[i].position, 0.2f);
+                if (i < patrolPoints.Count - 1 && patrolPoints[i + 1] != null)
                 {
-                    Gizmos.DrawLine(_patrolPath.Waypoints[i].position, _patrolPath.Waypoints[i + 1].position);
+                    Gizmos.DrawLine(patrolPoints[i].position, patrolPoints[i + 1].position);
+                }
+                else if (i == patrolPoints.Count - 1 && patrolPoints[0] != null)
+                {
+                    Gizmos.DrawLine(patrolPoints[i].position, patrolPoints[0].position);
                 }
             }
         }
     }
-}
-
-[System.Serializable]
-public class PatrolPath
-{
-    public List<Transform> Waypoints = new List<Transform>();
 }
