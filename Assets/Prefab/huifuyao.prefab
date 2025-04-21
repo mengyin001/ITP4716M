@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 9009799197034250136}
   - component: {fileID: 1363469159177885051}
   - component: {fileID: 6496240334839726921}
+  - component: {fileID: 5785656882213183726}
   m_Layer: 10
   m_Name: huifuyao
   m_TagString: Untagged
@@ -149,3 +150,18 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.24, y: 0.28}
   m_EdgeRadius: 0
+--- !u!114 &5785656882213183726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8654074269076141900}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e52261cd8926944a91bf90a27acb503, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthRestoreAmount: 10
+  doubleClickThreshold: 0.3
+  selectedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}

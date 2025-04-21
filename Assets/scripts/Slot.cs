@@ -9,4 +9,13 @@ public class Slot : MonoBehaviour
     public TextMeshProUGUI slotNum;
     public TextMeshProUGUI itemInformation;
 
+    public void RefreshSlot()
+    {
+        if (slotItem != null)
+        {
+            slotNum.text = slotItem.itemHeld.ToString();
+            GetComponent<ConsumableItemUI>().UpdateVisualState();
+        }
+    }
+
 }

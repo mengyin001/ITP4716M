@@ -15,7 +15,7 @@ MonoBehaviour:
   itemID: 001
   itemName: shortGan01
   icon: {fileID: -442042463007990425, guid: 9b703c6a1ef575f4a8cc69f3bdecd48a, type: 3}
-  itemHeld: 5
+  itemHeld: 0
   description: 
   itemType: 1
   weight: 0.1
