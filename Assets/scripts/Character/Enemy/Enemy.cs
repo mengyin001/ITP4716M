@@ -219,7 +219,7 @@ public class Enemy : Character
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, attackDistance, playerLayer);
         foreach (Collider2D hitCollider in hitColliders)
         {
-            hitCollider.GetComponent<PlayerHealth>().TakeDamage(meleetAttackDamage);
+            hitCollider.GetComponent<HealthSystem>().TakeDamage(meleetAttackDamage);
         }
     }
     //¹¥»÷ÀäÈ´Ê±¼ä

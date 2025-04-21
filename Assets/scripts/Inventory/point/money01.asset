@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: money01
   m_EditorClassIdentifier: 
   itemID: Money01
-  itemName: Money
+  displayName: Money
   icon: {fileID: -3543547022137978817, guid: a684cad87feab71429094fe960bba1eb, type: 3}
-  itemHeld: 0
   description: Money
