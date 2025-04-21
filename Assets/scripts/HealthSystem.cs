@@ -134,5 +134,13 @@ public class HealthSystem : MonoBehaviour
     {
         energyText.text = $"{Mathf.CeilToInt(currentEnergy)} / {maxEnergy}";
     }
+
+    
+
 }
+
+
+
+
+
 
