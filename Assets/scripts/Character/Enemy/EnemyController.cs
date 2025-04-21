@@ -4,30 +4,23 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    [Header("����")]
+    [Header("Attack Setting")]
     [SerializeField] private float currentSpeed = 0;
-
-    public Vector2 MovementInput { get; set; }
-    [Header("����")]
-    [SerializeField] private bool isAttack = true;
     [SerializeField] private float attackCoolDuration = 1;
-
-    [Header("����")]
-    [SerializeField] private bool isKnokback = true;
-    [SerializeField] private float KnokbackForce = 10f;
-    [SerializeField] private float KnokbackForceDuration = 0.1f;
+    public Vector2 MovementInput { get; set; }
+    
+    
+   
 
     private Rigidbody2D rb;
     private Collider2D enemyCollider;
     private SpriteRenderer sr;
     private Animator anim;
 
+    private bool isAttack = true;
     private bool isHurt;
-    private bool isDead;
+    private bool isDie;
 
-    private Vector2 lastMovementInput = Vector2.zero;
-    private const float movementThreshold = 0.1f;
-    private const float animationThreshold = 0.05f;
 
     private void Awake()
     {
@@ -39,7 +32,7 @@ public class EnemyController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(!isHurt && !isDead)
+        if(!isHurt && !isDie)
             Move();
 
         SetAnimation();
@@ -50,21 +43,20 @@ public class EnemyController : MonoBehaviour
         if (MovementInput.magnitude > 0.1f && currentSpeed >= 0)
         {
             Vector2 targetVelocity = MovementInput * currentSpeed;
-            rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * 10f);            //�������ҷ�ת
-            if (MovementInput.x < 0)//��
+            rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * 10f);            
+            if (MovementInput.x < 0)
             {
                 sr.flipX = false;
             }
-            if (MovementInput.x > 0)//��
+            if (MovementInput.x > 0)
             {
                 sr.flipX = true;
             }
         }
         else
         {
-            rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, Vector2.zero, Time.fixedDeltaTime * 10f);
+            rb.linearVelocity = Vector2.zero;
         }
-        lastMovementInput = MovementInput;
     }
 
     public void Attack()
@@ -76,7 +68,7 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    IEnumerator AttackCoroutine()//����Э��
+    IEnumerator AttackCoroutine()
     {
         anim.SetTrigger("isAttack");
 
@@ -86,46 +78,22 @@ public class EnemyController : MonoBehaviour
 
     public void EnemyHurt()
     {
-        isHurt = true;
         anim.SetTrigger("isHurt");
+   
     }
 
-     public void Knockback(Vector3 pos)
-    {
-        //ʩ�ӻ���Ч��
-        if (!isKnokback || isDead)
-        {
-            return;
-        }
-
-        StartCoroutine(KnockbackCoroutine(pos));
-    }
-
-    IEnumerator KnockbackCoroutine(Vector3 pos)
-    {
-        var direction = (transform.position - pos).normalized;
-        rb.AddForce(direction * KnokbackForce, ForceMode2D.Impulse);
-        yield return new WaitForSeconds(KnokbackForceDuration);
-        isHurt = false;
-        enemyCollider.enabled = true;
-
-    }
 
     public void EnemyDead()
     {
         rb.linearVelocity = Vector2.zero;
-        isDead = true;
-        enemyCollider.enabled = false;//������ײ��
+        isDie = true;
+        enemyCollider.enabled = false;
     }
 
     void SetAnimation()
     {
-        bool isMoving = Mathf.Abs(MovementInput.x) > animationThreshold || Mathf.Abs(MovementInput.y) > animationThreshold;
-        if (isMoving != anim.GetBool("isWalk"))
-        {
-            anim.SetBool("isWalk", isMoving);
-        }
-        anim.SetBool("isDead", isDead);
+        anim.SetBool("isWalk", MovementInput.magnitude > 0);
+        anim.SetBool("isDie", isDie);
     }
 
     public void DestroyEnemy()
