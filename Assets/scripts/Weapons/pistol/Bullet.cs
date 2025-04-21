@@ -31,11 +31,11 @@ public class Bullet : MonoBehaviour
                 Instantiate(explosionPrefab, transform.position, Quaternion.identity);
                 Destroy(gameObject);             
             }
-            else if (other.CompareTag("Wall")) // Add other collision checks
-            {
+        }  
+        else if (other.CompareTag("Wall")) // Add other collision checks
+        {
                 Instantiate(explosionPrefab, transform.position, Quaternion.identity);
                 Destroy(gameObject);
-            }
-        }   
+        } 
     }
 }

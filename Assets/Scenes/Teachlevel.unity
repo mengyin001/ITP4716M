@@ -216,7 +216,7 @@ GameObject:
   - component: {fileID: 306829407}
   m_Layer: 0
   m_Name: GameObject
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1000,7 +1000,7 @@ GameObject:
   - component: {fileID: 430799805}
   m_Layer: 0
   m_Name: GameObject (2)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1574,7 +1574,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 72.7, y: -47.8}
+  m_AnchoredPosition: {x: 72.70001, y: -47.800003}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &694109815
@@ -2050,7 +2050,7 @@ GameObject:
   - component: {fileID: 773156101}
   m_Layer: 0
   m_Name: GameObject (3)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3380,7 +3380,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -63, y: -49.1}
+  m_AnchoredPosition: {x: -63, y: -49.100006}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1131362136
@@ -4340,7 +4340,7 @@ GameObject:
   - component: {fileID: 1496134501}
   m_Layer: 0
   m_Name: GameObject (1)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4814,7 +4814,7 @@ GameObject:
   - component: {fileID: 1587871960}
   m_Layer: 0
   m_Name: GameObject (4)
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6510,7 +6510,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e239991bad3c9294faed4e178d6378b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 20
   currentHealth: 20
   invulnerable: 0
   invulnerableDuration: 0
@@ -6544,21 +6543,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  _playerTarget: {fileID: 0}
-  _chaseRadius: 3
-  _attackRadius: 0.8
-  _pathUpdateInterval: 0.5
-  _enablePatrol: 1
-  _patrolSpeed: 1
-  _waypointReachThreshold: 0.5
-  _waypointWaitTime: 1
-  _patrolPath:
-    Waypoints: []
-  _attackDamage: 10
-  _playerLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  _attackCooldown: 2
   OnMovementInput:
     m_PersistentCalls:
       m_Calls:
@@ -6589,6 +6573,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  player: {fileID: 0}
+  chaseDistance: 3
+  attackDistance: 0.8
+  shouldPatrol: 1
+  patrolPoints: []
+  patrolPointReachedDistance: 0.5
+  waitTimeAtPoint: 1
+  meleetAttackDamage: 0
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  AttackCooldownDuration: 2
 --- !u!114 &1972247424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6602,11 +6598,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentSpeed: 2
-  isAttack: 1
   attackCoolDuration: 0
-  isKnokback: 0
-  KnokbackForce: 10
-  KnokbackForceDuration: 0.1
 --- !u!114 &1972247425
 MonoBehaviour:
   m_ObjectHideFlags: 0

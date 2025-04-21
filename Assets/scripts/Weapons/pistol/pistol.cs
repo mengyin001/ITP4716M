@@ -46,10 +46,10 @@ public class pistol : MonoBehaviour
         }
 
         // 檢查開火輸入和計時器
-        if (Input.GetButtonDown("Fire1") && timer <= 0)
+        if ((Input.GetButton("Fire1") || Input.GetButtonDown("Fire1")) && timer <= 0)
         {
             Fire();
-            timer = interval; // 重置計時器
+            timer = interval;
         }
     }
     
