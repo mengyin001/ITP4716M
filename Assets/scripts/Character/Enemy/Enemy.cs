@@ -1,4 +1,4 @@
-ï»¿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -12,8 +12,8 @@ public class Enemy : Character
 
     [Header("Chase Settings")]
     [SerializeField] private Transform player;
-    [SerializeField] private float chaseDistance = 3f;//è¿½å‡»è·ç¦»
-    [SerializeField] private float attackDistance = 0.8f;//æ”»å‡»è·ç¦»
+    [SerializeField] private float chaseDistance = 3f;//×·»÷¾àÀë
+    [SerializeField] private float attackDistance = 0.8f;//¹¥»÷¾àÀë
 
     [Header("Patrol Settings")]
     [SerializeField] private bool shouldPatrol = true;
@@ -24,15 +24,15 @@ public class Enemy : Character
 
 
     [Header("Attack Settings")]
-    public float meleetAttackDamage;//è¿‘æˆ˜æ”»å‡»ä¼¤å®³
-    public LayerMask playerLayer;//è¡¨ç¤ºç©å®¶å›¾å±‚
-    public float AttackCooldownDuration = 2f;//å†·å´æ—¶é—´
+    public float meleetAttackDamage;//½üÕ½¹¥»÷ÉËº¦
+    public LayerMask playerLayer;//±íÊ¾Íæ¼ÒÍ¼²ã
+    public float AttackCooldownDuration = 2f;//ÀäÈ´Ê±¼ä
 
     private Seeker seeker;
-    private List<Vector3> pathPointList;//è·¯å¾„ç‚¹åˆ—è¡¨
-    private int currentIndex = 0;//è·¯å¾„ç‚¹çš„ç´¢å¼•
-    private float pathGenerateInterval = 0.5f; //æ¯0.5ç§’ç”Ÿæˆä¸€æ¬¡è·¯å¾„
-    private float pathGenerateTimer = 0f;//è®¡æ—¶å™¨
+    private List<Vector3> pathPointList;//Â·¾¶µãÁĞ±í
+    private int currentIndex = 0;//Â·¾¶µãµÄË÷Òı
+    private float pathGenerateInterval = 0.5f; //Ã¿0.5ÃëÉú³ÉÒ»´ÎÂ·¾¶
+    private float pathGenerateTimer = 0f;//¼ÆÊ±Æ÷
 
     private Animator animator;
     private bool isAttack = true;
@@ -129,24 +129,24 @@ public class Enemy : Character
             }
         }
     }
-    //è‡ªåŠ¨å¯»è·¯
+    //×Ô¶¯Ñ°Â·
     private void AutoPath()
     {
         pathGenerateTimer += Time.deltaTime;
 
-        //é—´éš”ä¸€å®šæ—¶é—´æ¥è·å–è·¯å¾„ç‚¹
+        //¼ä¸ôÒ»¶¨Ê±¼äÀ´»ñÈ¡Â·¾¶µã
         if (pathGenerateTimer >= pathGenerateInterval)
         {
             GeneratePath(player.position);
-            pathGenerateTimer = 0;//é‡ç½®è®¡æ—¶å™¨
+            pathGenerateTimer = 0;//ÖØÖÃ¼ÆÊ±Æ÷
         }
 
 
-        //å½“è·¯å¾„ç‚¹åˆ—è¡¨ä¸ºç©ºæ—¶ï¼Œè¿›è¡Œè·¯å¾„è®¡ç®—
+        //µ±Â·¾¶µãÁĞ±íÎª¿ÕÊ±£¬½øĞĞÂ·¾¶¼ÆËã
         if (pathPointList == null || pathPointList.Count <= 0)
         {
             GeneratePath(player.position);
-        }//å½“æ•Œäººåˆ°è¾¾å½“å‰è·¯å¾„ç‚¹æ—¶ï¼Œé€’å¢ç´¢å¼•currentIndexå¹¶è¿›è¡Œè·¯å¾„è®¡ç®—
+        }//µ±µĞÈËµ½´ïµ±Ç°Â·¾¶µãÊ±£¬µİÔöË÷ÒıcurrentIndex²¢½øĞĞÂ·¾¶¼ÆËã
         else if (Vector2.Distance(transform.position, pathPointList[currentIndex]) <= 0.1f)
         {
             currentIndex++;
@@ -155,17 +155,17 @@ public class Enemy : Character
         }
     }
 
-    //è·å–è·¯å¾„ç‚¹
+    //»ñÈ¡Â·¾¶µã
     private void GeneratePath(Vector3 target)
     {
         currentIndex = 0;
-        //ä¸‰ä¸ªå‚æ•°ï¼šèµ·ç‚¹ã€ç»ˆç‚¹ã€å›è°ƒå‡½æ•°
+        //Èı¸ö²ÎÊı£ºÆğµã¡¢ÖÕµã¡¢»Øµ÷º¯Êı
         seeker.StartPath(transform.position, target, Path =>
         {
-            pathPointList = Path.vectorPath;//Path.vectorPathåŒ…å«äº†ä»èµ·ç‚¹åˆ°ç»ˆç‚¹çš„å®Œæ•´è·¯å¾„
+            pathPointList = Path.vectorPath;//Path.vectorPath°üº¬ÁË´ÓÆğµãµ½ÖÕµãµÄÍêÕûÂ·¾¶
         });
     }
-    //æ•Œäººè¿‘æˆ˜æ”»å‡»
+    //µĞÈË½üÕ½¹¥»÷
 
     private void Patrol()
     {
@@ -215,19 +215,19 @@ public class Enemy : Character
 
     private void MeleeAttackEvent()
     {
-        //æ£€æµ‹ç¢°æ’
+        //¼ì²âÅö×²
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, attackDistance, playerLayer);
         foreach (Collider2D hitCollider in hitColliders)
         {
-            hitCollider.GetComponent<PlayerHealth>().TakeDamage(meleetAttackDamage);
+            hitCollider.GetComponent<HealthSystem>().TakeDamage(meleetAttackDamage);
         }
     }
-    //æ”»å‡»å†·å´æ—¶é—´
+    //¹¥»÷ÀäÈ´Ê±¼ä
 
     IEnumerator AttackCooldownCoroutine()
     {
-        yield return new WaitForSeconds(AttackCooldownDuration);// ç­‰å¾…å†·å´æ—¶é—´
-        isAttack = true;// é‡ç½®æ”»å‡»çŠ¶æ€
+        yield return new WaitForSeconds(AttackCooldownDuration);// µÈ´ıÀäÈ´Ê±¼ä
+        isAttack = true;// ÖØÖÃ¹¥»÷×´Ì¬
     }
 
 

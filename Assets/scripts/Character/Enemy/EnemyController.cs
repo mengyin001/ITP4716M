@@ -8,9 +8,9 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private float currentSpeed = 0;
     [SerializeField] private float attackCoolDuration = 1;
     public Vector2 MovementInput { get; set; }
-
-
-
+    
+    
+   
 
     private Rigidbody2D rb;
     private Collider2D enemyCollider;
@@ -32,7 +32,7 @@ public class EnemyController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!isHurt && !isDie)
+        if(!isHurt && !isDie)
             Move();
 
         SetAnimation();
@@ -43,7 +43,7 @@ public class EnemyController : MonoBehaviour
         if (MovementInput.magnitude > 0.1f && currentSpeed >= 0)
         {
             Vector2 targetVelocity = MovementInput * currentSpeed;
-            rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * 10f);
+            rb.linearVelocity = Vector2.Lerp(rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * 10f);            
             if (MovementInput.x < 0)
             {
                 sr.flipX = false;
@@ -79,7 +79,7 @@ public class EnemyController : MonoBehaviour
     public void EnemyHurt()
     {
         anim.SetTrigger("isHurt");
-
+   
     }
 
 

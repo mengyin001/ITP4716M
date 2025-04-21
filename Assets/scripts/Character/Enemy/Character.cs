@@ -1,4 +1,4 @@
-锘縰sing System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,15 +7,15 @@ using UnityEngine.Events;
 public class Character : MonoBehaviour
 {
     [Header("Attribute")]
-    [SerializeField] protected float currentHealth = 100f;
+    [SerializeField] protected float currentHealth=100f;
     public bool invulnerable;
-    public float invulnerableDuration = 0f;//鏃犳晫鏃堕棿
+    public float invulnerableDuration;//无敌时间
 
     public UnityEvent OnHurt;
     public UnityEvent OnDie;
     protected virtual void OnEnable()
     {
-
+        
     }
 
     public virtual void TakeDamage(float damage)
@@ -25,13 +25,13 @@ public class Character : MonoBehaviour
         if (currentHealth - damage > 0f)
         {
             currentHealth -= damage;
-            StartCoroutine(nameof(InvulnerableCoroutine));//鍚姩鏃犳晫鏃堕棿鍗忕▼
-            //鎵ц瑙掕壊鍙椾激鍔ㄧ敾
+            StartCoroutine(nameof(InvulnerableCoroutine));//启动无敌时间协程
+            //执行角色受伤动画
             OnHurt?.Invoke();
         }
         else
         {
-            //姝讳骸
+            //死亡
             Die();
         }
     }
@@ -40,16 +40,16 @@ public class Character : MonoBehaviour
     {
         currentHealth = 0f;
 
-        //鎵ц瑙掕壊姝讳骸鍔ㄧ敾
+        //执行角色死亡动画
         OnDie?.Invoke();
     }
 
-    //鏃犳晫
+    //无敌
     protected virtual IEnumerator InvulnerableCoroutine()
     {
         invulnerable = true;
 
-        //绛夊緟鏃犳晫鏃堕棿
+        //等待无敌时间
         yield return new WaitForSeconds(invulnerableDuration);
 
         invulnerable = false;
