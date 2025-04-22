@@ -528,6 +528,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8410633933008005191, guid: 1a3bca5b72d9c4e4bb48624c5eb72b69, type: 3}
       insertIndex: -1
       addedObject: {fileID: 252013086}
+    - targetCorrespondingSourceObject: {fileID: 8410633933008005191, guid: 1a3bca5b72d9c4e4bb48624c5eb72b69, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 252013094}
   m_SourcePrefab: {fileID: 100100000, guid: 1a3bca5b72d9c4e4bb48624c5eb72b69, type: 3}
 --- !u!1 &252013085 stripped
 GameObject:
@@ -623,6 +626,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   AttackCooldownDuration: 2
+  pickupSpawner: {fileID: 252013094}
 --- !u!114 &252013087
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -665,6 +669,21 @@ MonoBehaviour:
   tagPenalties: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   graphMask:
     value: -1
+--- !u!114 &252013094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 252013085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0668b7022a449734097e4bd812e0b135, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  propPrefabs:
+  - prefab: {fileID: 782630537697650885, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
+    dropPercentage: 100
 --- !u!1 &285629401
 GameObject:
   m_ObjectHideFlags: 0

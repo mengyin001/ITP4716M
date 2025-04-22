@@ -8,11 +8,13 @@ public class EnemyBullet : MonoBehaviour
     private Vector2 direction;
     private Rigidbody2D rb;
     private Animator animator;
+    private EnemyBulletPool bulletPool;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        bulletPool = transform.root.GetComponentInChildren<EnemyBulletPool>();
     }
 
     public void Setup(float damage, LayerMask targetLayer, float speed, Vector2 direction)
@@ -68,9 +70,9 @@ public class EnemyBullet : MonoBehaviour
             animator.SetBool("IsFlying", false);
         }
 
-        if (EnemyBulletPool.Instance != null)
+        if (bulletPool != null)
         {
-            EnemyBulletPool.Instance.ReturnBullet(gameObject);
+            bulletPool.ReturnBullet(gameObject);
         }
         else
         {

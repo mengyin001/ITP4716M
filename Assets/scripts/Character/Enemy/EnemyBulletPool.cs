@@ -3,19 +3,12 @@ using UnityEngine;
 
 public class EnemyBulletPool : MonoBehaviour
 {
-    public static EnemyBulletPool Instance;
     public GameObject bulletPrefab;
     public int poolSize = 20;
 
     private Queue<GameObject> availableBullets = new Queue<GameObject>();
 
-    void Awake()
-    {
-        Instance = this;
-        InitializePool();
-    }
-
-    void InitializePool()
+    public void InitializePool()
     {
         for (int i = 0; i < poolSize; i++)
         {

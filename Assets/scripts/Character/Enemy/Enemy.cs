@@ -46,11 +46,23 @@ public class Enemy : Character
     // 新增方向变量，1 表示正向， -1 表示反向
     private int patrolDirection = 1;
 
+    // 新增：引用道具生成器
+    public PickupSpawner pickupSpawner;
+
     private void Awake()
     {
         seeker = GetComponent<Seeker>();
         sr = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+        {
+            player = playerObj.transform;
+        }
+        else
+        {
+            Debug.LogError("找不到带有 'Player' 标签的游戏对象！");
+        }
     }
 
     private void Update()
@@ -58,7 +70,7 @@ public class Enemy : Character
         if (!isAlive || player == null)
             return;
 
-        float distanceToPlayer = Vector2.Distance(player.position, transform.position);
+        float distanceToPlayer = Vector2.Distance(GetPlayerCenterPosition(), transform.position);
 
         // 检查玩家是否在追击范围内
         if (distanceToPlayer < chaseDistance)
@@ -114,7 +126,7 @@ public class Enemy : Character
             }
 
             // 根据玩家位置翻转精灵
-            sr.flipX = player.position.x > transform.position.x;
+            sr.flipX = GetPlayerCenterPosition().x > transform.position.x;
         }
         else
         {
@@ -138,7 +150,7 @@ public class Enemy : Character
         // 间隔一定时间来获取路径点
         if (pathGenerateTimer >= pathGenerateInterval)
         {
-            Vector3 target = isChasing ? player.position : patrolPoints[currentPatrolPointIndex].position;
+            Vector3 target = isChasing ? GetPlayerCenterPosition() : patrolPoints[currentPatrolPointIndex].position;
             GeneratePath(target);
             pathGenerateTimer = 0; // 重置计时器
         }
@@ -146,7 +158,7 @@ public class Enemy : Character
         // 当路径点列表为空时，进行路径计算
         if (pathPointList == null || pathPointList.Count <= 0)
         {
-            Vector3 target = isChasing ? player.position : patrolPoints[currentPatrolPointIndex].position;
+            Vector3 target = isChasing ? GetPlayerCenterPosition() : patrolPoints[currentPatrolPointIndex].position;
             GeneratePath(target);
         }
         // 当敌人到达当前路径点时，递增索引 currentIndex 并进行路径计算
@@ -242,7 +254,7 @@ public class Enemy : Character
     private void MeleeAttackEvent()
     {
         // 检测碰撞
-        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, attackDistance, playerLayer);
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(GetPlayerCenterPosition(), attackDistance, playerLayer);
         foreach (Collider2D hitCollider in hitColliders)
         {
             hitCollider.GetComponent<HealthSystem>().TakeDamage(meleetAttackDamage);
@@ -292,6 +304,22 @@ public class Enemy : Character
     {
         base.Die();
         isAlive = false;
+        // 检查是否有道具生成器并调用 DropItems 方法
+        if (pickupSpawner != null)
+        {
+            pickupSpawner.DropItems();
+        }
         // 可以在这里添加播放死亡动画等逻辑
+    }
+
+    // 获取玩家的中心位置
+    private Vector3 GetPlayerCenterPosition()
+    {
+        Collider2D playerCollider = player.GetComponent<Collider2D>();
+        if (playerCollider != null)
+        {
+            return playerCollider.bounds.center;
+        }
+        return player.position;
     }
 }

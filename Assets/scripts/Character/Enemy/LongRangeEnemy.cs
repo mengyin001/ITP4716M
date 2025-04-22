@@ -55,6 +55,9 @@ public class LongRangeEnemy : Character
     // 新增方向变量，1 表示正向， -1 表示反向
     private int patrolDirection = 1;
 
+    // 每个敌人拥有自己的子弹池
+    private EnemyBulletPool bulletPool;
+
     private void Start()
     {
         // 初始化子弹池
@@ -76,18 +79,12 @@ public class LongRangeEnemy : Character
 
     private void InitializeBulletPool()
     {
-        if (EnemyBulletPool.Instance == null)
-        {
-            GameObject poolObj = new GameObject("BulletPool");
-            EnemyBulletPool pool = poolObj.AddComponent<EnemyBulletPool>();
-            pool.bulletPrefab = enemyBulletPrefab;
-            pool.poolSize = initialPoolSize;
-        }
-        else
-        {
-            EnemyBulletPool.Instance.bulletPrefab = enemyBulletPrefab;
-            EnemyBulletPool.Instance.poolSize = initialPoolSize;
-        }
+        GameObject poolObj = new GameObject("BulletPool");
+        poolObj.transform.parent = transform;
+        bulletPool = poolObj.AddComponent<EnemyBulletPool>();
+        bulletPool.bulletPrefab = enemyBulletPrefab;
+        bulletPool.poolSize = initialPoolSize;
+        bulletPool.InitializePool();
     }
 
     private void Awake()
@@ -396,7 +393,7 @@ public class LongRangeEnemy : Character
     // 发射子弹的方法
     private void ShootBullet()
     {
-        if (!isAlive || enemyBulletPrefab == null || EnemyBulletPool.Instance == null)
+        if (!isAlive || enemyBulletPrefab == null || bulletPool == null)
             return;
 
         // 确保玩家位置是准确的中心位置
@@ -412,7 +409,7 @@ public class LongRangeEnemy : Character
         Vector2 direction = ((Vector2)playerCenter - (Vector2)bulletSpawnPoint.position).normalized;
 
         // 使用对象池获取子弹
-        GameObject bullet = EnemyBulletPool.Instance.GetBullet();
+        GameObject bullet = bulletPool.GetBullet();
         bullet.transform.position = bulletSpawnPoint.position;
 
         EnemyBullet bulletScript = bullet.GetComponent<EnemyBullet>();
@@ -468,4 +465,4 @@ public class LongRangeEnemy : Character
         isAlive = false;
         // 可以在这里添加播放死亡动画等逻辑
     }
-}
+}    
