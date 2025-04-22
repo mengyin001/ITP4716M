@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class EnemyManager : MonoBehaviour
 {
-    //单例模式
     public static EnemyManager Instance { get; private set; }
 
     [Header("敌人刷新点")]
@@ -16,18 +15,27 @@ public class EnemyManager : MonoBehaviour
     [Header("该关卡的敌人")]
     public List<EnemyWave> enemyWaves;
 
-    public int currentWaveIndex = 0; //当前波数的索引
-    public int enemyCount = 0;      //敌人数量
+    public int currentWaveIndex = 0; // 当前波数的索引
+    public int enemyCount = 0;      // 敌人数量
+    private Transform playerTarget; // 玩家目标
 
-    private Transform playerTarget; // 新增：玩家目标
-
-    //判断是否为最后一波
-    public bool GetLastWave() => currentWaveIndex == enemyWaves.Count;
+    public bool GetLastWave() => currentWaveIndex >= enemyWaves.Count;
+    [System.Serializable]
+    public class EnemyData
+    {
+        public GameObject enemyPrefab;  // 敌人预制体
+        public float spawnInterval;      // 怪物生成间隔
+        public int waveEnemyCount;       // 敌人数量
+    }
+    [System.Serializable]
+    public class EnemyWave
+    {
+        public List<EnemyData> enemies; // 每波敌人列表
+    }
 
     private void Awake()
     {
         Instance = this;
-        // 查找玩家对象
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
         {
@@ -41,25 +49,35 @@ public class EnemyManager : MonoBehaviour
 
     private void Update()
     {
-        if (enemyCount == 0) //当前波数敌人全部死亡，开始下一波
+        if (enemyCount == 0 && !GetLastWave()) // 当前波数敌人全部死亡，开始下一波
         {
-            StartCoroutine(nameof(StartNextWaveCoroutine));
+            StartCoroutine(StartNextWaveCoroutine());
         }
     }
 
     IEnumerator StartNextWaveCoroutine()
     {
         if (currentWaveIndex >= enemyWaves.Count)
-            yield break;    //已经没有更多波数，直接退出协程
+        {
+            Debug.Log("已经没有更多波数，停止刷怪");
+            yield break;
+        }
 
-        List<EnemyData> enemies = enemyWaves[currentWaveIndex].enemies; //获取当前波数对应的敌人列表
+        Debug.Log($"开始第 {currentWaveIndex + 1} 波敌人的生成");
 
+        List<EnemyData> enemies = enemyWaves[currentWaveIndex].enemies;
         List<Collider2D> enemyColliders = new List<Collider2D>();
 
         foreach (EnemyData enemyData in enemies)
         {
             for (int i = 0; i < enemyData.waveEnemyCount; i++)
             {
+                if (enemyData.enemyPrefab == null)
+                {
+                    Debug.LogError("敌人预制体为空，跳过生成");
+                    continue;
+                }
+
                 GameObject enemy = Instantiate(enemyData.enemyPrefab, GetRandomSpawnPoint(), Quaternion.identity);
 
                 Enemy enemyComponent = enemy.GetComponent<Enemy>();
@@ -73,37 +91,29 @@ public class EnemyManager : MonoBehaviour
 
                 if (enemyComponent != null)
                 {
-                    // 设置巡逻点
                     if (patrolPoints != null)
                     {
                         enemyComponent.patrolPoints = new List<Transform>(patrolPoints);
                     }
-                    // 设置攻击目标
                     enemyComponent.player = playerTarget;
-
-                    // 订阅敌人死亡事件
                     enemyComponent.OnDie.AddListener(() => EnemyDied());
                 }
                 else if (longRangeEnemyComponent != null)
                 {
-                    // 设置巡逻点
                     if (patrolPoints != null)
                     {
                         longRangeEnemyComponent.patrolPoints = new List<Transform>(patrolPoints);
                     }
-                    // 设置攻击目标
                     longRangeEnemyComponent.player = playerTarget;
-
-                    // 订阅敌人死亡事件
                     longRangeEnemyComponent.OnDie.AddListener(() => EnemyDied());
                 }
 
                 enemyCount++;
+                Debug.Log($"生成敌人: {enemyData.enemyPrefab.name}，当前敌人数量: {enemyCount}");
                 yield return new WaitForSeconds(enemyData.spawnInterval);
             }
         }
 
-        // 禁用敌人之间的碰撞检测
         for (int i = 0; i < enemyColliders.Count; i++)
         {
             for (int j = i + 1; j < enemyColliders.Count; j++)
@@ -113,9 +123,9 @@ public class EnemyManager : MonoBehaviour
         }
 
         currentWaveIndex++;
+        Debug.Log($"第 {currentWaveIndex} 波敌人生成完成");
     }
 
-    // 当敌人死亡时调用此方法，减少敌人数量
     public void EnemyDied()
     {
         enemyCount--;
@@ -123,27 +133,12 @@ public class EnemyManager : MonoBehaviour
         {
             enemyCount = 0;
         }
+        Debug.Log($"敌人死亡，当前数量: {enemyCount}");
     }
 
-    //从怪物刷新点的位置列表中随机选择一个刷新点
     private Vector3 GetRandomSpawnPoint()
     {
         int randomIndex = Random.Range(0, spawnPoints.Length);
         return spawnPoints[randomIndex].position;
     }
-}
-
-//因为没继承MonoBehaviour组件，想要序列化得添加[System.Serializable] 
-[System.Serializable]
-public class EnemyData
-{
-    public GameObject enemyPrefab;  //敌人预制体
-    public float spawnInterval;     //怪物生成间隔
-    public int waveEnemyCount;    //敌人数量，修改为 int 类型
-}
-
-[System.Serializable]
-public class EnemyWave
-{
-    public List<EnemyData> enemies; //每波敌人列表
 }

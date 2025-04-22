@@ -57,6 +57,8 @@ public class LongRangeEnemy : Character
 
     // 每个敌人拥有自己的子弹池
     private EnemyBulletPool bulletPool;
+    // 新增：引用道具生成器
+    public PickupSpawner pickupSpawner;
 
     private void Start()
     {
@@ -464,5 +466,9 @@ public class LongRangeEnemy : Character
         base.Die();
         isAlive = false;
         // 可以在这里添加播放死亡动画等逻辑
+        if (pickupSpawner != null)
+        {
+            pickupSpawner.DropItems();
+        }
     }
 }    
