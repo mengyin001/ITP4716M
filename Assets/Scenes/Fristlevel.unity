@@ -6974,7 +6974,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &1299646195
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -11190,12 +11190,16 @@ PrefabInstance:
       value: -5.49
       objectReference: {fileID: 0}
     - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
+      propertyPath: debugMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
       propertyPath: enemyCount
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
       propertyPath: currentWaveIndex
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
       propertyPath: enemyWaves.Array.size
@@ -11250,10 +11254,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1418431975}
     - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
-      propertyPath: enemyWaves.Array.data[0].enemies.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
       propertyPath: enemyWaves.Array.data[1].enemies.Array.size
       value: 2
       objectReference: {fileID: 0}
@@ -11265,14 +11265,6 @@ PrefabInstance:
       propertyPath: enemyWaves.Array.data[3].enemies.Array.size
       value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
-      propertyPath: enemyWaves.Array.data[0].enemies.Array.data[0].enemyPrefab
-      value: 
-      objectReference: {fileID: 4608412696461306354, guid: 970da4d6de74c0049b9ff8d56edd0fa7, type: 3}
-    - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
-      propertyPath: enemyWaves.Array.data[0].enemies.Array.data[1].enemyPrefab
-      value: 
-      objectReference: {fileID: 3602681120093151928, guid: cfdc862546ae14f498ce8c65932f112d, type: 3}
     - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
       propertyPath: enemyWaves.Array.data[1].enemies.Array.data[0].enemyPrefab
       value: 
@@ -11298,14 +11290,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7033836496430171048, guid: cdaf144f7320ea54fb7c7022db853dab, type: 3}
     - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
-      propertyPath: enemyWaves.Array.data[0].enemies.Array.data[0].spawnInterval
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
-      propertyPath: enemyWaves.Array.data[0].enemies.Array.data[1].spawnInterval
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
       propertyPath: enemyWaves.Array.data[1].enemies.Array.data[0].spawnInterval
       value: 0.5
       objectReference: {fileID: 0}
@@ -11328,14 +11312,6 @@ PrefabInstance:
     - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
       propertyPath: enemyWaves.Array.data[3].enemies.Array.data[1].spawnInterval
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
-      propertyPath: enemyWaves.Array.data[0].enemies.Array.data[0].waveEnemyCount
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
-      propertyPath: enemyWaves.Array.data[0].enemies.Array.data[1].waveEnemyCount
-      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
       propertyPath: enemyWaves.Array.data[1].enemies.Array.data[0].waveEnemyCount

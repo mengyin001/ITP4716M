@@ -12,135 +12,229 @@ public class EnemyManager : MonoBehaviour
     [Header("敌人巡逻点")]
     public Transform[] patrolPoints;
 
-    [Header("该关卡的敌人")]
+    [Header("该关卡的敌人波次")]
     public List<EnemyWave> enemyWaves;
 
-    public int currentWaveIndex = 0; // 当前波数的索引
-    public int enemyCount = 0;        // 敌人数量
-    private Transform playerTarget;   // 玩家目标
+    [Header("调试设置")]
+    public bool debugMode = true;
+    public Color waveStartColor = Color.green;
+    public Color waveEndColor = Color.cyan;
 
-    public bool GetLastWave() => currentWaveIndex >= enemyWaves.Count;
+    public int CurrentWaveIndex { get; private set; } = 0;
+    public int AliveEnemyCount { get; private set; } = 0;
+    public bool IsLastWave => CurrentWaveIndex >= enemyWaves.Count;
+    public bool IsWaveInProgress { get; private set; } = false;
+
+    private Transform playerTarget;
+    private List<GameObject> activeEnemies = new List<GameObject>();
 
     [System.Serializable]
     public class EnemyData
     {
-        Instance = this;
-        public GameObject enemyPrefab;  // 敌人预制体
-        public float spawnInterval;      // 怪物生成间隔
-        public int waveEnemyCount;       // 敌人数量
+        public GameObject enemyPrefab;
+        public float spawnInterval = 1f;
+        public int waveEnemyCount = 5;
     }
 
     [System.Serializable]
     public class EnemyWave
     {
-        public List<EnemyData> enemies; // 每波敌人列表
+        public List<EnemyData> enemies;
     }
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
+        Initialize();
+    }
+
+    private void Initialize()
+    {
+        AliveEnemyCount = 0;
+        playerTarget = GameObject.FindGameObjectWithTag("Player")?.transform;
+
+        if (playerTarget == null)
         {
-            playerTarget = playerObj.transform;
+            Debug.LogError("找不到玩家对象！请确保场景中有 'Player' 标签的对象。");
         }
-        else
+
+        if (spawnPoints == null || spawnPoints.Length == 0)
         {
-            Debug.LogError("找不到带有 'Player' 标签的游戏对象！");
+            Debug.LogError("未设置敌人刷新点！");
         }
+    }
+
+    private void Start()
+    {
+        StartCoroutine(StartNextWaveCoroutine());
     }
 
     private void Update()
     {
-        if (enemyCount == 0 && !GetLastWave()) // 当前波数敌人全部死亡，开始下一波
+        if (AliveEnemyCount <= 0 && !IsWaveInProgress && !IsLastWave)
         {
             StartCoroutine(StartNextWaveCoroutine());
         }
     }
 
-    IEnumerator StartNextWaveCoroutine()
+    private IEnumerator StartNextWaveCoroutine()
     {
-        if (currentWaveIndex >= enemyWaves.Count)
+        IsWaveInProgress = true;
+
+        if (IsLastWave)
         {
-            Debug.Log("已经没有更多波数，停止刷怪");
+            LogMessage("所有敌人生成完毕，战斗结束！", waveEndColor);
+            IsWaveInProgress = false;
             yield break;
         }
 
-        Debug.Log($"开始第 {currentWaveIndex + 1} 波敌人的生成");
+        LogMessage($"开始生成第 {CurrentWaveIndex + 1} 波敌人...", waveStartColor);
 
-        List<EnemyData> enemies = enemyWaves[currentWaveIndex].enemies;
-        List<Collider2D> enemyColliders = new List<Collider2D>();
+        List<EnemyData> currentWaveEnemies = enemyWaves[CurrentWaveIndex].enemies;
+        List<Collider2D> spawnedEnemyColliders = new List<Collider2D>();
 
-        foreach (EnemyData enemyData in enemies)
+        foreach (EnemyData enemyData in currentWaveEnemies)
         {
             for (int i = 0; i < enemyData.waveEnemyCount; i++)
             {
-                if (enemyData.enemyPrefab == null)
+                if (spawnPoints == null || spawnPoints.Length == 0)
                 {
-                    Debug.LogError("敌人预制体为空，跳过生成");
-                    continue;
+                    Debug.LogError("无法生成敌人：未设置刷新点");
+                    yield break;
                 }
 
-                GameObject enemy = Instantiate(enemyData.enemyPrefab, GetRandomSpawnPoint(), Quaternion.identity);
-                Enemy enemyComponent = enemy.GetComponent<Enemy>();
-                LongRangeEnemy longRangeEnemyComponent = enemy.GetComponent<LongRangeEnemy>();
+                Vector3 spawnPos = GetRandomSpawnPoint();
+                GameObject enemy = Instantiate(enemyData.enemyPrefab, spawnPos, Quaternion.identity);
+                activeEnemies.Add(enemy);
 
-                Collider2D enemyCollider = enemy.GetComponent<Collider2D>();
-                if (enemyCollider != null)
+                if (SetupEnemyBehavior(enemy))
                 {
-                    enemyColliders.Add(enemyCollider);
-                }
-
-                if (enemyComponent != null)
-                {
-                    if (patrolPoints != null)
+                    if (enemy.TryGetComponent(out Collider2D enemyCollider) && enemyCollider.enabled)
                     {
-                        enemyComponent.patrolPoints = new List<Transform>(patrolPoints);
+                        spawnedEnemyColliders.Add(enemyCollider);
                     }
-                    enemyComponent.player = playerTarget;
-                    enemyComponent.OnDie.AddListener(() => EnemyDied());
-                }
-                else if (longRangeEnemyComponent != null)
-                {
-                    if (patrolPoints != null)
-                    {
-                        longRangeEnemyComponent.patrolPoints = new List<Transform>(patrolPoints);
-                    }
-                    longRangeEnemyComponent.player = playerTarget;
-                    longRangeEnemyComponent.OnDie.AddListener(() => EnemyDied());
                 }
 
-                enemyCount++;
-                Debug.Log($"生成敌人: {enemyData.enemyPrefab.name}，当前敌人数量: {enemyCount}");
+                AliveEnemyCount++;
+                LogMessage($"生成敌人: {enemy.name}，位置: {spawnPos}，当前敌人数量: {AliveEnemyCount}");
+
                 yield return new WaitForSeconds(enemyData.spawnInterval);
             }
         }
 
-        for (int i = 0; i < enemyColliders.Count; i++)
-        {
-            for (int j = i + 1; j < enemyColliders.Count; j++)
-            {
-                Physics2D.IgnoreCollision(enemyColliders[i], enemyColliders[j], true);
-            }
-        }
+        // 清理可能为null的碰撞体
+        spawnedEnemyColliders.RemoveAll(collider => collider == null);
+        IgnoreEnemyCollisions(spawnedEnemyColliders);
 
-        currentWaveIndex++;
-        Debug.Log($"第 {currentWaveIndex} 波敌人生成完成");
+        CurrentWaveIndex++;
+        IsWaveInProgress = false;
+        LogMessage($"第 {CurrentWaveIndex} 波敌人生成完成！", waveEndColor);
     }
 
-    public void EnemyDied()
+    private bool SetupEnemyBehavior(GameObject enemy)
     {
-        enemyCount--;
-        if (enemyCount < 0)
+        if (enemy == null) return false;
+
+        Enemy meleeEnemy = enemy.GetComponent<Enemy>();
+        LongRangeEnemy rangedEnemy = enemy.GetComponent<LongRangeEnemy>();
+
+        if (meleeEnemy != null)
         {
-            enemyCount = 0;
+            if (patrolPoints != null && patrolPoints.Length > 0)
+            {
+                meleeEnemy.patrolPoints = new List<Transform>(patrolPoints);
+            }
+            meleeEnemy.player = playerTarget;
+            meleeEnemy.OnDie.AddListener(() => OnEnemyDied(meleeEnemy.gameObject));
+            return true;
         }
-        Debug.Log($"敌人死亡，当前数量: {enemyCount}");
+        else if (rangedEnemy != null)
+        {
+            if (patrolPoints != null && patrolPoints.Length > 0)
+            {
+                rangedEnemy.patrolPoints = new List<Transform>(patrolPoints);
+            }
+            rangedEnemy.player = playerTarget;
+            rangedEnemy.OnDie.AddListener(() => OnEnemyDied(rangedEnemy.gameObject));
+            return true;
+        }
+
+        return false;
+    }
+
+    private void IgnoreEnemyCollisions(List<Collider2D> enemyColliders)
+    {
+        for (int i = 0; i < enemyColliders.Count; i++)
+        {
+            if (enemyColliders[i] == null) continue;
+
+            for (int j = i + 1; j < enemyColliders.Count; j++)
+            {
+                if (enemyColliders[j] == null) continue;
+
+                try
+                {
+                    Physics2D.IgnoreCollision(enemyColliders[i], enemyColliders[j], true);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarning($"忽略碰撞失败: {e.Message}");
+                }
+            }
+        }
+    }
+
+    private void OnEnemyDied(GameObject enemy)
+    {
+        if (enemy == null) return;
+
+        AliveEnemyCount--;
+        if (AliveEnemyCount < 0) AliveEnemyCount = 0;
+
+        if (activeEnemies.Contains(enemy))
+        {
+            activeEnemies.Remove(enemy);
+        }
+
+        LogMessage($"敌人死亡，剩余敌人: {AliveEnemyCount}");
     }
 
     private Vector3 GetRandomSpawnPoint()
     {
-        int randomIndex = Random.Range(0, spawnPoints.Length);
-        return spawnPoints[randomIndex].position;
+        return spawnPoints[Random.Range(0, spawnPoints.Length)].position;
+    }
+
+    private void LogMessage(string message, Color? color = null)
+    {
+        if (!debugMode) return;
+
+        if (color.HasValue)
+        {
+            Debug.Log($"<color=#{ColorUtility.ToHtmlStringRGB(color.Value)}>{message}</color>");
+        }
+        else
+        {
+            Debug.Log(message);
+        }
+    }
+
+    public void CleanupAllEnemies()
+    {
+        foreach (var enemy in activeEnemies)
+        {
+            if (enemy != null)
+            {
+                Destroy(enemy);
+            }
+        }
+
+        activeEnemies.Clear();
+        AliveEnemyCount = 0;
     }
 }

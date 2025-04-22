@@ -20,7 +20,7 @@ GameObject:
   - component: {fileID: 3122383274565057928}
   m_Layer: 0
   m_Name: monster15
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -308,13 +308,13 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   player: {fileID: 0}
-  chaseDistance: 7
+  chaseDistance: 10
   attackDistance: 4
   shouldPatrol: 0
   patrolPoints: []
   patrolPointReachedDistance: 0.5
   waitTimeAtPoint: 1
-  meleetAttackDamage: 5
+  meleetAttackDamage: 20
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -348,8 +348,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   minionPrefab: {fileID: 4800886895020340632, guid: 072c7c2ab5474b949a3c6e31ce2f3f8e, type: 3}
-  minionsPerSummon: 3
+  minionsPerSummon: 5
   summonRadius: 10
   summonInterval: 10
-  absorbRadius: 2
+  absorbRadius: 3
   healthRestoreAmount: 10
+  walkableLayer:
+    serializedVersion: 2
+    m_Bits: 2048
+  maxSpawnAttempts: 10
