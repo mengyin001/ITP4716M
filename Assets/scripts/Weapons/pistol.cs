@@ -5,6 +5,7 @@ public class pistol : MonoBehaviour
     public float interval;
     public GameObject bulletPrefab;
     public GameObject shellPrefab;
+    public float energyCostPerShot = 1f;
     public AudioClip shootSound; // 新增的音效变量
     private Transform muzzlePos;
     private Transform shellPos;
@@ -13,6 +14,8 @@ public class pistol : MonoBehaviour
     private float timer = 0;
     private float flipY;
     private Animator animator;
+    private PlayerMovement playerMovement;
+    private HealthSystem healthSystem;
 
     void Start()
     {
@@ -20,6 +23,17 @@ public class pistol : MonoBehaviour
         muzzlePos = transform.Find("Muzzle");
         shellPos = transform.Find("BulletShell");
         flipY = transform.localScale.y;
+        healthSystem = GetComponent<HealthSystem>(); 
+        playerMovement = GetComponentInParent<PlayerMovement>();
+        if (playerMovement == null)
+        {
+            playerMovement = FindObjectOfType<PlayerMovement>();
+        }
+        if (healthSystem == null)
+        {
+            healthSystem = FindObjectOfType<HealthSystem>();
+            Debug.Log(healthSystem == null ? "警告：未找到HealthSystem组件" : "已关联HealthSystem");
+        }
     }
 
     void Update()
@@ -31,9 +45,12 @@ public class pistol : MonoBehaviour
         }
         else
         {
-            transform.localScale = new Vector3(flipY, flipY, 1);
+            transform.localScale = new Vector3(-flipY, flipY, 1);
         }
-        Shoot();
+        if (!playerMovement.isOpen)
+        {
+            Shoot();
+        }
     }
 
     void Shoot()
@@ -47,10 +64,20 @@ public class pistol : MonoBehaviour
             timer -= Time.deltaTime;
         }
 
-        if (Input.GetButtonDown("Fire1") && timer <= 0)
+        if ((Input.GetButton("Fire1") || Input.GetButtonDown("Fire1")) && timer <= 0)
         {
-            Fire();
-            timer = interval;
+            // Check if we have enough energy to shoot
+            if (healthSystem != null && healthSystem.HasEnoughEnergy(energyCostPerShot))
+            {
+                Fire();
+                timer = interval;
+                healthSystem.ConsumeEnergy(energyCostPerShot);
+            }
+            else
+            {
+                // Optional: Play a "no energy" sound or show feedback
+                Debug.Log("Not enough energy to shoot!");
+            }
         }
     }
 

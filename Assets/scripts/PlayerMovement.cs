@@ -12,7 +12,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 mousePos;
     private float flipY;
     public GameObject myBag;
-    bool isOpen;
+    public bool isOpen;
 
     void Start()
     {

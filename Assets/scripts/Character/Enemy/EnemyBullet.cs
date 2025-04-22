@@ -40,7 +40,7 @@ public class EnemyBullet : MonoBehaviour
     {
         if (targetLayer == (targetLayer | (1 << other.gameObject.layer)))
         {
-            PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
+            HealthSystem playerHealth = other.GetComponent<HealthSystem>();
             if (playerHealth != null)
             {
                 playerHealth.TakeDamage(damage);
