@@ -1,0 +1,4 @@
+Storekeeper|Storekeeper: Hello Welcome to my Store. @0.05
+Player|ME: Oh a store. @0.05
+Player|ME: What can i buy from here? @0.05
+Storekeeper|Storekeeper: Take a look. @0.05

@@ -92,4 +92,9 @@ public class MoneyManager : MonoBehaviour
             UpdateMoneyDisplay();
         }
     }
+
+    public string GetCurrencyName()
+    {
+        return moneyData.itemName;
+    }
 }

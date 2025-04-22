@@ -15,6 +15,9 @@ public class ItemData : ScriptableObject
     [TextArea] public string description;
     public ItemType itemType;
 
+    [Tooltip("基础售价")]
+    public int price;
+
     [Header("属性")]
     public float weight = 0.1f;
     public bool isUnique = false;
