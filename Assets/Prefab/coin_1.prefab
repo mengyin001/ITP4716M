@@ -66,7 +66,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: -2253911629886400664, guid: a684cad87feab71429094fe960bba1eb, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 5439659855453632963}
+      addedObject: {fileID: 1980026636631373769}
     - targetCorrespondingSourceObject: {fileID: -2253911629886400664, guid: a684cad87feab71429094fe960bba1eb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1876542855121471101}
@@ -76,7 +76,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: -2253911629886400664, guid: a684cad87feab71429094fe960bba1eb, type: 3}
   m_PrefabInstance: {fileID: 7666262377077718957}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &5439659855453632963
+--- !u!114 &1980026636631373769
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -85,11 +85,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 782630537697650885}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c595c98cb5883a41b9bd3824b647160, type: 3}
+  m_Script: {fileID: 11500000, guid: bdee767a3b0df714e8fc35b18f7831ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  value: 1
-  pickupEffect: {fileID: 0}
+  value: 10
+  pickupSound: {fileID: 0}
 --- !u!58 &1876542855121471101
 CircleCollider2D:
   m_ObjectHideFlags: 0
