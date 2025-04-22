@@ -46,6 +46,9 @@ public class Enemy : Character
     // 新增方向变量，1 表示正向， -1 表示反向
     private int patrolDirection = 1;
 
+    // 新增：引用道具生成器
+    public PickupSpawner pickupSpawner;
+
     private void Awake()
     {
         seeker = GetComponent<Seeker>();
@@ -292,6 +295,11 @@ public class Enemy : Character
     {
         base.Die();
         isAlive = false;
+        // 检查是否有道具生成器并调用 DropItems 方法
+        if (pickupSpawner != null)
+        {
+            pickupSpawner.DropItems();
+        }
         // 可以在这里添加播放死亡动画等逻辑
     }
 }

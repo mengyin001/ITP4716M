@@ -47,6 +47,7 @@ GameObject:
   - component: {fileID: 1018593909296661171}
   - component: {fileID: 7633091332884551747}
   - component: {fileID: 190991816411841654}
+  - component: {fileID: 9192020753057309946}
   m_Layer: 6
   m_Name: monster_16
   m_TagString: Enemy
@@ -356,3 +357,21 @@ MonoBehaviour:
   initialPoolSize: 20
   poolExpandAmount: 5
   bulletSpawnPoint: {fileID: 3094904388301418936}
+  pickupSpawner: {fileID: 9192020753057309946}
+--- !u!114 &9192020753057309946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4608412696461306354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0668b7022a449734097e4bd812e0b135, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  propPrefabs:
+  - prefab: {fileID: 782630537697650885, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
+    dropPercentage: 67.6
+  - prefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
+    dropPercentage: 48.2
