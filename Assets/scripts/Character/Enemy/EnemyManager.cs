@@ -16,17 +16,20 @@ public class EnemyManager : MonoBehaviour
     public List<EnemyWave> enemyWaves;
 
     public int currentWaveIndex = 0; // 当前波数的索引
-    public int enemyCount = 0;      // 敌人数量
-    private Transform playerTarget; // 玩家目标
+    public int enemyCount = 0;        // 敌人数量
+    private Transform playerTarget;   // 玩家目标
 
     public bool GetLastWave() => currentWaveIndex >= enemyWaves.Count;
+
     [System.Serializable]
     public class EnemyData
     {
+        Instance = this;
         public GameObject enemyPrefab;  // 敌人预制体
         public float spawnInterval;      // 怪物生成间隔
         public int waveEnemyCount;       // 敌人数量
     }
+
     [System.Serializable]
     public class EnemyWave
     {
@@ -79,7 +82,6 @@ public class EnemyManager : MonoBehaviour
                 }
 
                 GameObject enemy = Instantiate(enemyData.enemyPrefab, GetRandomSpawnPoint(), Quaternion.identity);
-
                 Enemy enemyComponent = enemy.GetComponent<Enemy>();
                 LongRangeEnemy longRangeEnemyComponent = enemy.GetComponent<LongRangeEnemy>();
 
