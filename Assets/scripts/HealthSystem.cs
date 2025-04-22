@@ -7,6 +7,10 @@ using UnityEngine.SceneManagement;
 
 public class HealthSystem : MonoBehaviour
 {
+    [Header("音效配置")] // 新增音效Header
+    [SerializeField] private AudioClip hurtSound;    // 受伤音效
+    [SerializeField] private AudioSource audioSource; // 音频组件
+
     [Header("血量控制")]
     [SerializeField] private float maxHealth = 100f; // 最大血量
     [SerializeField] private float currentHealth;     // 开始前血量
@@ -43,11 +47,12 @@ public class HealthSystem : MonoBehaviour
     [SerializeField] private string restartSceneName = "Startup";
 
     private bool isDead = false; // 死亡状态标识
-    // 在 HealthSystem.cs 中添加公共访问器
-public bool IsDead {
-    get { return isDead; }
-    private set { isDead = value; } // 保持内部修改权限
-}
+                                 // 在 HealthSystem.cs 中添加公共访问器
+    public bool IsDead
+    {
+        get { return isDead; }
+        private set { isDead = value; } // 保持内部修改权限
+    }
 
     void Start()
     {
@@ -79,6 +84,11 @@ public bool IsDead {
         {
             restartPrompt.gameObject.SetActive(false);
         }
+
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+
+
     }
 
     void Update()
@@ -115,13 +125,23 @@ public bool IsDead {
             RestartGame();
             canRestart = false;
         }
+
+
+
+
     }
 
     // 受到伤害
     public void TakeDamage(float damage)
     {
         if (isDead) return;
+        float previousHealth = currentHealth;
         currentHealth = Mathf.Clamp(currentHealth - damage, 0, maxHealth);
+        if (currentHealth < previousHealth)
+        {
+            PlayHurtSound();
+        }
+
         UpdateHealthUI();
 
         if (currentHealth <= 0)
@@ -177,7 +197,7 @@ public bool IsDead {
     {
         energyText.text = $"{Mathf.CeilToInt(currentEnergy)} / {maxEnergy}";
     }
-   public bool HasEnoughEnergy(float amount)
+    public bool HasEnoughEnergy(float amount)
     {
         return currentEnergy >= amount;
     }
@@ -266,6 +286,23 @@ public bool IsDead {
         SceneLoader.targetScene = restartSceneName;
         SceneManager.LoadScene("LoadingScence");
     }
+
+    private void PlayHurtSound()
+    {
+        Debug.Log("尝试播放受伤音效");
+
+        if (audioSource != null && hurtSound != null)
+        {
+            audioSource.PlayOneShot(hurtSound);
+        }
+        else
+        {
+            Debug.LogWarning("音效未配置：AudioSource或HurtSound为空");
+        }
+
+    }
+
+
 }
 
 
