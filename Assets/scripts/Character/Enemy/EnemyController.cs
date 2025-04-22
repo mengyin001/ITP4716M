@@ -8,9 +8,11 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private float currentSpeed = 0;
     [SerializeField] private float attackCoolDuration = 1;
     public Vector2 MovementInput { get; set; }
-    
-    
-   
+
+    [Header("Sound Effects")]  
+    [SerializeField] private AudioClip attackSound; 
+    [SerializeField] private AudioSource audioSource; 
+
 
     private Rigidbody2D rb;
     private Collider2D enemyCollider;
@@ -28,6 +30,10 @@ public class EnemyController : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
         enemyCollider = GetComponent<Collider2D>();
         anim = GetComponent<Animator>();
+
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+
     }
 
     private void FixedUpdate()
@@ -71,6 +77,9 @@ public class EnemyController : MonoBehaviour
     IEnumerator AttackCoroutine()
     {
         anim.SetTrigger("isAttack");
+
+        if (attackSound != null && audioSource != null)
+            audioSource.PlayOneShot(attackSound);
 
         yield return new WaitForSeconds(attackCoolDuration);
         isAttack = true;
