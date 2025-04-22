@@ -215,7 +215,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e239991bad3c9294faed4e178d6378b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentHealth: 100
+  currentHealth: 10
   invulnerable: 0
   invulnerableDuration: 0
   OnHurt:
@@ -303,7 +303,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0668b7022a449734097e4bd812e0b135, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  propPrefabs: []
+  propPrefabs:
+  - prefab: {fileID: 782630537697650885, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
+    dropPercentage: 52.3
+  - prefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
+    dropPercentage: 44.2
 --- !u!114 &5437350505921305044
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 9007861010781360817}
   - component: {fileID: 7788763494465873999}
   - component: {fileID: 4650037836069216572}
+  - component: {fileID: 3122383274565057928}
   m_Layer: 0
   m_Name: monster15
   m_TagString: Untagged
@@ -142,7 +143,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 1
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &7655333678215133332
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -243,7 +244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e239991bad3c9294faed4e178d6378b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentHealth: 100
+  currentHealth: 50
   invulnerable: 0
   invulnerableDuration: 0
   OnHurt:
@@ -307,13 +308,13 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   player: {fileID: 0}
-  chaseDistance: 3
-  attackDistance: 0.8
+  chaseDistance: 7
+  attackDistance: 4
   shouldPatrol: 1
   patrolPoints: []
   patrolPointReachedDistance: 0.5
   waitTimeAtPoint: 1
-  meleetAttackDamage: 30
+  meleetAttackDamage: 5
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -332,3 +333,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   propPrefabs: []
+--- !u!114 &3122383274565057928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5399959637803383070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f7dc8b0b02a3a241b2307a62d8e2fc7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minionPrefab: {fileID: 4800886895020340632, guid: 072c7c2ab5474b949a3c6e31ce2f3f8e, type: 3}
+  minionsPerSummon: 3
+  summonRadius: 10
+  summonInterval: 10
+  absorbRadius: 2
+  healthRestoreAmount: 10
