@@ -86,6 +86,7 @@ public class HealthSystem : MonoBehaviour
         {
             Debug.Log("角色死亡！");
             //这里可以触?死亡事件
+
         }
     }
 
@@ -134,13 +135,10 @@ public class HealthSystem : MonoBehaviour
     {
         energyText.text = $"{Mathf.CeilToInt(currentEnergy)} / {maxEnergy}";
     }
-
-    
-
+   public bool HasEnoughEnergy(float amount)
+    {
+        return currentEnergy >= amount;
+    }
 }
-
-
-
-
 
 

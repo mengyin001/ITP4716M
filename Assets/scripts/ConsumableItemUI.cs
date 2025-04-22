@@ -1,22 +1,33 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
 {
+    public enum ItemEffectType
+    {
+        Health,
+        Energy,
+        Both
+    }
+
+    [Header("Effect Type")]
+    [SerializeField] private ItemEffectType effectType = ItemEffectType.Health;
+
     [Header("Health Settings")]
     [SerializeField] private float healthRestoreAmount = 10f;
-    [SerializeField] private float doubleClickTime = 0.3f;
+
+    [Header("Energy Settings")]
+    [SerializeField] private float energyRestoreAmount = 10f;
 
     [Header("Visual Feedback")]
     [SerializeField] private Color selectedColor = new Color(0.8f, 0.8f, 0.1f, 1f);
+    [SerializeField] private Color zeroQuantityColor = new Color(0.8f, 0.8f, 0.1f, 1f);
 
     private Image itemImage;
     private Color originalColor;
-    private float lastClickTime;
     public static GameObject selectedItem;
     private Slot itemSlot;
-
 
     void Awake()
     {
@@ -24,12 +35,6 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
         originalColor = itemImage.color;
         itemSlot = GetComponent<Slot>();
         UpdateVisualState();
-
-        if (itemSlot.slotItem != null && itemSlot.slotItem.itemHeld > 0)
-        {
-            itemImage.color = originalColor;
-        }
-
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -41,22 +46,20 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
 
         if (selectedItem == null)
         {
+            // 第一次点击：选择物品
             SelectItem();
         }
         else if (selectedItem == gameObject)
         {
-            if (Time.unscaledTime - lastClickTime <= doubleClickTime)
-            {
-                UseItem();
-            }
+            // 再次点击已选中的物品：直接使用
+            UseItem();
         }
         else
         {
+            // 点击其他物品：切换选择
             DeselectPrevious();
             SelectItem();
         }
-
-        lastClickTime = Time.unscaledTime;
     }
 
     bool HasValidItem()
@@ -83,7 +86,7 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
 
     void UseItem()
     {
-        if (ApplyHealthEffect())
+        if (ApplyEffect())
         {
             UpdateItemQuantity();
             UpdateVisualState();
@@ -92,17 +95,39 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    bool ApplyHealthEffect()
+    // 以下方法保持原有实现不变
+    bool ApplyEffect()
     {
         HealthSystem healthSystem = FindObjectOfType<HealthSystem>();
-        if (healthSystem != null)
+        if (healthSystem == null)
         {
-            healthSystem.Heal(healthRestoreAmount);
-            Debug.Log($"Restored {healthRestoreAmount} health!");
-            return true;
+            Debug.LogWarning("HealthSystem not found!");
+            return false;
         }
-        Debug.LogWarning("HealthSystem not found!");
-        return false;
+
+        bool effectApplied = false;
+
+        switch (effectType)
+        {
+            case ItemEffectType.Health:
+                healthSystem.Heal(healthRestoreAmount);
+                Debug.Log($"Restored {healthRestoreAmount} health!");
+                effectApplied = true;
+                break;
+            case ItemEffectType.Energy:
+                healthSystem.RestoreEnergy(energyRestoreAmount);
+                Debug.Log($"Restored {energyRestoreAmount} energy!");
+                effectApplied = true;
+                break;
+            case ItemEffectType.Both:
+                healthSystem.Heal(healthRestoreAmount);
+                healthSystem.RestoreEnergy(energyRestoreAmount);
+                Debug.Log($"Restored {healthRestoreAmount} health and {energyRestoreAmount} energy!");
+                effectApplied = true;
+                break;
+        }
+
+        return effectApplied;
     }
 
     void UpdateItemQuantity()
@@ -124,7 +149,6 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
 
     void OnEnable()
     {
-        // Reset visual state when slot is re-enabled
         UpdateVisualState();
         if (selectedItem == gameObject)
         {
@@ -138,9 +162,20 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
         {
             bool isValid = itemSlot.slotItem.itemHeld > 0;
             itemImage.raycastTarget = isValid;
-            itemImage.color = isValid ? originalColor : selectedColor;
 
-            // Update slot text immediately
+            if (!isValid)
+            {
+                itemImage.color = zeroQuantityColor;
+            }
+            else if (selectedItem == gameObject)
+            {
+                itemImage.color = selectedColor;
+            }
+            else
+            {
+                itemImage.color = originalColor;
+            }
+
             if (itemSlot.slotNum != null)
             {
                 itemSlot.slotNum.text = itemSlot.slotItem.itemHeld.ToString();
@@ -152,9 +187,13 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
     {
         if (itemSlot != null)
         {
-            // Update the slot's text display directly
             itemSlot.slotNum.text = itemSlot.slotItem.itemHeld.ToString();
             UpdateVisualState();
         }
+    }
+
+    void Update()
+    {
+        UpdateVisualState();
     }
 }
