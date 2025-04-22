@@ -67,17 +67,6 @@ public class ChestInteraction2D : MonoBehaviour
         GameObject selectedPrefab = item2DPrefabs[Random.Range(0, item2DPrefabs.Length)];
         GameObject item = Instantiate(selectedPrefab, spawnPos, Quaternion.identity);
 
-        // 自动添加碰撞器组件
-        BoxCollider2D collider = item.GetComponent<BoxCollider2D>();
-        if (collider == null)
-        {
-            collider = item.AddComponent<BoxCollider2D>();
-            collider.size = colliderSize; // 设置碰撞器尺寸
-            Debug.Log($"已为 {item.name} 添加碰撞器");
-        }
-
-        // 移除可能的物理组件
-        Destroy(item.GetComponent<Rigidbody2D>());
     }
 
     // 可视化调试
