@@ -31,8 +31,14 @@ public class pistol : MonoBehaviour
         }
         if (healthSystem == null)
         {
-            healthSystem = FindObjectOfType<HealthSystem>();
-            Debug.Log(healthSystem == null ? "警告：未找到HealthSystem组件" : "已关联HealthSystem");
+            healthSystem = GetComponentInParent<HealthSystem>();
+            if (healthSystem == null)
+            {
+                healthSystem = FindObjectOfType<HealthSystem>();
+                Debug.LogWarning(healthSystem == null ?
+                    "未找到 HealthSystem 组件" :
+                    "已动态关联 HealthSystem");
+            }
         }
     }
 
@@ -55,6 +61,8 @@ public class pistol : MonoBehaviour
 
     void Shoot()
     {
+        if (healthSystem != null && healthSystem.IsDead) 
+            return;
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
         direction = (mousePos - new Vector2(transform.position.x, transform.position.y)).normalized;
