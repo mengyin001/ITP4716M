@@ -279,7 +279,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   player: {fileID: 0}
-  chaseDistance: 3
+  chaseDistance: 4
   attackDistance: 0.8
   shouldPatrol: 1
   patrolPoints: []

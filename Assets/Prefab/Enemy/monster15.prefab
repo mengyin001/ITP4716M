@@ -310,7 +310,7 @@ MonoBehaviour:
   player: {fileID: 0}
   chaseDistance: 7
   attackDistance: 4
-  shouldPatrol: 1
+  shouldPatrol: 0
   patrolPoints: []
   patrolPointReachedDistance: 0.5
   waitTimeAtPoint: 1
@@ -332,7 +332,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0668b7022a449734097e4bd812e0b135, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  propPrefabs: []
+  propPrefabs:
+  - prefab: {fileID: 0}
+    dropPercentage: 0
 --- !u!114 &3122383274565057928
 MonoBehaviour:
   m_ObjectHideFlags: 0
