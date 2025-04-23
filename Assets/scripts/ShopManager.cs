@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 public class ShopManager : MonoBehaviour
 {
+    public static ShopManager Instance;
     [Header("配置")]
     public ShopData shopData;
     public Inventory playerInventory;
@@ -20,10 +21,24 @@ public class ShopManager : MonoBehaviour
     private ItemData _selectedItem;
     private int _currentQuantity = 1;
     private ShopItemUI _selectedUI;
+    public bool isOPen = false;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     private void Start()
     {
         InitializeShop();
+        CloseShop();
         buyButton.onClick.AddListener(ProcessPurchase);
         quantityInput.onValueChanged.AddListener(UpdateQuantity);
     }
@@ -162,5 +177,41 @@ public class ShopManager : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
+    }
+    public void OpenShop()
+    {
+        isOPen = true;
+        shopContent.parent.gameObject.SetActive(true);
+        ResetSelection();
+        NPCDialogueTrigger[] npcTriggers = FindObjectsOfType<NPCDialogueTrigger>();
+        foreach (NPCDialogueTrigger trigger in npcTriggers)
+        {
+            trigger.HidePrompt();
+        }
+        Time.timeScale = 0;
+    }
+
+    public void CloseShop()
+    {
+        isOPen = false;
+        shopContent.parent.gameObject.SetActive(false);
+        ResetSelection();
+        Time.timeScale = 1;
+    }
+
+    private void Update()
+    {
+        if (isOPen)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                CloseShop();
+            }
+        }
+    }
+    public void SetCurrentShop(ShopData newShopData)
+    {
+        shopData = newShopData;
+        InitializeShop();
     }
 }
