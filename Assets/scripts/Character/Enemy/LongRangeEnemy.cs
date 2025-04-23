@@ -29,7 +29,6 @@ public class LongRangeEnemy : Character
 
     [Header("Bullet Pool Settings")]
     [SerializeField] private int initialPoolSize = 20; // 初始池大小
-    [SerializeField] private int poolExpandAmount = 5; // 池不足时每次扩展数量
 
     [Header("Bullet Spawn Point")]
     [SerializeField] private Transform bulletSpawnPoint; // 新增：子弹发射点

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class EnemyManager : MonoBehaviour
 {
@@ -15,11 +16,6 @@ public class EnemyManager : MonoBehaviour
     [Header("该关卡的敌人波次")]
     public List<EnemyWave> enemyWaves;
 
-    [Header("调试设置")]
-    public bool debugMode = true;
-    public Color waveStartColor = Color.green;
-    public Color waveEndColor = Color.cyan;
-
     public int CurrentWaveIndex { get; private set; } = 0;
     public int AliveEnemyCount { get; private set; } = 0;
     public bool IsLastWave => CurrentWaveIndex >= enemyWaves.Count;
@@ -27,6 +23,7 @@ public class EnemyManager : MonoBehaviour
 
     private Transform playerTarget;
     private List<GameObject> activeEnemies = new List<GameObject>();
+    public GameObject teleportationCircle; // 添加传送阵引用
 
     [System.Serializable]
     public class EnemyData
@@ -58,16 +55,6 @@ public class EnemyManager : MonoBehaviour
     {
         AliveEnemyCount = 0;
         playerTarget = GameObject.FindGameObjectWithTag("Player")?.transform;
-
-        if (playerTarget == null)
-        {
-            Debug.LogError("找不到玩家对象！请确保场景中有 'Player' 标签的对象。");
-        }
-
-        if (spawnPoints == null || spawnPoints.Length == 0)
-        {
-            Debug.LogError("未设置敌人刷新点！");
-        }
     }
 
     private void Start()
@@ -77,7 +64,7 @@ public class EnemyManager : MonoBehaviour
 
     private void Update()
     {
-        if (AliveEnemyCount <= 0 && !IsWaveInProgress && !IsLastWave)
+        if (AliveEnemyCount <= 0 &&!IsWaveInProgress &&!IsLastWave)
         {
             StartCoroutine(StartNextWaveCoroutine());
         }
@@ -89,12 +76,9 @@ public class EnemyManager : MonoBehaviour
 
         if (IsLastWave)
         {
-            LogMessage("所有敌人生成完毕，战斗结束！", waveEndColor);
             IsWaveInProgress = false;
             yield break;
         }
-
-        LogMessage($"开始生成第 {CurrentWaveIndex + 1} 波敌人...", waveStartColor);
 
         List<EnemyData> currentWaveEnemies = enemyWaves[CurrentWaveIndex].enemies;
         List<Collider2D> spawnedEnemyColliders = new List<Collider2D>();
@@ -122,7 +106,6 @@ public class EnemyManager : MonoBehaviour
                 }
 
                 AliveEnemyCount++;
-                LogMessage($"生成敌人: {enemy.name}，位置: {spawnPos}，当前敌人数量: {AliveEnemyCount}");
 
                 yield return new WaitForSeconds(enemyData.spawnInterval);
             }
@@ -134,7 +117,6 @@ public class EnemyManager : MonoBehaviour
 
         CurrentWaveIndex++;
         IsWaveInProgress = false;
-        LogMessage($"第 {CurrentWaveIndex} 波敌人生成完成！", waveEndColor);
     }
 
     private bool SetupEnemyBehavior(GameObject enemy)
@@ -202,26 +184,29 @@ public class EnemyManager : MonoBehaviour
             activeEnemies.Remove(enemy);
         }
 
-        LogMessage($"敌人死亡，剩余敌人: {AliveEnemyCount}");
+        // 检查是否所有敌人都已消灭
+        if (AliveEnemyCount <= 0 && IsLastWave)
+        {
+            //Vector3 teleportationPoint = GetRandomSpawnPoint(); // 获取一个随机的敌人刷新点作为传送阵生成点
+            //SpawnTeleportationCircle(teleportationPoint);
+
+            // 加载SafeHouse场景
+            SceneManager.LoadScene("SafeHouse");
+        }
+    }
+
+    private void SpawnTeleportationCircle(Vector3 position)
+    {
+        if (teleportationCircle != null)
+        {
+            GameObject circle = Instantiate(teleportationCircle, position, Quaternion.identity);
+            // 你可以在这里对生成的传送阵进行额外的设置或操作
+        }
     }
 
     private Vector3 GetRandomSpawnPoint()
     {
         return spawnPoints[Random.Range(0, spawnPoints.Length)].position;
-    }
-
-    private void LogMessage(string message, Color? color = null)
-    {
-        if (!debugMode) return;
-
-        if (color.HasValue)
-        {
-            Debug.Log($"<color=#{ColorUtility.ToHtmlStringRGB(color.Value)}>{message}</color>");
-        }
-        else
-        {
-            Debug.Log(message);
-        }
     }
 
     public void CleanupAllEnemies()
