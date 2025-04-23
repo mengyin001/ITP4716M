@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class gun : MonoBehaviour
+public abstract class gun : MonoBehaviour
 {
     [Header("射击设置")]
     public float interval = 0.5f;
