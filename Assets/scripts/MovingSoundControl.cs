@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class MovingSoundControl : MonoBehaviour
 {
-
+	[Header("音效配置")] // 新增音效Header
+	[SerializeField] private AudioClip MovingSound;
+	[SerializeField] private AudioSource audioSource;
 	float dirX;
 	[SerializeField]
 	Rigidbody2D rb;
-	AudioSource audioSrc;
 	bool isMoving = false;
 	float moveSpeed = 5f;
 
@@ -16,7 +17,7 @@ public class MovingSoundControl : MonoBehaviour
 	void Start()
 	{
 		rb = GetComponent<Rigidbody2D>();
-		audioSrc = GetComponent<AudioSource>();
+		audioSource = GetComponent<AudioSource>();
 	}
 
 	// Update is called once per frame
@@ -31,11 +32,11 @@ public class MovingSoundControl : MonoBehaviour
 
 		if (isMoving)
 		{
-			if (!audioSrc.isPlaying)
-				audioSrc.Play();
+			if (!audioSource.isPlaying)
+				audioSource.Play();
 		}
 		else
-			audioSrc.Stop();
+			audioSource.Stop();
 	}
 
 	void FixedUpdate()
