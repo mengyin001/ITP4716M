@@ -89,7 +89,7 @@ public class PlayerMovement : MonoBehaviour
             }
             guns[gunNum].SetActive(true);
         }
-        if(Input.GetKeyDown(KeyCode.T)){
+        if(Input.GetKeyDown(KeyCode.E)){
             guns[gunNum].SetActive(false);
             if (++gunNum > guns.Length - 1){
                 gunNum = 0;
