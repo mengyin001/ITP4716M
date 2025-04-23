@@ -15,7 +15,8 @@ public class TutorialTaskSystem : MonoBehaviour
             KeyPress,
             HoldKey,
             Dialogue,
-            KillEnemies
+            KillEnemies,
+            OpenChest
         }
         public TaskType taskType = TaskType.KeyPress; // 任务类型
         public string description;          // 任务描述
@@ -24,8 +25,12 @@ public class TutorialTaskSystem : MonoBehaviour
         public float requiredHoldTime = 0;  // 长按需求时间
         public int requiredSteps = 1;       // 新增：完成任务需要的步骤数
         [HideInInspector] public int currentStep; // 当前完成步骤
+        [Header("NPCID设置")]
         public string targetNPCID;  // 需要对话的NPC标识
+        [Header("怪物设置")]
         public GameObject[] activationObjects;
+        [Header("宝箱任务设置")]
+        public ChestInteraction2D targetChest;
     }
 
     [Header("任务设置")]
