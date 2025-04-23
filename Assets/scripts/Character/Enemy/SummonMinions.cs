@@ -11,7 +11,7 @@ public class SummonMinions : MonoBehaviour
 
     [Header("Summon Interval")]
     public float summonInterval = 10f; // 召唤间隔
-    private float summonTimer; // 计时器
+    public float summonTimer; // 计时器
 
     [Header("Absorb Settings")]
     public float absorbRadius = 1f; // 吸收半径
@@ -108,7 +108,7 @@ public class SummonMinions : MonoBehaviour
             {
                 bossCharacter.currentHealth = Mathf.Min(
                     bossCharacter.currentHealth + healthRestoreAmount,
-                    100f);
+                    bossCharacter.MaxHealth);
 
                 Destroy(minion);
                 minions.RemoveAt(i);
