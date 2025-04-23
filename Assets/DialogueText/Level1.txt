@@ -1,0 +1,3 @@
+Player|ME: We are outside @0.05
+Player|ME: There are a lot of monsters outside! @0.05
+Player|ME: damn it! @0.05
