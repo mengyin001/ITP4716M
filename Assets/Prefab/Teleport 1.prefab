@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 994022990717420681}
   - component: {fileID: 513440931262108279}
   m_Layer: 0
-  m_Name: Teleport
+  m_Name: Teleport 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -161,4 +161,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff6917bf22ce4f74083af46073d47a0f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: SafeHouse
+  sceneName: Firstlevel
