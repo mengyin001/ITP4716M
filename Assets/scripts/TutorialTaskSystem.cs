@@ -15,7 +15,8 @@ public class TutorialTaskSystem : MonoBehaviour
             KeyPress,
             HoldKey,
             Dialogue,
-            KillEnemies
+            KillEnemies,
+            OpenChest
         }
         public TaskType taskType = TaskType.KeyPress; // 任务类型
         public string description;          // 任务描述
@@ -24,8 +25,12 @@ public class TutorialTaskSystem : MonoBehaviour
         public float requiredHoldTime = 0;  // 长按需求时间
         public int requiredSteps = 1;       // 新增：完成任务需要的步骤数
         [HideInInspector] public int currentStep; // 当前完成步骤
+        [Header("NPCID设置")]
         public string targetNPCID;  // 需要对话的NPC标识
+        [Header("怪物设置")]
         public GameObject[] activationObjects;
+        [Header("宝箱任务设置")]
+        public ChestInteraction2D targetChest;
     }
 
     [Header("任务设置")]
@@ -43,7 +48,13 @@ public class TutorialTaskSystem : MonoBehaviour
     [SerializeField] private TextMeshProUGUI progressText;
     [SerializeField] private TextMeshProUGUI underTip;
 
+    [Header("任务完成设置")]
+    [SerializeField] private GameObject objectToSpawn; // 要生成的物体预制体
+    [SerializeField] private Transform playerTransform; // 玩家角色Transform
+    [SerializeField] private float spawnOffset = 1f;    // 生成位置偏移量
+
     private float keyHoldTimer = 0;
+    private ChestInteraction2D currentSubscribedChest;
 
     void Start()
     {
@@ -137,6 +148,12 @@ public class TutorialTaskSystem : MonoBehaviour
     IEnumerator TransitionToNextTask()
     {
         isTransitioning = true;
+
+        if (currentSubscribedChest != null)
+        {
+            currentSubscribedChest.OnChestOpened -= HandleChestOpened;
+            currentSubscribedChest = null;
+        }
         // 关闭当前任务的GameObject
         var currentTask = tasks[currentTaskIndex];
         if (currentTask.activationObjects != null && currentTask.activationObjects.Length > 0)
@@ -146,6 +163,7 @@ public class TutorialTaskSystem : MonoBehaviour
                 if (obj != null) obj.SetActive(false);
             }
         }
+
         // 显示完成效果
         StartCoroutine(ShowCompletionEffect());
 
@@ -169,9 +187,24 @@ public class TutorialTaskSystem : MonoBehaviour
             Debug.Log("Tutorial completed!");
             taskDescriptionText.text = "Tutorial completed!";
             progressSlider.gameObject.SetActive(false);
+
+            SpawnObjectBelowPlayer();
         }
 
         isTransitioning = false;
+    }
+
+    private void SpawnObjectBelowPlayer()
+    {
+        if (objectToSpawn != null && playerTransform != null)
+        {
+            Vector3 spawnPosition = playerTransform.position + Vector3.down * spawnOffset;
+            Instantiate(objectToSpawn, spawnPosition, Quaternion.identity);
+        }
+        else
+        {
+            Debug.LogError("生成物体失败：请检查objectToSpawn和playerTransform是否已设置");
+        }
     }
 
     void InitializeCurrentTask()
@@ -187,15 +220,67 @@ public class TutorialTaskSystem : MonoBehaviour
                 if (obj != null) obj.SetActive(true);
             }
         }
+        // 取消之前的宝箱订阅
+        if (currentSubscribedChest != null)
+        {
+            currentSubscribedChest.OnChestOpened -= HandleChestOpened;
+            currentSubscribedChest = null;
+        }
 
+        // 激活关联对象（原有代码）
+        if (task.activationObjects != null && task.activationObjects.Length > 0)
+        {
+            foreach (var obj in task.activationObjects)
+                if (obj != null) obj.SetActive(true);
+        }
+
+        // 初始化宝箱任务
+        if (task.taskType == Task.TaskType.OpenChest)
+        {
+            if (task.targetChest == null)
+            {
+                Debug.LogError("OpenChest任务未指定目标宝箱！");
+                return;
+            }
+
+            // 如果宝箱已开启则直接完成
+            if (task.targetChest.IsOpened)
+            {
+                task.currentStep = task.requiredSteps;
+                StartCoroutine(CompleteIfAlreadyOpened());
+            }
+            else // 否则订阅开启事件
+            {
+                currentSubscribedChest = task.targetChest;
+                currentSubscribedChest.OnChestOpened += HandleChestOpened;
+            }
+        }
 
         if (task.showProgressBar)
         {
             progressSlider.maxValue = task.requiredSteps;
             progressSlider.value = 0;
         }
+
     }
 
+    private IEnumerator CompleteIfAlreadyOpened()
+    {
+        yield return null; // 等待一帧确保初始化完成
+        CompleteCurrentTask();
+    }
+
+    private void HandleChestOpened(ChestInteraction2D chest)
+    {
+        if (isTransitioning || currentTaskIndex >= tasks.Count) return;
+
+        Task currentTask = tasks[currentTaskIndex];
+        if (currentTask.taskType == Task.TaskType.OpenChest &&
+            currentTask.targetChest == chest)
+        {
+            CompleteStep(currentTask);
+        }
+    }
 
     void UpdateTaskDisplay()
     {
@@ -242,6 +327,10 @@ public class TutorialTaskSystem : MonoBehaviour
         if (DialogueSystem.Instance != null)
             DialogueSystem.Instance.OnDialogueCompleted -= HandleDialogueComplete;
         Character.OnEnemyDeath -= HandleEnemyKilled;
+        if (currentSubscribedChest != null)
+        {
+            currentSubscribedChest.OnChestOpened -= HandleChestOpened;
+        }
     }
 
     void HandleDialogueComplete(string npcID)
