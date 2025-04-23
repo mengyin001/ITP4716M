@@ -74,6 +74,7 @@ public class pistol : MonoBehaviour
             timer -= Time.deltaTime;
         }
 
+
         if ((Input.GetButton("Fire1") || Input.GetButtonDown("Fire1")) && timer <= 0)
         {
             // Check if we have enough energy to shoot
