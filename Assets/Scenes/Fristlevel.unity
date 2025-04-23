@@ -786,6 +786,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcc761f0bc757ca46a06e4cc0851ee16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hurtSound: {fileID: 0}
+  audioSource: {fileID: 0}
   maxHealth: 100
   currentHealth: 0
   healthSlider: {fileID: 1688059465}
@@ -5928,6 +5930,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentSpeed: 2
   attackCoolDuration: 0
+  attackSound: {fileID: 0}
+  audioSource: {fileID: 0}
 --- !u!114 &1118518586
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6135,7 +6139,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1140289536}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dd3802d7a73febb44a5dd94fdc5133bf, type: 3}
   m_Name: 

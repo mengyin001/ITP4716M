@@ -65,6 +65,8 @@ public class pistol : MonoBehaviour
             return;
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
+        if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
+            return;
         direction = (mousePos - new Vector2(transform.position.x, transform.position.y)).normalized;
         transform.right = direction;
         if (timer > 0)

@@ -65,6 +65,8 @@ public class TutorialTaskSystem : MonoBehaviour
     {
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
+        if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
+            return;
         // 长按任务检测
         if (currentTask.requiredHoldTime > 0)
         {

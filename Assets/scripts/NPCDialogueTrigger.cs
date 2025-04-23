@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using TMPro;
+using System.Collections;
 
 public class NPCDialogueTrigger : MonoBehaviour
 {
@@ -11,6 +12,10 @@ public class NPCDialogueTrigger : MonoBehaviour
 
     [Header("界面提示")]
     public TextMeshProUGUI interactPrompt;
+
+    [Header("商店设置")]
+    public bool openShopAfterDialogue = false;
+    public ShopData shopToOpen;
 
     private Transform player;
     public bool isInRange;
@@ -24,6 +29,11 @@ public class NPCDialogueTrigger : MonoBehaviour
     void Update()
     {
         if (player == null) return;
+        if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
+        {
+            HidePrompt();
+            return;
+        }
 
         // 完全忽略Z轴的2D位置计算
         Vector2 npcPos = transform.position;
@@ -58,7 +68,7 @@ public class NPCDialogueTrigger : MonoBehaviour
         }
     }
 
-    void HidePrompt()
+    public void HidePrompt()
     {
         isInRange = false;
         if (interactPrompt) interactPrompt.gameObject.SetActive(false);
@@ -75,6 +85,28 @@ public class NPCDialogueTrigger : MonoBehaviour
         DialogueSystem.Instance.LoadNewDialogue(dialogueFile);
         DialogueSystem.Instance.StartDialogue();
         HidePrompt();
+
+        if (openShopAfterDialogue)
+        {
+            StartCoroutine(WaitForDialogueEnd());
+        }
+    }
+
+    private IEnumerator WaitForDialogueEnd()
+    {
+        // 等待直到对话结束
+        yield return new WaitWhile(() => DialogueSystem.Instance.isDialogueActive);
+
+        // 打开商店界面
+        if (ShopManager.Instance != null)
+        {
+            ShopManager.Instance.SetCurrentShop(shopToOpen);
+            ShopManager.Instance.OpenShop();
+        }
+        else
+        {
+            Debug.LogError("找不到商店管理器实例!");
+        }
     }
 
     // 纯2D范围可视化

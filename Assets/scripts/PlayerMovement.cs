@@ -27,6 +27,8 @@ public class PlayerMovement : MonoBehaviour
     {
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
+        if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
+            return;
         OpenMyBag();
         SwitchGun();
         // 获取输入并计算移动速度
@@ -76,6 +78,8 @@ public class PlayerMovement : MonoBehaviour
 
     void SwitchGun(){
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
+            return;
+        if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
             return;
 
         if (Input.GetKeyDown(KeyCode.Q)){            // Q and T switch gun
