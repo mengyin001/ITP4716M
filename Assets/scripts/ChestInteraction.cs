@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class ChestInteraction2D : MonoBehaviour
 {
@@ -15,6 +16,9 @@ public class ChestInteraction2D : MonoBehaviour
 
     private Animator mAnimator;
     private bool isOpened = false;
+
+    public event Action<ChestInteraction2D> OnChestOpened;
+    public bool IsOpened => isOpened; // 新增状态访问器
 
     void Start()
     {
@@ -46,6 +50,7 @@ public class ChestInteraction2D : MonoBehaviour
         mAnimator.SetTrigger("Open");
         Drop2DItem();
         isOpened = true;
+        OnChestOpened?.Invoke(this);
     }
 
     void Drop2DItem()
@@ -64,7 +69,7 @@ public class ChestInteraction2D : MonoBehaviour
         );
 
         // 实例化物品
-        GameObject selectedPrefab = item2DPrefabs[Random.Range(0, item2DPrefabs.Length)];
+        GameObject selectedPrefab = item2DPrefabs[UnityEngine.Random.Range(0, item2DPrefabs.Length)];
         GameObject item = Instantiate(selectedPrefab, spawnPos, Quaternion.identity);
 
     }
