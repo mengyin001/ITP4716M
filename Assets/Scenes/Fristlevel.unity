@@ -7412,7 +7412,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!212 &1299646195
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -7477,7 +7477,7 @@ Transform:
   m_GameObject: {fileID: 1299646194}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.9, y: 0.8, z: 1}
+  m_LocalPosition: {x: -1.8, y: 1.47, z: 1}
   m_LocalScale: {x: 2.570903, y: 3.9055278, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12146,6 +12146,10 @@ PrefabInstance:
       propertyPath: enemyWaves.Array.data[3].enemies.Array.data[1].enemyPrefab
       value: 
       objectReference: {fileID: 7033836496430171048, guid: cdaf144f7320ea54fb7c7022db853dab, type: 3}
+    - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
+      propertyPath: enemyWaves.Array.data[0].enemies.Array.data[0].spawnInterval
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3158820881880086502, guid: 2be00a52107987f4383be4e88c212abe, type: 3}
       propertyPath: enemyWaves.Array.data[0].enemies.Array.data[1].spawnInterval
       value: 3

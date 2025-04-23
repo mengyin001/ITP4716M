@@ -19,6 +19,7 @@ public class NPCDialogueTrigger : MonoBehaviour
 
     private Transform player;
     public bool isInRange;
+    public string npcID;
 
     void Start()
     {
@@ -81,8 +82,8 @@ public class NPCDialogueTrigger : MonoBehaviour
             Debug.LogError("对话文件未分配", this);
             return;
         }
-
         DialogueSystem.Instance.LoadNewDialogue(dialogueFile);
+        DialogueSystem.Instance.LoadNewDialogue(dialogueFile,npcID);
         DialogueSystem.Instance.StartDialogue();
         HidePrompt();
 
