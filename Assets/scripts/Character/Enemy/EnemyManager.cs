@@ -23,7 +23,8 @@ public class EnemyManager : MonoBehaviour
 
     private Transform playerTarget;
     private List<GameObject> activeEnemies = new List<GameObject>();
-    public GameObject teleportationCircle; // 添加传送阵引用
+    public GameObject teleportationCirclePrefab; // 传送阵预制件
+    private GameObject teleportationCircle; // 当前生成的传送阵实例
 
     [System.Serializable]
     public class EnemyData
@@ -187,8 +188,8 @@ public class EnemyManager : MonoBehaviour
         // 检查是否所有敌人都已消灭
         if (AliveEnemyCount <= 0 && IsLastWave)
         {
-            //Vector3 teleportationPoint = GetRandomSpawnPoint(); // 获取一个随机的敌人刷新点作为传送阵生成点
-            //SpawnTeleportationCircle(teleportationPoint);
+            Vector3 teleportationPoint = GetRandomSpawnPoint(); // 获取一个随机的敌人刷新点作为传送阵生成点
+            SpawnTeleportationCircle(teleportationPoint);
 
             // 加载SafeHouse场景
             SceneManager.LoadScene("SafeHouse");
@@ -199,7 +200,7 @@ public class EnemyManager : MonoBehaviour
     {
         if (teleportationCircle != null)
         {
-            GameObject circle = Instantiate(teleportationCircle, position, Quaternion.identity);
+            teleportationCircle = Instantiate(teleportationCirclePrefab, position, Quaternion.identity);
             // 你可以在这里对生成的传送阵进行额外的设置或操作
         }
     }
