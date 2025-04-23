@@ -1,14 +1,14 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class TeleportationCircle : MonoBehaviour
 {
+    public SceneSelectionUI sceneSelectionUI; // 拖放 SceneSelectionUI 组件
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
-            // 加载休息室场景
-            SceneManager.LoadScene("SafeHouse");
+            sceneSelectionUI.ShowSelectionPanel(); // 显示选择面板
         }
     }
 }
