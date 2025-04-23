@@ -34,7 +34,7 @@ Transform:
   m_GameObject: {fileID: 5399959637803383070}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.93, y: 3.67, z: 0}
+  m_LocalPosition: {x: -1.93, y: 3.67, z: -1}
   m_LocalScale: {x: 4, y: 4, z: 4}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -224,6 +224,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentSpeed: 1
   attackCoolDuration: 2
+  attackSound: {fileID: 0}
+  audioSource: {fileID: 0}
 --- !u!114 &7788763494465873999
 MonoBehaviour:
   m_ObjectHideFlags: 0

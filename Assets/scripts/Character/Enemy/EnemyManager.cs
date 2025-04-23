@@ -24,7 +24,7 @@ public class EnemyManager : MonoBehaviour
     private Transform playerTarget;
     private List<GameObject> activeEnemies = new List<GameObject>();
     public GameObject teleportationCirclePrefab; // 传送阵预制件
-    private GameObject teleportationCircle; // 当前生成的传送阵实例
+    public Transform teleportationSpawnPoint; // 传送阵生成点
 
     [System.Serializable]
     public class EnemyData
@@ -50,12 +50,34 @@ public class EnemyManager : MonoBehaviour
 
         Instance = this;
         Initialize();
+
+        // 注册场景加载事件
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // 当加载的场景是SafeHouse时，重置EnemyManager
+        if (scene.name == "SafeHouse")
+        {
+            ResetEnemyManager();
+        }
     }
 
     private void Initialize()
     {
         AliveEnemyCount = 0;
         playerTarget = GameObject.FindGameObjectWithTag("Player")?.transform;
+        CurrentWaveIndex = 0;
+        IsWaveInProgress = false;
+        activeEnemies.Clear();
+    }
+
+    public void ResetEnemyManager()
+    {
+        AliveEnemyCount = 0;  // 明确重置AliveEnemyCount变量
+        Initialize();
+        // 其他需要重置的内容可以在这里添加
     }
 
     private void Start()
@@ -65,7 +87,7 @@ public class EnemyManager : MonoBehaviour
 
     private void Update()
     {
-        if (AliveEnemyCount <= 0 &&!IsWaveInProgress &&!IsLastWave)
+        if (AliveEnemyCount <= 0 && !IsWaveInProgress && !IsLastWave)
         {
             StartCoroutine(StartNextWaveCoroutine());
         }
@@ -83,33 +105,54 @@ public class EnemyManager : MonoBehaviour
 
         List<EnemyData> currentWaveEnemies = enemyWaves[CurrentWaveIndex].enemies;
         List<Collider2D> spawnedEnemyColliders = new List<Collider2D>();
+        List<(float time, EnemyData enemyData)> spawnQueue = new List<(float time, EnemyData enemyData)>();
 
+        // 构建生成队列
+        float currentTime = 0f;
         foreach (EnemyData enemyData in currentWaveEnemies)
         {
             for (int i = 0; i < enemyData.waveEnemyCount; i++)
             {
-                if (spawnPoints == null || spawnPoints.Length == 0)
-                {
-                    Debug.LogError("无法生成敌人：未设置刷新点");
-                    yield break;
-                }
-
-                Vector3 spawnPos = GetRandomSpawnPoint();
-                GameObject enemy = Instantiate(enemyData.enemyPrefab, spawnPos, Quaternion.identity);
-                activeEnemies.Add(enemy);
-
-                if (SetupEnemyBehavior(enemy))
-                {
-                    if (enemy.TryGetComponent(out Collider2D enemyCollider) && enemyCollider.enabled)
-                    {
-                        spawnedEnemyColliders.Add(enemyCollider);
-                    }
-                }
-
-                AliveEnemyCount++;
-
-                yield return new WaitForSeconds(enemyData.spawnInterval);
+                spawnQueue.Add((currentTime, enemyData));
+                currentTime += enemyData.spawnInterval;
             }
+        }
+
+        // 按时间顺序排序
+        spawnQueue.Sort((a, b) => a.time.CompareTo(b.time));
+
+        // 依次生成敌人
+        for (int i = 0; i < spawnQueue.Count; i++)
+        {
+            if (i > 0)
+            {
+                yield return new WaitForSeconds(spawnQueue[i].time - spawnQueue[i - 1].time);
+            }
+            else if (i == 0 && spawnQueue[i].time > 0)
+            {
+                yield return new WaitForSeconds(spawnQueue[i].time);
+            }
+
+            EnemyData enemyData = spawnQueue[i].enemyData;
+            if (spawnPoints == null || spawnPoints.Length == 0)
+            {
+                Debug.LogError("无法生成敌人：未设置刷新点");
+                yield break;
+            }
+
+            Vector3 spawnPos = GetRandomSpawnPoint();
+            GameObject enemy = Instantiate(enemyData.enemyPrefab, spawnPos, Quaternion.identity);
+            activeEnemies.Add(enemy);
+
+            if (SetupEnemyBehavior(enemy))
+            {
+                if (enemy.TryGetComponent(out Collider2D enemyCollider) && enemyCollider.enabled)
+                {
+                    spawnedEnemyColliders.Add(enemyCollider);
+                }
+            }
+
+            AliveEnemyCount++;
         }
 
         // 清理可能为null的碰撞体
@@ -183,25 +226,23 @@ public class EnemyManager : MonoBehaviour
         if (activeEnemies.Contains(enemy))
         {
             activeEnemies.Remove(enemy);
+            Destroy(enemy); // 添加这行代码来销毁敌人对象
         }
 
-        // 检查是否所有敌人都已消灭
-        if (AliveEnemyCount <= 0 && IsLastWave)
+        if (AliveEnemyCount <= 0)
         {
-            Vector3 teleportationPoint = GetRandomSpawnPoint(); // 获取一个随机的敌人刷新点作为传送阵生成点
-            SpawnTeleportationCircle(teleportationPoint);
-
-            // 加载SafeHouse场景
-            SceneManager.LoadScene("SafeHouse");
+            if (IsLastWave)
+            {
+                GenerateTeleportationCircle();
+            }
         }
     }
 
-    private void SpawnTeleportationCircle(Vector3 position)
+    private void GenerateTeleportationCircle()
     {
-        if (teleportationCircle != null)
+        if (teleportationCirclePrefab != null && teleportationSpawnPoint != null)
         {
-            teleportationCircle = Instantiate(teleportationCirclePrefab, position, Quaternion.identity);
-            // 你可以在这里对生成的传送阵进行额外的设置或操作
+            Instantiate(teleportationCirclePrefab, teleportationSpawnPoint.position, Quaternion.identity);
         }
     }
 
@@ -222,5 +263,11 @@ public class EnemyManager : MonoBehaviour
 
         activeEnemies.Clear();
         AliveEnemyCount = 0;
+    }
+
+    private void OnDestroy()
+    {
+        // 注销场景加载事件
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }
