@@ -66,4 +66,5 @@ public class shotgun : gun
             Debug.LogWarning("霰弹枪子弹缺少Bullet组件", pellet);
         }
     }
+
 }

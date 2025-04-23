@@ -8,7 +8,7 @@ public class Bullet : MonoBehaviour
     public float damage = 5f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Awake()        //awake much fast
+    protected virtual void Awake()        //awake much fast
     {
         rigidbody = GetComponent<Rigidbody2D>();
     }
@@ -24,7 +24,7 @@ public class Bullet : MonoBehaviour
 
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    protected virtual void OnTriggerEnter2D(Collider2D other)
     {
         Character character = other.GetComponent<Character>();
         if (character != null)
