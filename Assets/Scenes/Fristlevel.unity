@@ -738,36 +738,51 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tasks:
-  - description: Click "W" to up
+  - taskType: 0
+    description: Click "W" to up
     triggerKey: 119
     showProgressBar: 1
     requiredHoldTime: 0
     requiredSteps: 1
     currentStep: 0
-  - description: Click "A" to left
+    targetNPCID: 
+    activationObjects: []
+  - taskType: 0
+    description: Click "A" to left
     triggerKey: 97
     showProgressBar: 1
     requiredHoldTime: 0
     requiredSteps: 1
     currentStep: 0
-  - description: Click "S" to down
+    targetNPCID: 
+    activationObjects: []
+  - taskType: 0
+    description: Click "S" to down
     triggerKey: 115
     showProgressBar: 1
     requiredHoldTime: 0
     requiredSteps: 1
     currentStep: 0
-  - description: Click "D" to right
+    targetNPCID: 
+    activationObjects: []
+  - taskType: 0
+    description: Click "D" to right
     triggerKey: 100
     showProgressBar: 1
     requiredHoldTime: 0
     requiredSteps: 1
     currentStep: 0
-  - description: Click "E" to open the box
+    targetNPCID: 
+    activationObjects: []
+  - taskType: 0
+    description: Click "E" to open the box
     triggerKey: 101
     showProgressBar: 1
     requiredHoldTime: 0
     requiredSteps: 1
     currentStep: 0
+    targetNPCID: 
+    activationObjects: []
   taskTransitionDelay: 1
   taskDescriptionText: {fileID: 647545463}
   progressSlider: {fileID: 53538894}
@@ -4098,8 +4113,9 @@ GameObject:
   m_Component:
   - component: {fileID: 730404225}
   - component: {fileID: 730404224}
+  - component: {fileID: 730404226}
   m_Layer: 0
-  m_Name: gun2
+  m_Name: shotgun
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4148,8 +4164,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: -8651372788210922572, guid: 9b703c6a1ef575f4a8cc69f3bdecd48a, type: 3}
+  m_SortingOrder: 1
+  m_Sprite: {fileID: 3632833148999712676, guid: 199b0b64e404ba044b885e882d1431cf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -4175,6 +4191,30 @@ Transform:
   m_Children: []
   m_Father: {fileID: 176899895}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!114 &730404226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 730404223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7633b32419ae7c34d9f8b66d729287bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interval: 0.5
+  bulletPrefab: {fileID: 6454504464724897897, guid: fc3bf97c9b1c9a145a4f64529d23986b, type: 3}
+  shellPrefab: {fileID: 4593197006498107017, guid: e49942af560a23b4b968dd4b84ebdbf6, type: 3}
+  energyCostPerShot: 1
+  shootSound: {fileID: 8300000, guid: 3ba3ce2e7bf8c1a45b7c2586ee951aa3, type: 3}
+  muzzlePos: {fileID: 0}
+  shellPos: {fileID: 0}
+  spreadSettings:
+    pelletCount: 3
+    angle: 10
+    damagePerPellet: 5
+  muzzleFlash: {fileID: 0}
 --- !u!1 &733779862
 GameObject:
   m_ObjectHideFlags: 0
@@ -5948,6 +5988,7 @@ MonoBehaviour:
   currentHealth: 10
   invulnerable: 0
   invulnerableDuration: 0
+  isEnemy: 0
   OnHurt:
     m_PersistentCalls:
       m_Calls:
