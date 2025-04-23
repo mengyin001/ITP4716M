@@ -96,14 +96,14 @@ public class HealthSystem : MonoBehaviour
         // 自动回复血量
         if (autoRegen && currentHealth < maxHealth)
         {
-            currentHealth += regenRate * Time.deltaTime;
+            currentHealth = Mathf.Clamp(currentHealth + regenRate * Time.deltaTime,0,maxHealth);
             UpdateHealthUI();
         }
 
         //自动回复蓝量
         if (autoRegenEn && currentEnergy < maxEnergy)
         {
-            currentEnergy += regenRateEn * Time.deltaTime;
+            currentEnergy = Mathf.Clamp(currentEnergy + regenRateEn * Time.deltaTime,0,maxEnergy);
             UpdateEnergyUI();
         }
 
@@ -190,12 +190,12 @@ public class HealthSystem : MonoBehaviour
     // 新增文本更新方法
     private void UpdateHealthText()
     {
-        healthText.text = $"{Mathf.CeilToInt(currentHealth)} / {maxHealth}";
+        healthText.text = $"{Mathf.FloorToInt(currentHealth)}/{maxHealth}";
     }
 
     private void UpdateEnergyText()
     {
-        energyText.text = $"{Mathf.CeilToInt(currentEnergy)} / {maxEnergy}";
+        energyText.text = $"{Mathf.FloorToInt(currentEnergy)} / {maxEnergy}";
     }
     public bool HasEnoughEnergy(float amount)
     {

@@ -242,6 +242,41 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 50348247105981f43a6ac879897a210e, type: 3}
+--- !u!1 &67920817
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 67920818}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &67920818
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 67920817}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 5.3, y: -0.07}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &78578923
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12112,7 +12147,7 @@ Transform:
   m_GameObject: {fileID: 2028009027}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.55, y: -1.54, z: -1}
+  m_LocalPosition: {x: 2.55, y: -2.236, z: -1}
   m_LocalScale: {x: 2, y: 2, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -13933,7 +13968,7 @@ MonoBehaviour:
     requiredHoldTime: 0
     requiredSteps: 1
     currentStep: 0
-    targetNPCID: Storekeeper
+    targetNPCID: Storekeeper01
     activationObjects: []
     targetChest: {fileID: 2028009033}
   - taskType: 4
@@ -13952,6 +13987,9 @@ MonoBehaviour:
   completedEffect: {fileID: 1135885521}
   progressText: {fileID: 2124742055}
   underTip: {fileID: 2122646331}
+  objectToSpawn: {fileID: 746502808093022948, guid: 570d3d81686bf5647a92712730daf735, type: 3}
+  playerTransform: {fileID: 67920818}
+  spawnOffset: 0
 --- !u!50 &8418060796859274276
 Rigidbody2D:
   serializedVersion: 5
@@ -14372,4 +14410,5 @@ SceneRoots:
   - {fileID: 1021392659}
   - {fileID: 78578923}
   - {fileID: 1378202786}
-  - {fileID: 1529975481}
+  - {fileID: 67920818}
+

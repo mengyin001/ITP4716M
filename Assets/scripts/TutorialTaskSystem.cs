@@ -48,6 +48,11 @@ public class TutorialTaskSystem : MonoBehaviour
     [SerializeField] private TextMeshProUGUI progressText;
     [SerializeField] private TextMeshProUGUI underTip;
 
+    [Header("任务完成设置")]
+    [SerializeField] private GameObject objectToSpawn; // 要生成的物体预制体
+    [SerializeField] private Transform playerTransform; // 玩家角色Transform
+    [SerializeField] private float spawnOffset = 1f;    // 生成位置偏移量
+
     private float keyHoldTimer = 0;
     private ChestInteraction2D currentSubscribedChest;
 
@@ -182,9 +187,24 @@ public class TutorialTaskSystem : MonoBehaviour
             Debug.Log("Tutorial completed!");
             taskDescriptionText.text = "Tutorial completed!";
             progressSlider.gameObject.SetActive(false);
+
+            SpawnObjectBelowPlayer();
         }
 
         isTransitioning = false;
+    }
+
+    private void SpawnObjectBelowPlayer()
+    {
+        if (objectToSpawn != null && playerTransform != null)
+        {
+            Vector3 spawnPosition = playerTransform.position + Vector3.down * spawnOffset;
+            Instantiate(objectToSpawn, spawnPosition, Quaternion.identity);
+        }
+        else
+        {
+            Debug.LogError("生成物体失败：请检查objectToSpawn和playerTransform是否已设置");
+        }
     }
 
     void InitializeCurrentTask()
