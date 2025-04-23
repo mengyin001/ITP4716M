@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,7 +10,10 @@ public class Character : MonoBehaviour
     [SerializeField] public float MaxHealth;
     [SerializeField] public float currentHealth;
     public bool invulnerable;
-    public float invulnerableDuration; // ÎŞµĞÊ±¼ä
+    public float invulnerableDuration; // æ‹¸è©å¥€æ½”
+
+    public bool isEnemy = false;
+    public static Action OnEnemyDeath;// æ•Œäººæ­»äº¡äº‹ä»¶
 
     public UnityEvent OnHurt;
     public UnityEvent OnDie;
@@ -27,13 +30,13 @@ public class Character : MonoBehaviour
         if (currentHealth - damage > 0f)
         {
             currentHealth -= damage;
-            StartCoroutine(nameof(InvulnerableCoroutine));// Æô¶¯ÎŞµĞÊ±¼äĞ­³Ì
-            // Ö´ĞĞ½ÇÉ«ÊÜÉË¶¯»­
+            StartCoroutine(nameof(InvulnerableCoroutine));// ïœ„é›„æ‹¸è©å¥€æ½”è¡ªæœ€
+            // ç¡’ä¿´è¤’ä¼å¿³å¤¼é›„è³’
             OnHurt?.Invoke();
         }
         else
         {
-            // ËÀÍö
+            // ä¾šå—
             Die();
         }
     }
@@ -41,22 +44,24 @@ public class Character : MonoBehaviour
     public virtual void Die()
     {
         currentHealth = 0f;
-
-        // Ö´ĞĞ½ÇÉ«ËÀÍö¶¯»­
         OnDie?.Invoke();
+
+        if (isEnemy)
+            Debug.Log($"æ•Œäºº {gameObject.name} æ­»äº¡");
+            OnEnemyDeath?.Invoke();
     }
 
-    // ÎŞµĞ
+    // æ‹¸è©
     protected virtual IEnumerator InvulnerableCoroutine()
     {
         invulnerable = true;
 
-        // µÈ´ıÎŞµĞÊ±¼ä
+        // è„¹æ¸¾æ‹¸è©å¥€æ½”
         yield return new WaitForSeconds(invulnerableDuration);
 
         invulnerable = false;
     }
 
-    // Ìí¼Ó AddHealth ·½·¨ÉùÃ÷
+    // æ°æ¨“ AddHealth æºæ¥Šæ±’éš´
 
 }

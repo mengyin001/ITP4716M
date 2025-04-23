@@ -1,4 +1,4 @@
 Player|ME: Where am... I...? @0.05
-Player|ME: This look like ... Tsing Yi VTC campus!?
-Player|ME: Why am i here?
-NPC|NPC: Come here!
+Player|ME: This look like ... Tsing Yi VTC campus!? @0.05
+Player|ME: Why am i here? @0.05
+NPC|NPC: Come here! @0.05

@@ -1,3 +1,7 @@
 NPC|NPC: Hello!  @0.05
 NPC|NPC: Please done the task @0.05
-Player|ME: OK @0.05
+Player|ME: Those Task are easy, give me a harder one@0.1
+NPC|NPC: How arrogant are you, but are you sure?@0.1
+Player|ME: Yes@0.1
+NPC|NPC: If it is your choice, then do not blame me. @0.1
+NPC|NPC: let us see your performance in a real fight.@0.15
