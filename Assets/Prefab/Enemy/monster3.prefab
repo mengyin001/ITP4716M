@@ -234,7 +234,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentSpeed: 2
-  attackCoolDuration: 1
+  attackCoolDuration: 0
 --- !u!114 &1011166006111514870
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -247,7 +247,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dff8a5fc3e19bc545a95d053299c7fc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentHealth: 10
+  MaxHealth: 10
+  currentHealth: 0
   invulnerable: 0
   invulnerableDuration: 0
   OnHurt:
@@ -311,17 +312,17 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   player: {fileID: 0}
-  chaseDistance: 4
-  attackDistance: 2
+  chaseDistance: 9
+  attackDistance: 7
   shouldPatrol: 1
   patrolPoints: []
-  patrolPointReachedDistance: 0.5
+  patrolPointReachedDistance: 4
   waitTimeAtPoint: 1
   rangedAttackDamage: 10
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
-  fireRate: 1
+  fireRate: 0.5
   enemyBulletPrefab: {fileID: 1509856878078853610, guid: 7e76bc5606465db4ab2c5e6e75f9c0a3, type: 3}
   bulletSpeed: 2
   initialPoolSize: 20
@@ -342,9 +343,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   propPrefabs:
   - prefab: {fileID: 782630537697650885, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
-    dropPercentage: 56.1
+    dropPercentage: 35.6
   - prefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
-    dropPercentage: 62.6
+    dropPercentage: 26.6
 --- !u!114 &7612857705866296829
 MonoBehaviour:
   m_ObjectHideFlags: 0

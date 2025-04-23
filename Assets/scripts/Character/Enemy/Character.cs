@@ -7,7 +7,8 @@ using UnityEngine.Events;
 public class Character : MonoBehaviour
 {
     [Header("Attribute")]
-    [SerializeField] public float currentHealth = 100f;
+    [SerializeField] public float MaxHealth;
+    [SerializeField] public float currentHealth;
     public bool invulnerable;
     public float invulnerableDuration; // ÎÞµÐÊ±¼ä
 
@@ -16,7 +17,7 @@ public class Character : MonoBehaviour
 
     protected virtual void OnEnable()
     {
-
+        currentHealth = MaxHealth;
     }
 
     public virtual void TakeDamage(float damage)

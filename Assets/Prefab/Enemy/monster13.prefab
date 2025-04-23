@@ -201,8 +201,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8e8b5d97ed4e954580f3c0472857af0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentSpeed: 1
-  attackCoolDuration: 1
+  currentSpeed: 3
+  attackCoolDuration: 0
 --- !u!114 &4112752322977396189
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,7 +215,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e239991bad3c9294faed4e178d6378b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentHealth: 10
+  MaxHealth: 15
+  currentHealth: 0
   invulnerable: 0
   invulnerableDuration: 0
   OnHurt:
@@ -279,11 +280,11 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   player: {fileID: 0}
-  chaseDistance: 4
-  attackDistance: 0.8
+  chaseDistance: 8
+  attackDistance: 1
   shouldPatrol: 1
   patrolPoints: []
-  patrolPointReachedDistance: 0.5
+  patrolPointReachedDistance: 4
   waitTimeAtPoint: 1
   meleetAttackDamage: 10
   playerLayer:
@@ -307,7 +308,7 @@ MonoBehaviour:
   - prefab: {fileID: 782630537697650885, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
     dropPercentage: 52.3
   - prefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
-    dropPercentage: 44.2
+    dropPercentage: 28.5
 --- !u!114 &5437350505921305044
 MonoBehaviour:
   m_ObjectHideFlags: 0
