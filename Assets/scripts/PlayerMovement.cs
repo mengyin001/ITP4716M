@@ -12,7 +12,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 mousePos;
     private float flipY;
     public GameObject myBag;
-    bool isOpen;
+    public bool isOpen;
 
     void Start()
     {
@@ -26,6 +26,8 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
+            return;
+        if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
             return;
         OpenMyBag();
         SwitchGun();
@@ -76,6 +78,8 @@ public class PlayerMovement : MonoBehaviour
 
     void SwitchGun(){
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
+            return;
+        if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
             return;
 
         if (Input.GetKeyDown(KeyCode.Q)){            // Q and T switch gun

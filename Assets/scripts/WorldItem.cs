@@ -18,16 +18,7 @@ public class WordItem : MonoBehaviour
 
     public void AddNewItem()
     {
-        if (!playerInventory.itemList.Contains(thisItem))
-        {
-            playerInventory.itemList.Add(thisItem);
-            InventoryManager.CreateNewItem(thisItem);
-            thisItem.itemHeld += 1;
-        }
-        else
-        {
-            thisItem.itemHeld += 1;
-        }
-        InventoryManager.RefreshItem();
+        InventoryManager.AddItem(thisItem, 1);
+
     }
 }

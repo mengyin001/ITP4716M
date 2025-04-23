@@ -44,4 +44,5 @@ public class Bullet : MonoBehaviour
     {
         damage=_damage;
     }
+
 }

@@ -20,6 +20,9 @@ public class DialogueSystem : MonoBehaviour
         public Sprite characterIcon;
     }
 
+    public event System.Action<string> OnDialogueCompleted;
+    private string currentNPCID;
+
     [System.Serializable]
     public class CharacterIconConfig
     {
@@ -249,6 +252,12 @@ public class DialogueSystem : MonoBehaviour
         }
     }
 
+    public void LoadNewDialogue(TextAsset newDialogueFile, string npcID)
+    {
+        currentNPCID = npcID;
+
+    }
+
     public void EndDialogue()
     {
         if (freezeTimeDuringDialogue)
@@ -266,6 +275,7 @@ public class DialogueSystem : MonoBehaviour
         characterImage.gameObject.SetActive(false);
         isDialogueActive = false;
         currentDialogueIndex = 0;
+        OnDialogueCompleted?.Invoke(currentNPCID);
     }
 
     public void LoadNewDialogue(TextAsset newDialogueFile)
@@ -282,6 +292,8 @@ public class DialogueSystem : MonoBehaviour
             Time.timeScale = originalTimeScale;
         }
     }
+
+
 
     private void UpdateIconAnimation(string characterID)
     {
@@ -300,6 +312,8 @@ public class DialogueSystem : MonoBehaviour
                 iconAnimator.Play("DefaultIcon");
                 break;
         }
+
+
     }
 
     // Editor helper
