@@ -1,28 +1,28 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Pathfinding; // 需要 A* Pathfinding Project 插件
 
 public class SummonMinions : MonoBehaviour
 {
     [Header("Minion Settings")]
-    public GameObject minionPrefab; // 小弟的预制体
-    public int minionsPerSummon = 3; // 每次召唤的小弟数量
-    public float summonRadius = 3f; // 小弟生成的半径范围
+    public GameObject minionPrefab; // 小弟预制体
+    public int minionsPerSummon = 3; // 每次召唤数量
+    public float summonRadius = 3f; // 召唤半径
 
     [Header("Summon Interval")]
-    public float summonInterval = 10f; // 召唤小弟的时间间隔
-    private float summonTimer; // 召唤计时器
+    public float summonInterval = 10f; // 召唤间隔
+    private float summonTimer; // 计时器
 
     [Header("Absorb Settings")]
-    public float absorbRadius = 1f; // 吸收小弟的半径范围
-    public float healthRestoreAmount = 10f; // 每次吸收小弟回复的生命值
+    public float absorbRadius = 1f; // 吸收半径
+    public float healthRestoreAmount = 10f; // 吸收回血量
 
     [Header("Boundary Settings")]
-    public LayerMask walkableLayer; // 设置Walk区域的Layer
-    public float maxSpawnAttempts = 10; // 最大尝试生成次数
+    public LayerMask walkableLayer; // 可行走层（备用方案）
+    public float maxSpawnAttempts = 10; // 最大尝试次数
 
-    private Character bossCharacter; // 引用 Boss 的 Character 脚本
-    private List<GameObject> minions = new List<GameObject>(); // 存储当前存在的小弟
+    private Character bossCharacter; // Boss 角色脚本
+    private List<GameObject> minions = new List<GameObject>(); // 小弟列表
 
     private void Awake()
     {
@@ -38,7 +38,7 @@ public class SummonMinions : MonoBehaviour
             return;
         }
 
-        // 递减召唤计时器
+        // 召唤计时
         summonTimer -= Time.deltaTime;
         if (summonTimer <= 0f)
         {
@@ -64,22 +64,31 @@ public class SummonMinions : MonoBehaviour
             Vector2 randomOffset = Random.insideUnitCircle * summonRadius;
             Vector3 spawnPosition = transform.position + new Vector3(randomOffset.x, randomOffset.y, 0f);
 
-            // 检查生成点是否在Walk区域内
-            if (IsPositionInWalkableArea(spawnPosition))
+            if (IsPositionWalkable(spawnPosition))
             {
                 GameObject minion = Instantiate(minionPrefab, spawnPosition, Quaternion.identity);
                 minions.Add(minion);
                 return;
             }
         }
-        
-        Debug.LogWarning("Failed to find valid spawn position for minion after " + maxSpawnAttempts + " attempts");
+        Debug.LogWarning("Failed to find valid spawn position after " + maxSpawnAttempts + " attempts");
     }
 
-    private bool IsPositionInWalkableArea(Vector3 position)
+    /// <summary>
+    /// 检查位置是否可行走（优先用 A*，备用 Physics2D 检测）
+    /// </summary>
+    private bool IsPositionWalkable(Vector3 position)
     {
-        // 使用Physics2D.OverlapCircle检查该位置是否在Walkable层
-        Collider2D hit = Physics2D.OverlapCircle(position, 0.1f, walkableLayer);
+        // 方案1：使用 A* Pathfinding Project 检测
+        if (AstarPath.active != null)
+        {
+            var node = AstarPath.active.GetNearest(position).node;
+            if (node != null && node.Walkable)
+                return true;
+        }
+
+        // 方案2：备用 Physics2D 检测（适用于 Tilemap 或 Collider 标记可行走区域）
+        Collider2D hit = Physics2D.OverlapCircle(position, 0.5f, walkableLayer);
         return hit != null;
     }
 
@@ -88,8 +97,6 @@ public class SummonMinions : MonoBehaviour
         for (int i = minions.Count - 1; i >= 0; i--)
         {
             GameObject minion = minions[i];
-            
-            // 检查小弟是否已被销毁
             if (minion == null)
             {
                 minions.RemoveAt(i);
@@ -99,12 +106,10 @@ public class SummonMinions : MonoBehaviour
             float distance = Vector2.Distance(transform.position, minion.transform.position);
             if (distance <= absorbRadius)
             {
-                // 恢复 Boss 的生命值
                 bossCharacter.currentHealth = Mathf.Min(
-                    bossCharacter.currentHealth + healthRestoreAmount, 
+                    bossCharacter.currentHealth + healthRestoreAmount,
                     100f);
 
-                // 销毁小弟
                 Destroy(minion);
                 minions.RemoveAt(i);
             }
@@ -113,11 +118,11 @@ public class SummonMinions : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // 绘制召唤范围
+        // 召唤范围（蓝色）
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, summonRadius);
 
-        // 绘制吸收范围
+        // 吸收范围（红色）
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, absorbRadius);
     }

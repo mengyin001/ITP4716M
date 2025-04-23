@@ -201,7 +201,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8e8b5d97ed4e954580f3c0472857af0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentSpeed: 1
+  currentSpeed: 2
   attackCoolDuration: 1
 --- !u!114 &4112752322977396189
 MonoBehaviour:
@@ -279,11 +279,11 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   player: {fileID: 0}
-  chaseDistance: 4
-  attackDistance: 0.8
+  chaseDistance: 6
+  attackDistance: 1
   shouldPatrol: 1
   patrolPoints: []
-  patrolPointReachedDistance: 0.5
+  patrolPointReachedDistance: 2
   waitTimeAtPoint: 1
   meleetAttackDamage: 10
   playerLayer:

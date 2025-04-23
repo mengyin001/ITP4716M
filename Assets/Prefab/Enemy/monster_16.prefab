@@ -345,7 +345,7 @@ MonoBehaviour:
   patrolPoints:
   - {fileID: 0}
   - {fileID: 0}
-  patrolPointReachedDistance: 0.5
+  patrolPointReachedDistance: 2
   waitTimeAtPoint: 1
   rangedAttackDamage: 10
   playerLayer:
@@ -372,6 +372,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   propPrefabs:
   - prefab: {fileID: 782630537697650885, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
-    dropPercentage: 95.8
+    dropPercentage: 48.6
   - prefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
-    dropPercentage: 100
+    dropPercentage: 34.1

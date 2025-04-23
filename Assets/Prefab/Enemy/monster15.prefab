@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2919009360445981899}
   - component: {fileID: 8035794652711940104}
   - component: {fileID: 8783499077023434804}
-  - component: {fileID: 7655333678215133332}
+  - component: {fileID: 6748315534693249944}
   - component: {fileID: 8944358941817023753}
   - component: {fileID: 9007861010781360817}
   - component: {fileID: 7788763494465873999}
@@ -144,8 +144,8 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!61 &7655333678215133332
-BoxCollider2D:
+--- !u!70 &6748315534693249944
+CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -178,18 +178,9 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.03583905, y: -0.11921406}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2.8, y: 2}
-    newSize: {x: 2.8, y: 2}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 1.1071033, y: 0.57265}
-  m_EdgeRadius: 0
+  m_Offset: {x: 0.05, y: -0.22}
+  m_Size: {x: 0.98, y: 0.32}
+  m_Direction: 1
 --- !u!114 &8944358941817023753
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -231,7 +222,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentSpeed: 1
-  attackCoolDuration: 1
+  attackCoolDuration: 2
 --- !u!114 &7788763494465873999
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244,7 +235,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e239991bad3c9294faed4e178d6378b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentHealth: 50
+  currentHealth: 100
   invulnerable: 0
   invulnerableDuration: 0
   OnHurt:
@@ -308,11 +299,11 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   player: {fileID: 0}
-  chaseDistance: 10
+  chaseDistance: 12
   attackDistance: 4
   shouldPatrol: 0
   patrolPoints: []
-  patrolPointReachedDistance: 0.5
+  patrolPointReachedDistance: 2
   waitTimeAtPoint: 1
   meleetAttackDamage: 20
   playerLayer:
@@ -348,12 +339,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   minionPrefab: {fileID: 4800886895020340632, guid: 072c7c2ab5474b949a3c6e31ce2f3f8e, type: 3}
-  minionsPerSummon: 5
-  summonRadius: 10
-  summonInterval: 10
-  absorbRadius: 3
+  minionsPerSummon: 8
+  summonRadius: 9
+  summonInterval: 5
+  absorbRadius: 5
   healthRestoreAmount: 10
   walkableLayer:
     serializedVersion: 2
-    m_Bits: 2048
-  maxSpawnAttempts: 10
+    m_Bits: 0
+  maxSpawnAttempts: 20
