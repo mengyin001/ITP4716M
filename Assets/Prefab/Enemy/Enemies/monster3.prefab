@@ -64,7 +64,7 @@ Transform:
   m_GameObject: {fileID: 7033836496430171048}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.1199956, y: -4.7652063, z: 0}
+  m_LocalPosition: {x: 3.1199956, y: -4.7652063, z: -1}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -235,6 +235,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentSpeed: 2
   attackCoolDuration: 0
+  attackSound: {fileID: 0}
+  audioSource: {fileID: 0}
 --- !u!114 &1011166006111514870
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -326,7 +328,6 @@ MonoBehaviour:
   enemyBulletPrefab: {fileID: 1509856878078853610, guid: 7e76bc5606465db4ab2c5e6e75f9c0a3, type: 3}
   bulletSpeed: 2
   initialPoolSize: 20
-  poolExpandAmount: 5
   bulletSpawnPoint: {fileID: 8468118725094172869}
   pickupSpawner: {fileID: 8253765840209588835}
 --- !u!114 &8253765840209588835

@@ -2183,7 +2183,9 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 65bef01c0ff5cb74683af5ea1eb648c1, type: 3}
---- !u!1 &1635008433
+
+--- !u!1 &1449977971
+
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2191,54 +2193,49 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1635008434}
-  - component: {fileID: 1635008435}
+
+  - component: {fileID: 1449977973}
+  - component: {fileID: 1449977972}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: PlayerManager
+
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &1635008434
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1635008433}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 455986625}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1635008435
+
+--- !u!114 &1449977972
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1635008433}
+  m_GameObject: {fileID: 1449977971}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6aa8924ba09832f4db5bcd932b71a0b2, type: 3}
+  m_Script: {fileID: 11500000, guid: 17f4f52e515085e4e9d70e47f1003a74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  triggerDistance: 1
-  interactKey: 101
-  dialogueFile: {fileID: 4900000, guid: ae99d7ac78972344aa69f482acd7f473, type: 3}
-  interactPrompt: {fileID: 0}
-  openShopAfterDialogue: 1
-  shopToOpen: {fileID: 11400000, guid: 77313dcefbaba7843940152b7c78e9e5, type: 2}
-  isInRange: 0
-  npcID: Storekeeper01
+  playerPrefab: {fileID: 3092437038555284274, guid: b69c7240ba78ea74584d594dc0a1a60a, type: 3}
+--- !u!4 &1449977973
+Transform:
+
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+
+  m_GameObject: {fileID: 1449977971}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.46, y: -1.9048802, z: 0.009217858}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+
 --- !u!1 &1770363659
 GameObject:
   m_ObjectHideFlags: 0
@@ -2474,6 +2471,6 @@ SceneRoots:
   - {fileID: 1273976657}
   - {fileID: 886031857}
   - {fileID: 1770363662}
-  - {fileID: 1068330654}
-  - {fileID: 455986625}
-  - {fileID: 1429262803}
+
+  - {fileID: 1449977973}
+

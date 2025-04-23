@@ -231,6 +231,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentSpeed: 3
   attackCoolDuration: 0
+  attackSound: {fileID: 0}
+  audioSource: {fileID: 0}
 --- !u!114 &7540725338838754358
 MonoBehaviour:
   m_ObjectHideFlags: 0
