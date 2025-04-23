@@ -47,8 +47,10 @@ public class Character : MonoBehaviour
         OnDie?.Invoke();
 
         if (isEnemy)
+        {
             Debug.Log($"敌人 {gameObject.name} 死亡");
             OnEnemyDeath?.Invoke();
+        }
     }
 
     // 拸菩

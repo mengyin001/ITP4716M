@@ -7,13 +7,13 @@ public class EnemyBullet : MonoBehaviour
     private float speed;
     private Vector2 direction;
     private Rigidbody2D rb;
-    private Animator animator;
+  
     private EnemyBulletPool bulletPool;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
+        
         bulletPool = transform.root.GetComponentInChildren<EnemyBulletPool>();
     }
 
@@ -32,10 +32,7 @@ public class EnemyBullet : MonoBehaviour
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 
         // 播放飞行动画
-        if (animator != null)
-        {
-            animator.SetBool("IsFlying", true);
-        }
+
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -47,12 +44,12 @@ public class EnemyBullet : MonoBehaviour
             {
                 playerHealth.TakeDamage(damage);
             }
-            PlayCollisionAnimation();
+          
             ReturnToPool();
         }
-        else if (other.CompareTag("Wall") || other.CompareTag("Obstacle"))
+        else if (other.CompareTag("Wall"))
         {
-            PlayCollisionAnimation();
+           
             ReturnToPool();
         }
     }
@@ -64,11 +61,6 @@ public class EnemyBullet : MonoBehaviour
 
     private void ReturnToPool()
     {
-        // 停止飞行动画
-        if (animator != null)
-        {
-            animator.SetBool("IsFlying", false);
-        }
 
         if (bulletPool != null)
         {
@@ -91,19 +83,8 @@ public class EnemyBullet : MonoBehaviour
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 
-            // 播放飞行动画
-            if (animator != null)
-            {
-                animator.SetBool("IsFlying", true);
-            }
         }
     }
 
-    private void PlayCollisionAnimation()
-    {
-        if (animator != null)
-        {
-            animator.SetTrigger("Hit");
-        }
-    }
+
 }
