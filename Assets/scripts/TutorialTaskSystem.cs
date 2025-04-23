@@ -72,7 +72,7 @@ public class TutorialTaskSystem : MonoBehaviour
 
             if (task.taskType == Task.TaskType.CompleteGame)
             {
-                task.requiredSteps = EnemyManager.Instance.MaxWaves; // 设置为最大波数
+                task.requiredSteps = EnemyManager.Instance.MaxWaves+1; // 设置为最大波数
             }
 
             if (task.showProgressBar)

@@ -234,6 +234,7 @@ public class EnemyManager : MonoBehaviour
         {
             if (IsLastWave)
             {
+                CurrentWaveIndex++;
                 GenerateTeleportationCircle();
             }
         }
