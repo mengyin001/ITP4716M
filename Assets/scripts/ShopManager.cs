@@ -20,10 +20,12 @@ public class ShopManager : MonoBehaviour
     private ItemData _selectedItem;
     private int _currentQuantity = 1;
     private ShopItemUI _selectedUI;
+    public bool isOPen = false;
 
     private void Start()
     {
         InitializeShop();
+        CloseShop();
         buyButton.onClick.AddListener(ProcessPurchase);
         quantityInput.onValueChanged.AddListener(UpdateQuantity);
     }
@@ -163,4 +165,18 @@ public class ShopManager : MonoBehaviour
             Destroy(child.gameObject);
         }
     }
+    public void OpenShop()
+    {
+        isOPen = true;
+        shopContent.parent.gameObject.SetActive(true);
+        ResetSelection();
+    }
+
+    public void CloseShop()
+    {
+        isOPen = false;
+        shopContent.parent.gameObject.SetActive(false);
+        ResetSelection();
+    }
+
 }

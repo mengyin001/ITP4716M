@@ -13,7 +13,7 @@ public class NPCDialogueTrigger : MonoBehaviour
     public TextMeshProUGUI interactPrompt;
 
     private Transform player;
-    private bool isInRange;
+    public bool isInRange;
 
     void Start()
     {
