@@ -1533,7 +1533,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -94.00049, y: -316}
+  m_AnchoredPosition: {x: -94.00058, y: -316}
   m_SizeDelta: {x: 903.7, y: 278.4}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &285629403
@@ -1938,7 +1938,7 @@ GameObject:
   - component: {fileID: 347448997}
   - component: {fileID: 347449001}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: Bag
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2411,7 +2411,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 2
+  orthographic size: 2.2
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -4152,7 +4152,7 @@ GameObject:
   - component: {fileID: 805454588}
   - component: {fileID: 805454592}
   m_Layer: 10
-  m_Name: Canvas
+  m_Name: Shop
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12674,7 +12674,7 @@ GameObject:
   - component: {fileID: 2101762556}
   - component: {fileID: 2101762555}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: Setting
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
