@@ -46,7 +46,7 @@ MonoBehaviour:
       layerSetting:
         list:
         - layerID: 0
-    - name: 'Preset (Id: 1)'
+    - name: Basic Events
       layerSetting:
         list:
         - layerID: 0
