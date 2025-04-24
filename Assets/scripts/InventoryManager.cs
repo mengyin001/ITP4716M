@@ -170,11 +170,24 @@ public class InventoryManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        SaveInventory();
+        // 停止Play模式时不保存库存
+        // SaveInventory();
+    }
+
+    private void OnDestroy()
+    {
+        // 清空背包数据
+        myBag.itemList.Clear();
+        // 清空保存的文件
+        string path = Application.persistentDataPath + "/inventory.json";
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+        }
     }
 
     void Start()
     {
         RefreshItem();
     }
-}
+}    

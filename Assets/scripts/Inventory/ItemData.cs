@@ -1,5 +1,4 @@
-﻿// ItemData.cs
-using System;
+﻿using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]
