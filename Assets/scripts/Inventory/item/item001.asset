@@ -17,7 +17,7 @@ MonoBehaviour:
   icon: {fileID: 1018383391595562092, guid: 368f625759658cb48893fcaad6b9eddb, type: 3}
   description: Restore blood volume
   itemType: 0
-  price: 200
+  price: 50
   weight: 0.1
   isUnique: 0
   usePrefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}

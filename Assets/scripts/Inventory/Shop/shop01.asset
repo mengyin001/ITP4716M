@@ -16,4 +16,3 @@ MonoBehaviour:
   itemsForSale:
   - {fileID: 11400000, guid: 70d14a1117c24aa4da461858c33a6e69, type: 2}
   - {fileID: 11400000, guid: f900666556a8e2a4db9d17c6cd8fd75a, type: 2}
-  - {fileID: 11400000, guid: e8066b81eae60684783c72a6935fdf9b, type: 2}
