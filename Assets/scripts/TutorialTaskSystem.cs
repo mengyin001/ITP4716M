@@ -72,8 +72,7 @@ public class TutorialTaskSystem : MonoBehaviour
 
             if (task.taskType == Task.TaskType.CompleteGame)
             {
-                task.requiredSteps = EnemyManager.Instance.MaxWaves+1; // 设置为最大波数
-                task.currentStep++;
+                task.requiredSteps = EnemyManager.Instance.MaxWaves; // 设置为最大波数
             }
 
             if (task.showProgressBar)
@@ -101,11 +100,12 @@ public class TutorialTaskSystem : MonoBehaviour
 
         if (currentTask.taskType == Task.TaskType.CompleteGame)
     {
-        int completedWaves = EnemyManager.Instance.CurrentWaveIndex; // 获取当前波数
+        int completedWaves = EnemyManager.Instance.CurrentWaveIndex-1; // 获取当前波数
         if (completedWaves > currentTask.currentStep) // 每完成一个波数
         {
             currentTask.currentStep++; // 增加当前步骤
             UpdateProgressDisplay(currentTask); // 更新进度显示
+            UpdateProgressText(currentTask);
 
             // 检查是否完成所有步骤
             if (currentTask.currentStep >= currentTask.requiredSteps)
