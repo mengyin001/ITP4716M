@@ -8,7 +8,7 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private float currentSpeed = 0;
     [SerializeField] private float attackCoolDuration = 1;
     public Vector2 MovementInput { get; set; }
-
+    
     [Header("Sound Effects")]
     [SerializeField] private AudioClip attackSound;
     [SerializeField] private AudioSource audioSource;

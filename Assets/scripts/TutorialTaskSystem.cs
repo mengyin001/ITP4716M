@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using TMPro;
@@ -16,7 +16,8 @@ public class TutorialTaskSystem : MonoBehaviour
             HoldKey,
             Dialogue,
             KillEnemies,
-            OpenChest
+            OpenChest,
+            CompleteGame
         }
         public TaskType taskType = TaskType.KeyPress; // 任务类型
         public string description;          // 任务描述
@@ -48,6 +49,11 @@ public class TutorialTaskSystem : MonoBehaviour
     [SerializeField] private TextMeshProUGUI progressText;
     [SerializeField] private TextMeshProUGUI underTip;
 
+    [Header("任务完成设置")]
+    [SerializeField] private GameObject objectToSpawn; // 要生成的物体预制体
+    [SerializeField] private Transform playerTransform; // 玩家角色Transform
+    [SerializeField] private float spawnOffset = 1f;    // 生成位置偏移量
+
     private float keyHoldTimer = 0;
     private ChestInteraction2D currentSubscribedChest;
 
@@ -63,6 +69,12 @@ public class TutorialTaskSystem : MonoBehaviour
         foreach (var task in tasks)
         {
             task.currentStep = 0;
+
+            if (task.taskType == Task.TaskType.CompleteGame)
+            {
+                task.requiredSteps = EnemyManager.Instance.MaxWaves; // 设置为最大波数
+            }
+
             if (task.showProgressBar)
             {
                 progressSlider.maxValue = task.requiredSteps;
@@ -85,6 +97,25 @@ public class TutorialTaskSystem : MonoBehaviour
          if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
             return;
         // 长按任务检测
+
+        if (currentTask.taskType == Task.TaskType.CompleteGame)
+    {
+        int completedWaves = EnemyManager.Instance.CurrentWaveIndex-1; // 获取当前波数
+        if (completedWaves > currentTask.currentStep) // 每完成一个波数
+        {
+            currentTask.currentStep++; // 增加当前步骤
+            UpdateProgressDisplay(currentTask); // 更新进度显示
+            UpdateProgressText(currentTask);
+
+            // 检查是否完成所有步骤
+            if (currentTask.currentStep >= currentTask.requiredSteps)
+            {
+                CompleteStep(currentTask);
+            }
+        }
+        return;
+        }
+
         if (!string.IsNullOrEmpty(currentTask.targetNPCID)) return;
         if (currentTask.requiredHoldTime > 0)
         {
@@ -182,9 +213,24 @@ public class TutorialTaskSystem : MonoBehaviour
             Debug.Log("Tutorial completed!");
             taskDescriptionText.text = "Tutorial completed!";
             progressSlider.gameObject.SetActive(false);
+
+            SpawnObjectBelowPlayer();
         }
 
         isTransitioning = false;
+    }
+
+    private void SpawnObjectBelowPlayer()
+    {
+        if (objectToSpawn != null && playerTransform != null)
+        {
+            Vector3 spawnPosition = playerTransform.position + Vector3.down * spawnOffset;
+            Instantiate(objectToSpawn, spawnPosition, Quaternion.identity);
+        }
+        else
+        {
+            Debug.LogError("生成物体失败：请检查objectToSpawn和playerTransform是否已设置");
+        }
     }
 
     void InitializeCurrentTask()
@@ -350,7 +396,12 @@ public class TutorialTaskSystem : MonoBehaviour
                 showProgressBar = true,
                 requiredHoldTime = 1f,
                 requiredSteps = 4
-            }
+            },
+            new Task{
+            description = "完成所有敌人波次",
+            taskType = Task.TaskType.CompleteGame,
+            requiredSteps = EnemyManager.Instance.MaxWaves // 使用最大波数
+        }
         };
     }
 }

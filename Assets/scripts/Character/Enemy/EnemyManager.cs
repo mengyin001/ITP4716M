@@ -7,24 +7,25 @@ public class EnemyManager : MonoBehaviour
 {
     public static EnemyManager Instance { get; private set; }
 
-    [Header("µĞÈËË¢ĞÂµã")]
+    [Header("æ•Œäººåˆ·æ–°ç‚¹")]
     public Transform[] spawnPoints;
 
-    [Header("µĞÈËÑ²Âßµã")]
+    [Header("æ•Œäººå·¡é€»ç‚¹")]
     public Transform[] patrolPoints;
 
-    [Header("¸Ã¹Ø¿¨µÄµĞÈË²¨´Î")]
+    [Header("è¯¥å…³å¡çš„æ•Œäººæ³¢æ¬¡")]
     public List<EnemyWave> enemyWaves;
 
-    public int CurrentWaveIndex { get; private set; } = 0;
+    public int CurrentWaveIndex { get; private set; } = 0; // å½“å‰æ³¢æ•°
+    public int MaxWaves => enemyWaves.Count;
     public int AliveEnemyCount { get; private set; } = 0;
     public bool IsLastWave => CurrentWaveIndex >= enemyWaves.Count;
     public bool IsWaveInProgress { get; private set; } = false;
 
     private Transform playerTarget;
     private List<GameObject> activeEnemies = new List<GameObject>();
-    public GameObject teleportationCirclePrefab; // ´«ËÍÕóÔ¤ÖÆ¼ş
-    public Transform teleportationSpawnPoint; // ´«ËÍÕóÉú³Éµã
+    public GameObject teleportationCirclePrefab; // ä¼ é€é˜µé¢„åˆ¶ä»¶
+    public Transform teleportationSpawnPoint; // ä¼ é€é˜µç”Ÿæˆç‚¹
 
     [System.Serializable]
     public class EnemyData
@@ -51,13 +52,13 @@ public class EnemyManager : MonoBehaviour
         Instance = this;
         Initialize();
 
-        // ×¢²á³¡¾°¼ÓÔØÊÂ¼ş
+        // æ³¨å†Œåœºæ™¯åŠ è½½äº‹ä»¶
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // µ±¼ÓÔØµÄ³¡¾°ÊÇSafeHouseÊ±£¬ÖØÖÃEnemyManager
+        // å½“åŠ è½½çš„åœºæ™¯æ˜¯SafeHouseæ—¶ï¼Œé‡ç½®EnemyManager
         if (scene.name == "SafeHouse")
         {
             ResetEnemyManager();
@@ -75,9 +76,9 @@ public class EnemyManager : MonoBehaviour
 
     public void ResetEnemyManager()
     {
-        AliveEnemyCount = 0;  // Ã÷È·ÖØÖÃAliveEnemyCount±äÁ¿
+        AliveEnemyCount = 0;  // æ˜ç¡®é‡ç½®AliveEnemyCountå˜é‡
         Initialize();
-        // ÆäËûĞèÒªÖØÖÃµÄÄÚÈİ¿ÉÒÔÔÚÕâÀïÌí¼Ó
+        // å…¶ä»–éœ€è¦é‡ç½®çš„å†…å®¹å¯ä»¥åœ¨è¿™é‡Œæ·»åŠ 
     }
 
     private void Start()
@@ -107,7 +108,7 @@ public class EnemyManager : MonoBehaviour
         List<Collider2D> spawnedEnemyColliders = new List<Collider2D>();
         List<(float time, EnemyData enemyData)> spawnQueue = new List<(float time, EnemyData enemyData)>();
 
-        // ¹¹½¨Éú³É¶ÓÁĞ
+        // æ„å»ºç”Ÿæˆé˜Ÿåˆ—
         float currentTime = 0f;
         foreach (EnemyData enemyData in currentWaveEnemies)
         {
@@ -118,10 +119,10 @@ public class EnemyManager : MonoBehaviour
             }
         }
 
-        // °´Ê±¼äË³ĞòÅÅĞò
+        // æŒ‰æ—¶é—´é¡ºåºæ’åº
         spawnQueue.Sort((a, b) => a.time.CompareTo(b.time));
 
-        // ÒÀ´ÎÉú³ÉµĞÈË
+        // ä¾æ¬¡ç”Ÿæˆæ•Œäºº
         for (int i = 0; i < spawnQueue.Count; i++)
         {
             if (i > 0)
@@ -136,7 +137,7 @@ public class EnemyManager : MonoBehaviour
             EnemyData enemyData = spawnQueue[i].enemyData;
             if (spawnPoints == null || spawnPoints.Length == 0)
             {
-                Debug.LogError("ÎŞ·¨Éú³ÉµĞÈË£ºÎ´ÉèÖÃË¢ĞÂµã");
+                Debug.LogError("æ— æ³•ç”Ÿæˆæ•Œäººï¼šæœªè®¾ç½®åˆ·æ–°ç‚¹");
                 yield break;
             }
 
@@ -155,7 +156,7 @@ public class EnemyManager : MonoBehaviour
             AliveEnemyCount++;
         }
 
-        // ÇåÀí¿ÉÄÜÎªnullµÄÅö×²Ìå
+        // æ¸…ç†å¯èƒ½ä¸ºnullçš„ç¢°æ’ä½“
         spawnedEnemyColliders.RemoveAll(collider => collider == null);
         IgnoreEnemyCollisions(spawnedEnemyColliders);
 
@@ -210,7 +211,7 @@ public class EnemyManager : MonoBehaviour
                 }
                 catch (System.Exception e)
                 {
-                    Debug.LogWarning($"ºöÂÔÅö×²Ê§°Ü: {e.Message}");
+                    Debug.LogWarning($"å¿½ç•¥ç¢°æ’å¤±è´¥: {e.Message}");
                 }
             }
         }
@@ -226,13 +227,14 @@ public class EnemyManager : MonoBehaviour
         if (activeEnemies.Contains(enemy))
         {
             activeEnemies.Remove(enemy);
-            Destroy(enemy); // Ìí¼ÓÕâĞĞ´úÂëÀ´Ïú»ÙµĞÈË¶ÔÏó
+            Destroy(enemy); // æ·»åŠ è¿™è¡Œä»£ç æ¥é”€æ¯æ•Œäººå¯¹è±¡
         }
 
         if (AliveEnemyCount <= 0)
         {
             if (IsLastWave)
             {
+                CurrentWaveIndex++;
                 GenerateTeleportationCircle();
             }
         }
@@ -267,7 +269,7 @@ public class EnemyManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        // ×¢Ïú³¡¾°¼ÓÔØÊÂ¼ş
+        // æ³¨é”€åœºæ™¯åŠ è½½äº‹ä»¶
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }

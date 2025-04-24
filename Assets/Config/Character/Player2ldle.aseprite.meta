@@ -139,7 +139,21 @@ ScriptedImporter:
     spriteBone: []
     spriteOutline: []
     vertices: []
-    spritePhysicsOutline: []
+    spritePhysicsOutline:
+    - outline:
+      - {x: 0.5, y: -22}
+      - {x: 1.5, y: -22}
+      - {x: 1.5, y: -24}
+      - {x: 5.5, y: -24}
+      - {x: 5.5, y: -21}
+      - {x: 4.5, y: -21}
+      - {x: 4.5, y: -20}
+      - {x: 0.5, y: -20}
+    - outline:
+      - {x: -6.5, y: -24}
+      - {x: -2.5, y: -24}
+      - {x: -2.5, y: -20}
+      - {x: -6.5, y: -20}
     indices: 
     edges: []
     tessellationDetail: 0
@@ -160,7 +174,21 @@ ScriptedImporter:
     spriteBone: []
     spriteOutline: []
     vertices: []
-    spritePhysicsOutline: []
+    spritePhysicsOutline:
+    - outline:
+      - {x: -6.5, y: -24}
+      - {x: -2.5, y: -24}
+      - {x: -2.5, y: -20}
+      - {x: -6.5, y: -20}
+    - outline:
+      - {x: 0.5, y: -22}
+      - {x: 1.5, y: -22}
+      - {x: 1.5, y: -24}
+      - {x: 5.5, y: -24}
+      - {x: 5.5, y: -21}
+      - {x: 4.5, y: -21}
+      - {x: 4.5, y: -20}
+      - {x: 0.5, y: -20}
     indices: 
     edges: []
     tessellationDetail: 0
@@ -181,7 +209,21 @@ ScriptedImporter:
     spriteBone: []
     spriteOutline: []
     vertices: []
-    spritePhysicsOutline: []
+    spritePhysicsOutline:
+    - outline:
+      - {x: 0.5, y: -21.5}
+      - {x: 1.5, y: -21.5}
+      - {x: 1.5, y: -23.5}
+      - {x: 5.5, y: -23.5}
+      - {x: 5.5, y: -20.5}
+      - {x: 4.5, y: -20.5}
+      - {x: 4.5, y: -19.5}
+      - {x: 0.5, y: -19.5}
+    - outline:
+      - {x: -6.5, y: -23.5}
+      - {x: -2.5, y: -23.5}
+      - {x: -2.5, y: -20.5}
+      - {x: -6.5, y: -20.5}
     indices: 
     edges: []
     tessellationDetail: 0
@@ -202,7 +244,19 @@ ScriptedImporter:
     spriteBone: []
     spriteOutline: []
     vertices: []
-    spritePhysicsOutline: []
+    spritePhysicsOutline:
+    - outline:
+      - {x: -6.5, y: -23.5}
+      - {x: -2.5, y: -23.5}
+      - {x: -2.5, y: -19.5}
+      - {x: -6.5, y: -19.5}
+    - outline:
+      - {x: 0.5, y: -21.5}
+      - {x: 1.5, y: -21.5}
+      - {x: 1.5, y: -23.5}
+      - {x: 5.5, y: -23.5}
+      - {x: 5.5, y: -20.5}
+      - {x: 0.5, y: -20.5}
     indices: 
     edges: []
     tessellationDetail: 0
@@ -223,7 +277,21 @@ ScriptedImporter:
     spriteBone: []
     spriteOutline: []
     vertices: []
-    spritePhysicsOutline: []
+    spritePhysicsOutline:
+    - outline:
+      - {x: -6.5, y: -24}
+      - {x: -2.5, y: -24}
+      - {x: -2.5, y: -20}
+      - {x: -6.5, y: -20}
+    - outline:
+      - {x: 0.5, y: -22}
+      - {x: 1.5, y: -22}
+      - {x: 1.5, y: -24}
+      - {x: 5.5, y: -24}
+      - {x: 5.5, y: -21}
+      - {x: 4.5, y: -21}
+      - {x: 4.5, y: -20}
+      - {x: 0.5, y: -20}
     indices: 
     edges: []
     tessellationDetail: 0
@@ -244,7 +312,21 @@ ScriptedImporter:
     spriteBone: []
     spriteOutline: []
     vertices: []
-    spritePhysicsOutline: []
+    spritePhysicsOutline:
+    - outline:
+      - {x: -6.5, y: -24}
+      - {x: -2.5, y: -24}
+      - {x: -2.5, y: -20}
+      - {x: -6.5, y: -20}
+    - outline:
+      - {x: 0.5, y: -22}
+      - {x: 1.5, y: -22}
+      - {x: 1.5, y: -24}
+      - {x: 5.5, y: -24}
+      - {x: 5.5, y: -21}
+      - {x: 4.5, y: -21}
+      - {x: 4.5, y: -20}
+      - {x: 0.5, y: -20}
     indices: 
     edges: []
     tessellationDetail: 0
@@ -265,7 +347,18 @@ ScriptedImporter:
     spriteBone: []
     spriteOutline: []
     vertices: []
-    spritePhysicsOutline: []
+    spritePhysicsOutline:
+    - outline:
+      - {x: -6.5, y: -23.5}
+      - {x: -2.5, y: -23.5}
+      - {x: -2.5, y: -20.5}
+      - {x: -6.5, y: -20.5}
+    - outline:
+      - {x: 1.5, y: -21.5}
+      - {x: 1.5, y: -23.5}
+      - {x: 5.5, y: -23.5}
+      - {x: 5.5, y: -20.5}
+      - {x: 0.5, y: -20.5}
     indices: 
     edges: []
     tessellationDetail: 0
@@ -286,7 +379,19 @@ ScriptedImporter:
     spriteBone: []
     spriteOutline: []
     vertices: []
-    spritePhysicsOutline: []
+    spritePhysicsOutline:
+    - outline:
+      - {x: -6.5, y: -23.5}
+      - {x: -2.5, y: -23.5}
+      - {x: -2.5, y: -20.5}
+      - {x: -6.5, y: -20.5}
+    - outline:
+      - {x: 0.5, y: -21.5}
+      - {x: 1.5, y: -21.5}
+      - {x: 1.5, y: -23.5}
+      - {x: 5.5, y: -23.5}
+      - {x: 5.5, y: -20.5}
+      - {x: 0.5, y: -20.5}
     indices: 
     edges: []
     tessellationDetail: 0

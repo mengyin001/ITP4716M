@@ -362,7 +362,6 @@ MonoBehaviour:
   enemyBulletPrefab: {fileID: 6915753770271991320, guid: 0a6366c675e62b84ba834297cab0adbc, type: 3}
   bulletSpeed: 2
   initialPoolSize: 20
-  poolExpandAmount: 5
   bulletSpawnPoint: {fileID: 3094904388301418936}
   pickupSpawner: {fileID: 9192020753057309946}
 --- !u!114 &9192020753057309946
@@ -389,7 +388,7 @@ AudioSource:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4608412696461306354}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: ae14327688894c44cb89ab01b606eaa7, type: 3}
@@ -486,7 +485,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4608412696461306354}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ac51939b6c1379f4aa34f4ae9c736d2c, type: 3}
   m_Name: 
