@@ -219,9 +219,16 @@ public class HealthSystem : MonoBehaviour
         if (disableControlOnDeath)
         {
             var controller = GetComponent<PlayerMovement>();
-            if (controller != null) controller.enabled = false;
+            if (controller != null)
+            {
+                controller.enabled = false;
+                Debug.Log("已禁用 PlayerMovement 组件");
+            }
+            else
+            {
+                Debug.LogError("未找到 PlayerMovement 组件！");
+            }
         }
-
         StartCoroutine(PlayDeathAnimation());
     }
     private IEnumerator PlayDeathAnimation()

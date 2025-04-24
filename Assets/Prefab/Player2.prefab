@@ -462,7 +462,7 @@ MonoBehaviour:
   autoRegen: 0
   regenRate: 1
   autoRegenEn: 1
-  regenRateEn: 2
+  regenRateEn: 20
   onDeath:
     m_PersistentCalls:
       m_Calls: []
@@ -488,42 +488,65 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tasks:
-  - description: Click "W" to up
+  - taskType: 0
+    description: Click "W" to up
     triggerKey: 119
     showProgressBar: 1
     requiredHoldTime: 0
     requiredSteps: 1
     currentStep: 0
-  - description: Click "A" to left
+    targetNPCID: 
+    activationObjects: []
+    targetChest: {fileID: 0}
+  - taskType: 0
+    description: Click "A" to left
     triggerKey: 97
     showProgressBar: 1
     requiredHoldTime: 0
     requiredSteps: 1
     currentStep: 0
-  - description: Click "S" to down
+    targetNPCID: 
+    activationObjects: []
+    targetChest: {fileID: 0}
+  - taskType: 0
+    description: Click "S" to down
     triggerKey: 115
     showProgressBar: 1
     requiredHoldTime: 0
     requiredSteps: 1
     currentStep: 0
-  - description: Click "D" to right
+    targetNPCID: 
+    activationObjects: []
+    targetChest: {fileID: 0}
+  - taskType: 0
+    description: Click "D" to right
     triggerKey: 100
     showProgressBar: 1
     requiredHoldTime: 0
     requiredSteps: 1
     currentStep: 0
-  - description: Click "E" to open the box
+    targetNPCID: 
+    activationObjects: []
+    targetChest: {fileID: 0}
+  - taskType: 0
+    description: Click "E" to open the box
     triggerKey: 101
     showProgressBar: 1
     requiredHoldTime: 0
     requiredSteps: 1
     currentStep: 0
+    targetNPCID: 
+    activationObjects: []
+    targetChest: {fileID: 0}
   taskTransitionDelay: 1
   taskDescriptionText: {fileID: 0}
   progressSlider: {fileID: 0}
   completedEffect: {fileID: 0}
   progressText: {fileID: 0}
   underTip: {fileID: 0}
+  objectToSpawn: {fileID: 0}
+  playerTransform: {fileID: 0}
+  spawnOffset: 1
 --- !u!114 &8374763958776352107
 MonoBehaviour:
   m_ObjectHideFlags: 0
