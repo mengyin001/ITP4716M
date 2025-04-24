@@ -11,7 +11,7 @@ public class ItemData : ScriptableObject
     public string itemID;
     public string itemName;
     public Sprite icon;
-    [NonSerialized] public int itemHeld; 
+    [NonSerialized] public int itemHeld;
     [TextArea] public string description;
     public ItemType itemType;
 
@@ -26,12 +26,13 @@ public class ItemData : ScriptableObject
     public GameObject usePrefab;
     public int restoreHealth;
     public int attackBonus;
-}
 
-// ItemInstance.cs
-[System.Serializable]
-public class ItemInstance
-{
-    public ItemData data;
-    public int quantity;
+    //保证 itemID 是唯一的
+    private void OnEnable()
+    {
+        if (string.IsNullOrEmpty(itemID))
+        {
+            itemID = Guid.NewGuid().ToString();
+        }
+    }
 }

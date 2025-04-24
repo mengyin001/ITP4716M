@@ -2,6 +2,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.IO;
+using System;
 
 public class InventoryManager : MonoBehaviour
 {
@@ -10,6 +12,13 @@ public class InventoryManager : MonoBehaviour
     public GameObject slotGrid;
     private List<Slot> slots = new List<Slot>();
     private const int MAX_SLOTS = 12;
+
+    [System.Serializable]
+    private class InventorySaveData
+    {
+        public List<string> itemIDs;
+        public List<int> itemCounts;
+    }
 
     private void Awake()
     {
@@ -20,13 +29,14 @@ public class InventoryManager : MonoBehaviour
         else
         {
             instance = this;
+            DontDestroyOnLoad(gameObject);
         }
         InitializeSlots();
+        LoadInventory();
     }
 
     void InitializeSlots()
     {
-        // Get existing slots from the scene
         slots.Clear();
         foreach (Transform child in slotGrid.transform)
         {
@@ -43,7 +53,6 @@ public class InventoryManager : MonoBehaviour
 
     public static void RefreshItem()
     {
-        // Clear existing slot contents
         foreach (Slot slot in instance.slots)
         {
             slot.slotItem = null;
@@ -51,7 +60,6 @@ public class InventoryManager : MonoBehaviour
             slot.slotImage.enabled = false;
         }
 
-        // Populate slots with inventory items
         for (int i = 0; i < instance.myBag.itemList.Count && i < MAX_SLOTS; i++)
         {
             ItemData item = instance.myBag.itemList[i];
@@ -64,10 +72,9 @@ public class InventoryManager : MonoBehaviour
 
     public static void AddItem(ItemData newItem, int quantity)
     {
-        // Try to stack existing items
         foreach (ItemData existingItem in instance.myBag.itemList)
         {
-            if (existingItem == newItem)
+            if (existingItem.itemName == newItem.itemName)
             {
                 existingItem.itemHeld += quantity;
                 RefreshItem();
@@ -75,7 +82,6 @@ public class InventoryManager : MonoBehaviour
             }
         }
 
-        // Add to first empty slot
         if (instance.myBag.itemList.Count < MAX_SLOTS)
         {
             newItem.itemHeld = quantity;
@@ -88,7 +94,86 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    public void Start()
+    public void LoadInventory()
+    {
+        string path = Application.persistentDataPath + "/inventory.json";
+        if (File.Exists(path))
+        {
+            try
+            {
+                string json = File.ReadAllText(path);
+                var saveData = JsonUtility.FromJson<InventorySaveData>(json);
+
+                myBag.itemList.Clear();
+                for (int i = 0; i < saveData.itemIDs.Count; i++)
+                {
+                    // 假设所有的 ItemData 都放在 Resources/Items 文件夹下
+                    ItemData[] allItems = Resources.LoadAll<ItemData>("Items");
+                    if (allItems.Length == 0)
+                    {
+                        Debug.LogError("No ItemData resources found in Resources/Items folder!");
+                        continue;
+                    }
+                    bool itemFound = false;
+                    foreach (var item in allItems)
+                    {
+                        if (item.itemID == saveData.itemIDs[i])
+                        {
+                            ItemData newItem = Instantiate(item);
+                            newItem.itemHeld = saveData.itemCounts[i];
+                            myBag.itemList.Add(newItem);
+                            itemFound = true;
+                            break;
+                        }
+                    }
+                    if (!itemFound)
+                    {
+                        Debug.LogWarning($"Item with ID {saveData.itemIDs[i]} not found in Resources/Items folder!");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error loading inventory: {e.Message}");
+            }
+        }
+        else
+        {
+            myBag = ScriptableObject.CreateInstance<Inventory>();
+        }
+        RefreshItem();
+    }
+
+    public void SaveInventory()
+    {
+        try
+        {
+            // 创建一个可序列化的临时数据结构
+            InventorySaveData saveData = new InventorySaveData();
+            saveData.itemIDs = new List<string>();
+            saveData.itemCounts = new List<int>();
+
+            foreach (var item in myBag.itemList)
+            {
+                saveData.itemIDs.Add(item.itemID);
+                saveData.itemCounts.Add(item.itemHeld);
+            }
+
+            string json = JsonUtility.ToJson(saveData);
+            File.WriteAllText(Application.persistentDataPath + "/inventory.json", json);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error saving inventory: {e.Message}");
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        SaveInventory();
+    }
+
+    void Start()
     {
         RefreshItem();
     }

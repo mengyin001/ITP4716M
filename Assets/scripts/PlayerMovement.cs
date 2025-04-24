@@ -21,13 +21,24 @@ public class PlayerMovement : MonoBehaviour
         guns[0].SetActive(true);    //default gun0 active
         flipY = transform.localScale.y;
         mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        // 恢复当前武器
         gunNum = PlayerData.CurrentGunIndex;
         guns[gunNum].SetActive(true);
+
+        // 确保加载库存
+        var inventoryManager = FindObjectOfType<InventoryManager>();
+        if (inventoryManager != null)
+        {
+            inventoryManager.LoadInventory();
+        }
+
+        if (myBag == null)
+        {
+            Debug.LogError("myBag reference is not set in PlayerMovement script.");
+        }
     }
+
     void OnDisable()
     {
-        // 保存武器索引
         PlayerData.CurrentGunIndex = gunNum;
     }
 
@@ -39,70 +50,87 @@ public class PlayerMovement : MonoBehaviour
             return;
         OpenMyBag();
         SwitchGun();
-        // 获取输入并计算移动速度
         movement.x = Input.GetAxis("Horizontal");
         movement.y = Input.GetAxis("Vertical");
 
-        // 计算实际移动速度（矢量长度）
-        float speed = movement.magnitude; // Use magnitude for speed
-
-        // 更新 Animator 参数
+        float speed = movement.magnitude;
         animator.SetFloat("speed", speed);
         UpdateAnimation(movement);
 
-       
-        // 反转角色
-        mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);     //flip
+        mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         if (mousePos.x < transform.position.x)
         {
-            // Face left
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
         else
         {
-            // Face right
             transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
     }
+
     void OpenMyBag()
     {
         if (Input.GetKeyDown(KeyCode.B))
         {
             isOpen = !isOpen;
-            myBag.SetActive(isOpen);
+            if (myBag != null)
+            {
+                myBag.SetActive(isOpen);
+            }
+            else
+            {
+                Debug.LogWarning("myBag is null, cannot set active state.");
+            }
         }
     }
+
     void FixedUpdate()
     {
-        // 应用移动（保留原有物理逻辑）
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
     }
+
     private void UpdateAnimation(Vector2 movement)
     {
-        // 计算动画参数
-        bool isWalk = movement.magnitude > 0; // 判断角色是否在移动
-        animator.SetBool("isWalk", isWalk); // 设置动画参数
+        bool isWalk = movement.magnitude > 0;
+        animator.SetBool("isWalk", isWalk);
     }
 
-    void SwitchGun(){
+    void SwitchGun()
+    {
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
         if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
             return;
 
-        if (Input.GetKeyDown(KeyCode.Q)){            // Q and T switch gun
-            guns[gunNum].SetActive(false);
-            if (--gunNum < 0){
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            if (guns[gunNum] != null)
+            {
+                guns[gunNum].SetActive(false);
+            }
+            if (--gunNum < 0)
+            {
                 gunNum = guns.Length - 1;
             }
-            guns[gunNum].SetActive(true);
+            if (guns[gunNum] != null)
+            {
+                guns[gunNum].SetActive(true);
+            }
         }
-        if(Input.GetKeyDown(KeyCode.E)){
-            guns[gunNum].SetActive(false);
-            if (++gunNum > guns.Length - 1){
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            if (guns[gunNum] != null)
+            {
+                guns[gunNum].SetActive(false);
+            }
+            if (++gunNum > guns.Length - 1)
+            {
                 gunNum = 0;
             }
-            guns[gunNum].SetActive(true);
+            if (guns[gunNum] != null)
+            {
+                guns[gunNum].SetActive(true);
+            }
         }
     }
 }

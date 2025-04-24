@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef6dc9844261cb84887b2d70d22c27ae, type: 3}
+  m_Name: item001
+  m_EditorClassIdentifier: 
+  itemID: 001
+  itemName: Recovery medicine
+  icon: {fileID: 1018383391595562092, guid: 368f625759658cb48893fcaad6b9eddb, type: 3}
+  description: Restore blood volume
+  itemType: 0
+  price: 200
+  weight: 0.1
+  isUnique: 0
+  usePrefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
+  restoreHealth: 10
+  attackBonus: 0

@@ -18,20 +18,24 @@ public class SceneLoader : MonoBehaviour
 
     void SaveCurrentSceneData()
     {
-        // 保存健康数据
         var healthSystem = FindObjectOfType<HealthSystem>();
         if (healthSystem != null)
             PlayerData.Health = healthSystem.currentHealth;
 
-        // 保存金钱数据
         var moneyManager = FindObjectOfType<MoneyManager>();
         if (moneyManager != null)
             PlayerData.Money = moneyManager.GetCurrentMoney();
 
-        // 保存武器数据
         var playerMovement = FindObjectOfType<PlayerMovement>();
         if (playerMovement != null)
             PlayerData.CurrentGunIndex = playerMovement.gunNum;
+
+        // 保存库存
+        var inventoryManager = FindObjectOfType<InventoryManager>();
+        if (inventoryManager != null)
+        {
+            inventoryManager.SaveInventory();
+        }
     }
 
     IEnumerator LoadSceneAsync()
@@ -51,6 +55,14 @@ public class SceneLoader : MonoBehaviour
             }
 
             yield return null;
+        }
+
+        // 场景加载完成后，加载库存数据并刷新显示
+        var inventoryManager = FindObjectOfType<InventoryManager>();
+        if (inventoryManager != null)
+        {
+            inventoryManager.LoadInventory();
+            InventoryManager.RefreshItem();
         }
     }
 }

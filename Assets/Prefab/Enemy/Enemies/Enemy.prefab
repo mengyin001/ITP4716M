@@ -206,7 +206,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8e8b5d97ed4e954580f3c0472857af0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentSpeed: 5
+  currentSpeed: 3
   attackCoolDuration: 0
   attackSound: {fileID: 8300000, guid: 58c78dd135af0f44591cef7a80ca0166, type: 3}
   audioSource: {fileID: 6852898319873289168}
@@ -317,8 +317,8 @@ MonoBehaviour:
   propPrefabs:
   - prefab: {fileID: 782630537697650885, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
     dropPercentage: 53.2
-  - prefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
-    dropPercentage: 24.4
+  - prefab: {fileID: 8654074269076141900, guid: 6c096154285697645b87df71d787c5d8, type: 3}
+    dropPercentage: 51.2
 --- !u!82 &6852898319873289168
 AudioSource:
   m_ObjectHideFlags: 0
@@ -423,7 +423,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3602681120093151928}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ac51939b6c1379f4aa34f4ae9c736d2c, type: 3}
   m_Name: 
@@ -587,7 +587,7 @@ MonoBehaviour:
     invertX: 0
     invertY: 0
     depth: 1
-    spriteRenderer: {fileID: 0}
+    spriteRenderer: {fileID: 2275381867571678184}
   mainShape:
     shadowType: 1
     maskType: 1
@@ -606,4 +606,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useDistance: 0
-  visability: 1
+  visability: 0
