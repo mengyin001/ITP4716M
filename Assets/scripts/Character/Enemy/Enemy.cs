@@ -92,7 +92,7 @@ public class Enemy : Character
                 if (isPatrolling && patrolPoints.Count > 0)
                 {
                     currentPatrolPointIndex = 0; // 重置巡逻点索引
-                    GeneratePath(patrolPoints[currentPatrolPointIndex].position); // 生成巡逻路径
+                    GeneratePath(transform.position, patrolPoints[currentPatrolPointIndex].position); // 生成巡逻路径
                 }
             }
 
@@ -151,7 +151,7 @@ public class Enemy : Character
         if (pathGenerateTimer >= pathGenerateInterval)
         {
             Vector3 target = isChasing ? GetPlayerCenterPosition() : patrolPoints[currentPatrolPointIndex].position;
-            GeneratePath(target);
+            GeneratePath(transform.position, target);
             pathGenerateTimer = 0; // 重置计时器
         }
 
@@ -159,7 +159,7 @@ public class Enemy : Character
         if (pathPointList == null || pathPointList.Count <= 0)
         {
             Vector3 target = isChasing ? GetPlayerCenterPosition() : patrolPoints[currentPatrolPointIndex].position;
-            GeneratePath(target);
+            GeneratePath(transform.position, target);
         }
         // 当敌人到达当前路径点时，递增索引 currentIndex 并进行路径计算
         else if (Vector2.Distance(transform.position, pathPointList[currentIndex]) <= 0.1f)
@@ -178,13 +178,23 @@ public class Enemy : Character
         }
     }
 
-    // 获取路径点
+    // 获取路径点，单个目标点版本
     private void GeneratePath(Vector3 target)
     {
         currentIndex = 0;
         seeker.StartPath(transform.position, target, Path =>
         {
             pathPointList = Path.vectorPath; // Path.vectorPath 包含了从起点到终点的完整路径
+        });
+    }
+
+    // 获取路径点，重载方法，接受起点和终点
+    private void GeneratePath(Vector3 start, Vector3 end)
+    {
+        currentIndex = 0;
+        seeker.StartPath(start, end, Path =>
+        {
+            pathPointList = Path.vectorPath;
         });
     }
 
@@ -198,7 +208,16 @@ public class Enemy : Character
                 isWaitingAtPoint = false;
                 waitTimer = 0f;
                 MoveToNextPatrolPoint(); // 移动到下一个巡逻点
-                GeneratePath(patrolPoints[currentPatrolPointIndex].position); // 生成新的路径
+
+                // 随机选择下一个路径点
+                int nextIndex;
+                do
+                {
+                    nextIndex = Random.Range(0, patrolPoints.Count);
+                } while (nextIndex == currentPatrolPointIndex);
+
+                GeneratePath(patrolPoints[currentPatrolPointIndex].position, patrolPoints[nextIndex].position);
+                currentPatrolPointIndex = nextIndex;
             }
             return;
         }
@@ -206,7 +225,9 @@ public class Enemy : Character
         // 如果路径点列表为空，生成路径
         if (pathPointList == null || pathPointList.Count <= 0)
         {
-            GeneratePath(patrolPoints[currentPatrolPointIndex].position);
+            // 随机选择路径点
+            int randomIndex = Random.Range(0, patrolPoints.Count);
+            GeneratePath(patrolPoints[currentPatrolPointIndex].position, patrolPoints[randomIndex].position);
             return;
         }
 
