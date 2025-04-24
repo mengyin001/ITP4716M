@@ -642,4 +642,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useDistance: 0
-  visability: 1
+  visability: 0
