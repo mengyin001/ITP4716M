@@ -1,14 +1,15 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TeleportationCircle : MonoBehaviour
 {
-    public SceneSelectionUI sceneSelectionUI; // 拖放 SceneSelectionUI 组件
-
+    public string sceneName;
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
-            sceneSelectionUI.ShowSelectionPanel(); // 显示选择面板
+            SceneLoader.targetScene = sceneName;
+            SceneManager.LoadScene("LoadingScence");
         }
     }
 }
