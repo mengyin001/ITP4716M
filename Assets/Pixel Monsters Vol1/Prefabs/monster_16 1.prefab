@@ -19,6 +19,8 @@ GameObject:
   - component: {fileID: 6829554409031275869}
   - component: {fileID: 1752709101530284586}
   - component: {fileID: 3641708795373302190}
+  - component: {fileID: 8475461015100868323}
+  - component: {fileID: -1092391582744912432}
   m_Layer: 6
   m_Name: monster_16 1
   m_TagString: Enemy
@@ -330,7 +332,6 @@ MonoBehaviour:
   enemyBulletPrefab: {fileID: 6915753770271991320, guid: 0a6366c675e62b84ba834297cab0adbc, type: 3}
   bulletSpeed: 2
   initialPoolSize: 20
-  poolExpandAmount: 5
   bulletSpawnPoint: {fileID: 6474134628166775103}
   pickupSpawner: {fileID: 0}
 --- !u!82 &6829554409031275869
@@ -542,6 +543,57 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &8475461015100868323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4670767523200313017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5783dbbad6a59184fa58aa75d79bcc02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shadowType: 1
+  shadowLayer: 0
+  shadowDistance: 0
+  shadowDistanceMin: 0.5
+  shadowDistanceMax: 1
+  shadowTranslucency: 0.7
+  maskType: 1
+  maskLit: 0
+  maskPivot: 0
+  maskLayer: 0
+  maskLitCustom: 1
+  bumpMapMode:
+    type: 0
+    textureType: 0
+    texture: {fileID: 0}
+    sprite: {fileID: 0}
+    invertX: 0
+    invertY: 0
+    depth: 1
+    spriteRenderer: {fileID: 0}
+  mainShape:
+    shadowType: 1
+    maskType: 1
+    maskPivot: 0
+    transform: {fileID: 3239316063699688327}
+--- !u!114 &-1092391582744912432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4670767523200313017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d10005d7ce600784e93451bdcd95fa31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useDistance: 0
+  visability: 1
 --- !u!1 &6012336170394686957
 GameObject:
   m_ObjectHideFlags: 0

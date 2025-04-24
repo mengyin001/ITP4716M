@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6496240334839726921}
   - component: {fileID: -1603610669130907361}
   - component: {fileID: 6676419529980887642}
+  - component: {fileID: 1798554272667703513}
   m_Layer: 10
   m_Name: huifuyao
   m_TagString: Untagged
@@ -215,3 +216,17 @@ MonoBehaviour:
     maskType: 1
     maskPivot: 0
     transform: {fileID: 2702549080012639028}
+--- !u!114 &1798554272667703513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8654074269076141900}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d10005d7ce600784e93451bdcd95fa31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useDistance: 0
+  visability: 0
