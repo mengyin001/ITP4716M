@@ -11,8 +11,8 @@ public class LongRangeEnemy : Character
 
     [Header("Chase Settings")]
     [SerializeField] public Transform player;
-    [SerializeField] private float chaseDistance = 3f; // ×·»÷¾àÀë
-    [SerializeField] private float attackDistance = 3f; // Ô¶³Ì¹¥»÷¾àÀë
+    [SerializeField] private float chaseDistance = 3f; // è¿½å‡»è·ç¦»
+    [SerializeField] private float attackDistance = 3f; // è¿œç¨‹æ”»å‡»è·ç¦»
 
     [Header("Patrol Settings")]
     [SerializeField] private bool shouldPatrol = true;
@@ -21,24 +21,24 @@ public class LongRangeEnemy : Character
     [SerializeField] private float waitTimeAtPoint = 1f;
 
     [Header("Attack Settings")]
-    public float rangedAttackDamage; // Ô¶³Ì¹¥»÷ÉËº¦
-    public LayerMask playerLayer; // ±íÊ¾Íæ¼ÒÍ¼²ã
-    public float fireRate = 1f; // Éä»÷ÆµÂÊ£¬Ã¿Ãë·¢ÉäµÄ×Óµ¯Êı
-    public GameObject enemyBulletPrefab; // µĞÈË×Óµ¯Ô¤ÖÆÌå
-    public float bulletSpeed = 10f; // ×Óµ¯ËÙ¶È
+    public float rangedAttackDamage; // è¿œç¨‹æ”»å‡»ä¼¤å®³
+    public LayerMask playerLayer; // è¡¨ç¤ºç©å®¶å›¾å±‚
+    public float fireRate = 1f; // å°„å‡»é¢‘ç‡ï¼Œæ¯ç§’å‘å°„çš„å­å¼¹æ•°
+    public GameObject enemyBulletPrefab; // æ•Œäººå­å¼¹é¢„åˆ¶ä½“
+    public float bulletSpeed = 10f; // å­å¼¹é€Ÿåº¦
 
     [Header("Bullet Pool Settings")]
-    [SerializeField] private int initialPoolSize = 20; // ³õÊ¼³Ø´óĞ¡
+    [SerializeField] private int initialPoolSize = 20; // åˆå§‹æ± å¤§å°
 
     [Header("Bullet Spawn Point")]
-    [SerializeField] private Transform bulletSpawnPoint; // ĞÂÔö£º×Óµ¯·¢Éäµã
+    [SerializeField] private Transform bulletSpawnPoint; // æ–°å¢ï¼šå­å¼¹å‘å°„ç‚¹
 
     private Seeker seeker;
-    private List<Vector3> pathPointList; // Â·¾¶µãÁĞ±í
-    private int currentIndex = 0; // Â·¾¶µãµÄË÷Òı
-    private float pathGenerateInterval = 0.5f; // Ã¿ 0.5 ÃëÉú³ÉÒ»´ÎÂ·¾¶
-    private float pathGenerateTimer = 0f; // ¼ÆÊ±Æ÷
-    private float fireTimer = 0f; // Éä»÷¼ÆÊ±Æ÷
+    private List<Vector3> pathPointList; // è·¯å¾„ç‚¹åˆ—è¡¨
+    private int currentIndex = 0; // è·¯å¾„ç‚¹çš„ç´¢å¼•
+    private float pathGenerateInterval = 0.5f; // æ¯ 0.5 ç§’ç”Ÿæˆä¸€æ¬¡è·¯å¾„
+    private float pathGenerateTimer = 0f; // è®¡æ—¶å™¨
+    private float fireTimer = 0f; // å°„å‡»è®¡æ—¶å™¨
 
     private Animator animator;
     private bool isChasing = false;
@@ -47,25 +47,25 @@ public class LongRangeEnemy : Character
     private float waitTimer = 0f;
     private SpriteRenderer sr;
 
-    // ĞÂÔö±êÖ¾Î»£¬±íÊ¾µĞÈËÊÇ·ñ´æ»î
+    // æ–°å¢æ ‡å¿—ä½ï¼Œè¡¨ç¤ºæ•Œäººæ˜¯å¦å­˜æ´»
     private bool isAlive = true;
-    // ĞÂÔö±êÖ¾Î»£¬±íÊ¾µ±Ç°ÊÇ·ñÔÚÑ²Âß
+    // æ–°å¢æ ‡å¿—ä½ï¼Œè¡¨ç¤ºå½“å‰æ˜¯å¦åœ¨å·¡é€»
     private bool isPatrolling = true;
-    // ĞÂÔö·½Ïò±äÁ¿£¬1 ±íÊ¾ÕıÏò£¬ -1 ±íÊ¾·´Ïò
+    // æ–°å¢æ–¹å‘å˜é‡ï¼Œ1 è¡¨ç¤ºæ­£å‘ï¼Œ -1 è¡¨ç¤ºåå‘
     private int patrolDirection = 1;
 
-    // Ã¿¸öµĞÈËÓµÓĞ×Ô¼ºµÄ×Óµ¯³Ø
+    // æ¯ä¸ªæ•Œäººæ‹¥æœ‰è‡ªå·±çš„å­å¼¹æ± 
     private EnemyBulletPool bulletPool;
-    // ĞÂÔö£ºÒıÓÃµÀ¾ßÉú³ÉÆ÷
+    // æ–°å¢ï¼šå¼•ç”¨é“å…·ç”Ÿæˆå™¨
     public PickupSpawner pickupSpawner;
 
     private void Start()
     {
-        // ³õÊ¼»¯×Óµ¯³Ø
+        // åˆå§‹åŒ–å­å¼¹æ± 
         InitializeBulletPool();
         if (shouldPatrol && patrolPoints.Count > 0)
         {
-            // Ëæ»úÑ¡Ôñ¿ªÊ¼Â·¾¶µãºÍÖÕµã
+            // éšæœºé€‰æ‹©å¼€å§‹è·¯å¾„ç‚¹å’Œç»ˆç‚¹
             int startIndex = Random.Range(0, patrolPoints.Count);
             int endIndex;
             do
@@ -94,7 +94,7 @@ public class LongRangeEnemy : Character
         sr = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
 
-        // ²éÕÒ´øÓĞ "Player" ±êÇ©µÄÓÎÏ·¶ÔÏó²¢¸³Öµ¸ø player ±äÁ¿
+        // æŸ¥æ‰¾å¸¦æœ‰ "Player" æ ‡ç­¾çš„æ¸¸æˆå¯¹è±¡å¹¶èµ‹å€¼ç»™ player å˜é‡
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
         {
@@ -102,38 +102,38 @@ public class LongRangeEnemy : Character
         }
         else
         {
-            Debug.LogError("ÕÒ²»µ½´øÓĞ 'Player' ±êÇ©µÄÓÎÏ·¶ÔÏó£¡");
+            Debug.LogError("æ‰¾ä¸åˆ°å¸¦æœ‰ 'Player' æ ‡ç­¾çš„æ¸¸æˆå¯¹è±¡ï¼");
         }
     }
 
     private void Update()
     {
-        // Èç¹ûµĞÈËËÀÍö»òÕßÍæ¼Ò²»´æÔÚ£¬²»Ö´ĞĞºóĞøÂß¼­
+        // å¦‚æœæ•Œäººæ­»äº¡æˆ–è€…ç©å®¶ä¸å­˜åœ¨ï¼Œä¸æ‰§è¡Œåç»­é€»è¾‘
         if (!isAlive || player == null)
             return;
 
         float distanceToPlayer = Vector2.Distance(player.position, transform.position);
 
-        // ¼ì²éÍæ¼ÒÊÇ·ñÔÚ×·»÷·¶Î§ÄÚ
+        // æ£€æŸ¥ç©å®¶æ˜¯å¦åœ¨è¿½å‡»èŒƒå›´å†…
         if (distanceToPlayer < chaseDistance)
         {
             isChasing = true;
-            isPatrolling = false; // Í£Ö¹Ñ²Âß
+            isPatrolling = false; // åœæ­¢å·¡é€»
             HandleChaseBehavior(distanceToPlayer);
         }
         else
         {
-            // Èç¹ûÖ®Ç°ÔÚ×·»÷£¬µ«ÏÖÔÚÍæ¼Ò³¬³ö·¶Î§
+            // å¦‚æœä¹‹å‰åœ¨è¿½å‡»ï¼Œä½†ç°åœ¨ç©å®¶è¶…å‡ºèŒƒå›´
             if (isChasing)
             {
-                isChasing = false; // Í£Ö¹×·»÷
-                pathPointList = null; // Çå³ıµ±Ç°Â·¾¶
+                isChasing = false; // åœæ­¢è¿½å‡»
+                pathPointList = null; // æ¸…é™¤å½“å‰è·¯å¾„
 
-                // »Ö¸´Ñ²Âß×´Ì¬
+                // æ¢å¤å·¡é€»çŠ¶æ€
                 isPatrolling = shouldPatrol;
                 if (isPatrolling && patrolPoints.Count > 0)
                 {
-                    // Ëæ»úÑ¡Ôñ¿ªÊ¼Â·¾¶µãºÍÖÕµã
+                    // éšæœºé€‰æ‹©å¼€å§‹è·¯å¾„ç‚¹å’Œç»ˆç‚¹
                     int startIndex = Random.Range(0, patrolPoints.Count);
                     int endIndex;
                     do
@@ -146,21 +146,21 @@ public class LongRangeEnemy : Character
                 }
             }
 
-            // ½øĞĞÑ²Âß
+            // è¿›è¡Œå·¡é€»
             if (isPatrolling && patrolPoints.Count > 0)
             {
                 Patrol();
             }
             else
             {
-                OnMovementInput?.Invoke(Vector2.zero); // Í£Ö¹ÒÆ¶¯
+                OnMovementInput?.Invoke(Vector2.zero); // åœæ­¢ç§»åŠ¨
             }
         }
     }
 
     private void HandleChaseBehavior(float distanceToPlayer)
     {
-        // Èç¹ûµĞÈËËÀÍö£¬²»Ö´ĞĞºóĞøÂß¼­
+        // å¦‚æœæ•Œäººæ­»äº¡ï¼Œä¸æ‰§è¡Œåç»­é€»è¾‘
         if (!isAlive)
             return;
 
@@ -170,7 +170,7 @@ public class LongRangeEnemy : Character
 
         if (distanceToPlayer <= attackDistance)
         {
-            // Í£Ö¹ÒÆ¶¯²¢½øĞĞ¹¥»÷
+            // åœæ­¢ç§»åŠ¨å¹¶è¿›è¡Œæ”»å‡»
             OnMovementInput?.Invoke(Vector2.zero);
             Fire();
 
@@ -208,30 +208,30 @@ public class LongRangeEnemy : Character
         }
     }
 
-    // ×Ô¶¯Ñ°Â·
+    // è‡ªåŠ¨å¯»è·¯
     private void AutoPath()
     {
-        // Èç¹ûµĞÈËËÀÍö£¬²»Ö´ĞĞºóĞøÂß¼­
+        // å¦‚æœæ•Œäººæ­»äº¡ï¼Œä¸æ‰§è¡Œåç»­é€»è¾‘
         if (!isAlive)
             return;
 
         pathGenerateTimer += Time.deltaTime;
 
-        // ¼ä¸ôÒ»¶¨Ê±¼äÀ´»ñÈ¡Â·¾¶µã
+        // é—´éš”ä¸€å®šæ—¶é—´æ¥è·å–è·¯å¾„ç‚¹
         if (pathGenerateTimer >= pathGenerateInterval)
         {
             Vector3 target = isChasing ? player.position : patrolPoints[currentPatrolPointIndex].position;
             GeneratePath(target);
-            pathGenerateTimer = 0; // ÖØÖÃ¼ÆÊ±Æ÷
+            pathGenerateTimer = 0; // é‡ç½®è®¡æ—¶å™¨
         }
 
-        // µ±Â·¾¶µãÁĞ±íÎª¿ÕÊ±£¬½øĞĞÂ·¾¶¼ÆËã
+        // å½“è·¯å¾„ç‚¹åˆ—è¡¨ä¸ºç©ºæ—¶ï¼Œè¿›è¡Œè·¯å¾„è®¡ç®—
         if (pathPointList == null || pathPointList.Count <= 0)
         {
             Vector3 target = isChasing ? player.position : patrolPoints[currentPatrolPointIndex].position;
             GeneratePath(target);
         }
-        // µ±µĞÈËµ½´ïµ±Ç°Â·¾¶µãÊ±£¬µİÔöË÷Òı currentIndex ²¢½øĞĞÂ·¾¶¼ÆËã
+        // å½“æ•Œäººåˆ°è¾¾å½“å‰è·¯å¾„ç‚¹æ—¶ï¼Œé€’å¢ç´¢å¼• currentIndex å¹¶è¿›è¡Œè·¯å¾„è®¡ç®—
         else if (Vector2.Distance(transform.position, pathPointList[currentIndex]) <= 0.1f)
         {
             currentIndex++;
@@ -258,25 +258,25 @@ public class LongRangeEnemy : Character
         }
     }
 
-    // »ñÈ¡Â·¾¶µã
+    // è·å–è·¯å¾„ç‚¹
     private void GeneratePath(Vector3 target)
     {
-        // Èç¹ûµĞÈËËÀÍö£¬²»Ö´ĞĞºóĞøÂß¼­
+        // å¦‚æœæ•Œäººæ­»äº¡ï¼Œä¸æ‰§è¡Œåç»­é€»è¾‘
         if (!isAlive)
             return;
 
         currentIndex = 0;
-        // Èı¸ö²ÎÊı£ºÆğµã¡¢ÖÕµã¡¢»Øµ÷º¯Êı
+        // ä¸‰ä¸ªå‚æ•°ï¼šèµ·ç‚¹ã€ç»ˆç‚¹ã€å›è°ƒå‡½æ•°
         seeker.StartPath(transform.position, target, Path =>
         {
-            pathPointList = Path.vectorPath; // Path.vectorPath °üº¬ÁË´ÓÆğµãµ½ÖÕµãµÄÍêÕûÂ·¾¶
+            pathPointList = Path.vectorPath; // Path.vectorPath åŒ…å«äº†ä»èµ·ç‚¹åˆ°ç»ˆç‚¹çš„å®Œæ•´è·¯å¾„
         });
     }
 
-    // ÖØÔØ GeneratePath ·½·¨£¬½ÓÊÜÆğµãºÍÖÕµã
+    // é‡è½½ GeneratePath æ–¹æ³•ï¼Œæ¥å—èµ·ç‚¹å’Œç»ˆç‚¹
     private void GeneratePath(Vector3 start, Vector3 end)
     {
-        // Èç¹ûµĞÈËËÀÍö£¬²»Ö´ĞĞºóĞøÂß¼­
+        // å¦‚æœæ•Œäººæ­»äº¡ï¼Œä¸æ‰§è¡Œåç»­é€»è¾‘
         if (!isAlive)
             return;
 
@@ -289,7 +289,7 @@ public class LongRangeEnemy : Character
 
     private void Patrol()
     {
-        // Èç¹ûµĞÈËËÀÍö£¬²»Ö´ĞĞºóĞøÂß¼­
+        // å¦‚æœæ•Œäººæ­»äº¡ï¼Œä¸æ‰§è¡Œåç»­é€»è¾‘
         if (!isAlive) return;
 
         if (isWaitingAtPoint)
@@ -299,8 +299,8 @@ public class LongRangeEnemy : Character
             {
                 isWaitingAtPoint = false;
                 waitTimer = 0f;
-                MoveToNextPatrolPoint(); // ÒÆ¶¯µ½ÏÂÒ»¸öÑ²Âßµã
-                // Ëæ»úÑ¡ÔñÏÂÒ»¸öÂ·¾¶µã
+                MoveToNextPatrolPoint(); // ç§»åŠ¨åˆ°ä¸‹ä¸€ä¸ªå·¡é€»ç‚¹
+                // éšæœºé€‰æ‹©ä¸‹ä¸€ä¸ªè·¯å¾„ç‚¹
                 int nextIndex;
                 do
                 {
@@ -313,22 +313,22 @@ public class LongRangeEnemy : Character
             return;
         }
 
-        // Èç¹ûÂ·¾¶µãÁĞ±íÎª¿Õ£¬Éú³ÉÂ·¾¶
+        // å¦‚æœè·¯å¾„ç‚¹åˆ—è¡¨ä¸ºç©ºï¼Œç”Ÿæˆè·¯å¾„
         if (pathPointList == null || pathPointList.Count <= 0)
         {
-            // Ëæ»úÑ¡ÔñÂ·¾¶µã
+            // éšæœºé€‰æ‹©è·¯å¾„ç‚¹
             int randomIndex = Random.Range(0, patrolPoints.Count);
             GeneratePath(patrolPoints[currentPatrolPointIndex].position, patrolPoints[randomIndex].position);
             return;
         }
 
-        // ÒÆ¶¯µ½µ±Ç°Â·¾¶µã
+        // ç§»åŠ¨åˆ°å½“å‰è·¯å¾„ç‚¹
         if (currentIndex >= 0 && currentIndex < pathPointList.Count)
         {
             Vector2 direction = (pathPointList[currentIndex] - transform.position).normalized;
             OnMovementInput?.Invoke(direction);
 
-            // ¸ù¾İÒÆ¶¯·½Ïò·­×ª¾«Áé
+            // æ ¹æ®ç§»åŠ¨æ–¹å‘ç¿»è½¬ç²¾çµ
             if (direction.x > 0 && !sr.flipX)
             {
                 sr.flipX = true;
@@ -341,15 +341,15 @@ public class LongRangeEnemy : Character
             }
         }
 
-        // ¼ì²éÊÇ·ñµ½´ïµ±Ç°Â·¾¶µã
+        // æ£€æŸ¥æ˜¯å¦åˆ°è¾¾å½“å‰è·¯å¾„ç‚¹
         if (Vector2.Distance(transform.position, pathPointList[currentIndex]) <= 0.1f)
         {
             currentIndex++;
-            // Èç¹ûµ½´ïÂ·¾¶Ä©Î²£¬ÇĞ»»µ½ÏÂÒ»¸öÑ²Âßµã
+            // å¦‚æœåˆ°è¾¾è·¯å¾„æœ«å°¾ï¼Œåˆ‡æ¢åˆ°ä¸‹ä¸€ä¸ªå·¡é€»ç‚¹
             if (currentIndex >= pathPointList.Count)
             {
-                currentIndex = 0; // ÖØÖÃË÷Òı
-                isWaitingAtPoint = true; // ÉèÖÃÎªµÈ´ı×´Ì¬
+                currentIndex = 0; // é‡ç½®ç´¢å¼•
+                isWaitingAtPoint = true; // è®¾ç½®ä¸ºç­‰å¾…çŠ¶æ€
             }
         }
     }
@@ -357,28 +357,28 @@ public class LongRangeEnemy : Character
 
     private void MoveToNextPatrolPoint()
     {
-        // Èç¹ûµĞÈËËÀÍö£¬²»Ö´ĞĞºóĞøÂß¼­
+        // å¦‚æœæ•Œäººæ­»äº¡ï¼Œä¸æ‰§è¡Œåç»­é€»è¾‘
         if (!isAlive) return;
 
         currentPatrolPointIndex += patrolDirection;
 
-        // µ½´ïÂ·¾¶ÖÕµã£¬¸Ä±ä·½Ïò
+        // åˆ°è¾¾è·¯å¾„ç»ˆç‚¹ï¼Œæ”¹å˜æ–¹å‘
         if (currentPatrolPointIndex >= patrolPoints.Count)
         {
-            currentPatrolPointIndex = patrolPoints.Count - 1; // ±£³ÖÔÚ×îºóÒ»¸öµã
-            patrolDirection = -1; // ·´ÏòÑ²Âß
+            currentPatrolPointIndex = patrolPoints.Count - 1; // ä¿æŒåœ¨æœ€åä¸€ä¸ªç‚¹
+            patrolDirection = -1; // åå‘å·¡é€»
         }
-        // µ½´ïÂ·¾¶Æğµã£¬¸Ä±ä·½Ïò
+        // åˆ°è¾¾è·¯å¾„èµ·ç‚¹ï¼Œæ”¹å˜æ–¹å‘
         else if (currentPatrolPointIndex <= 0)
         {
-            currentPatrolPointIndex = 0; // ±£³ÖÔÚµÚÒ»¸öµã
-            patrolDirection = 1; // ÕıÏòÑ²Âß
+            currentPatrolPointIndex = 0; // ä¿æŒåœ¨ç¬¬ä¸€ä¸ªç‚¹
+            patrolDirection = 1; // æ­£å‘å·¡é€»
         }
     }
 
     private void Fire()
     {
-        // Èç¹ûµĞÈËËÀÍö£¬²»Ö´ĞĞºóĞøÂß¼­
+        // å¦‚æœæ•Œäººæ­»äº¡ï¼Œä¸æ‰§è¡Œåç»­é€»è¾‘
         if (!isAlive)
             return;
 
@@ -391,16 +391,16 @@ public class LongRangeEnemy : Character
         }
     }
 
-    // ·¢Éä×Óµ¯µÄ·½·¨
+    // å‘å°„å­å¼¹çš„æ–¹æ³•
     private void ShootBullet()
     {
         if (!isAlive || enemyBulletPrefab == null || bulletPool == null)
             return;
 
-        // È·±£Íæ¼ÒÎ»ÖÃÊÇ×¼È·µÄÖĞĞÄÎ»ÖÃ
+        // ç¡®ä¿ç©å®¶ä½ç½®æ˜¯å‡†ç¡®çš„ä¸­å¿ƒä½ç½®
         Vector3 playerCenter = player.position;
 
-        // ¿¼ÂÇÍæ¼ÒµÄÅö×²ÌåÖĞĞÄ£¨Èç¹ûÓĞ±ØÒª£©
+        // è€ƒè™‘ç©å®¶çš„ç¢°æ’ä½“ä¸­å¿ƒï¼ˆå¦‚æœæœ‰å¿…è¦ï¼‰
         Collider2D playerCollider = player.GetComponent<Collider2D>();
         if (playerCollider != null)
         {
@@ -409,7 +409,7 @@ public class LongRangeEnemy : Character
 
         Vector2 direction = ((Vector2)playerCenter - (Vector2)bulletSpawnPoint.position).normalized;
 
-        // Ê¹ÓÃ¶ÔÏó³Ø»ñÈ¡×Óµ¯
+        // ä½¿ç”¨å¯¹è±¡æ± è·å–å­å¼¹
         GameObject bullet = bulletPool.GetBullet();
         bullet.transform.position = bulletSpawnPoint.position;
 
@@ -459,12 +459,12 @@ public class LongRangeEnemy : Character
         }
     }
 
-    // ÖØĞ´ Die ·½·¨£¬ÔÚµĞÈËËÀÍöÊ±¸üĞÂ±êÖ¾Î»
+    // é‡å†™ Die æ–¹æ³•ï¼Œåœ¨æ•Œäººæ­»äº¡æ—¶æ›´æ–°æ ‡å¿—ä½
     public override void Die()
     {
         base.Die();
         isAlive = false;
-        // ¿ÉÒÔÔÚÕâÀïÌí¼Ó²¥·ÅËÀÍö¶¯»­µÈÂß¼­
+        // å¯ä»¥åœ¨è¿™é‡Œæ·»åŠ æ’­æ”¾æ­»äº¡åŠ¨ç”»ç­‰é€»è¾‘
         if (pickupSpawner != null)
         {
             pickupSpawner.DropItems();

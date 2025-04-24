@@ -7,13 +7,13 @@ public class EnemyManager : MonoBehaviour
 {
     public static EnemyManager Instance { get; private set; }
 
-    [Header("����ˢ�µ�")]
+    [Header("敌人刷新点")]
     public Transform[] spawnPoints;
 
-    [Header("����Ѳ�ߵ�")]
+    [Header("敌人巡逻点")]
     public Transform[] patrolPoints;
 
-    [Header("�ùؿ��ĵ��˲���")]
+    [Header("该关卡的敌人波次")]
     public List<EnemyWave> enemyWaves;
 
     public int CurrentWaveIndex { get; private set; } = 0; // 当前波数
@@ -24,8 +24,8 @@ public class EnemyManager : MonoBehaviour
 
     private Transform playerTarget;
     private List<GameObject> activeEnemies = new List<GameObject>();
-    public GameObject teleportationCirclePrefab; // ������Ԥ�Ƽ�
-    public Transform teleportationSpawnPoint; // ���������ɵ�
+    public GameObject teleportationCirclePrefab; // 传送阵预制件
+    public Transform teleportationSpawnPoint; // 传送阵生成点
 
     [System.Serializable]
     public class EnemyData
@@ -52,13 +52,13 @@ public class EnemyManager : MonoBehaviour
         Instance = this;
         Initialize();
 
-        // ע�᳡�������¼�
+        // 注册场景加载事件
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // �����صĳ�����SafeHouseʱ������EnemyManager
+        // 当加载的场景是SafeHouse时，重置EnemyManager
         if (scene.name == "SafeHouse")
         {
             ResetEnemyManager();
@@ -76,9 +76,9 @@ public class EnemyManager : MonoBehaviour
 
     public void ResetEnemyManager()
     {
-        AliveEnemyCount = 0;  // ��ȷ����AliveEnemyCount����
+        AliveEnemyCount = 0;  // 明确重置AliveEnemyCount变量
         Initialize();
-        // ������Ҫ���õ����ݿ�������������
+        // 其他需要重置的内容可以在这里添加
     }
 
     private void Start()
@@ -108,7 +108,7 @@ public class EnemyManager : MonoBehaviour
         List<Collider2D> spawnedEnemyColliders = new List<Collider2D>();
         List<(float time, EnemyData enemyData)> spawnQueue = new List<(float time, EnemyData enemyData)>();
 
-        // �������ɶ���
+        // 构建生成队列
         float currentTime = 0f;
         foreach (EnemyData enemyData in currentWaveEnemies)
         {
@@ -119,10 +119,10 @@ public class EnemyManager : MonoBehaviour
             }
         }
 
-        // ��ʱ��˳������
+        // 按时间顺序排序
         spawnQueue.Sort((a, b) => a.time.CompareTo(b.time));
 
-        // �������ɵ���
+        // 依次生成敌人
         for (int i = 0; i < spawnQueue.Count; i++)
         {
             if (i > 0)
@@ -137,7 +137,7 @@ public class EnemyManager : MonoBehaviour
             EnemyData enemyData = spawnQueue[i].enemyData;
             if (spawnPoints == null || spawnPoints.Length == 0)
             {
-                Debug.LogError("�޷����ɵ��ˣ�δ����ˢ�µ�");
+                Debug.LogError("无法生成敌人：未设置刷新点");
                 yield break;
             }
 
@@ -156,7 +156,7 @@ public class EnemyManager : MonoBehaviour
             AliveEnemyCount++;
         }
 
-        // ��������Ϊnull����ײ��
+        // 清理可能为null的碰撞体
         spawnedEnemyColliders.RemoveAll(collider => collider == null);
         IgnoreEnemyCollisions(spawnedEnemyColliders);
 
@@ -211,7 +211,7 @@ public class EnemyManager : MonoBehaviour
                 }
                 catch (System.Exception e)
                 {
-                    Debug.LogWarning($"������ײʧ��: {e.Message}");
+                    Debug.LogWarning($"忽略碰撞失败: {e.Message}");
                 }
             }
         }
@@ -227,7 +227,7 @@ public class EnemyManager : MonoBehaviour
         if (activeEnemies.Contains(enemy))
         {
             activeEnemies.Remove(enemy);
-            Destroy(enemy); // �������д��������ٵ��˶���
+            Destroy(enemy); // 添加这行代码来销毁敌人对象
         }
 
         if (AliveEnemyCount <= 0)
@@ -269,7 +269,7 @@ public class EnemyManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        // ע�����������¼�
+        // 注销场景加载事件
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }

@@ -5,12 +5,12 @@ public class PlayerManager : MonoBehaviour
 {
     private static PlayerManager instance;
 
-    public GameObject playerPrefab; // Íæ¼ÒÔ¤ÖÆ¼ş
-    private GameObject playerInstance; // Íæ¼ÒÊµÀı
+    public GameObject playerPrefab; // ç©å®¶é¢„åˆ¶ä»¶
+    private GameObject playerInstance; // ç©å®¶å®ä¾‹
 
     private void Awake()
     {
-        // È·±£Ö»´æÔÚÒ»¸ö PlayerManager ÊµÀı
+        // ç¡®ä¿åªå­˜åœ¨ä¸€ä¸ª PlayerManager å®ä¾‹
         if (instance != null && instance != this)
         {
             Destroy(gameObject);
@@ -18,50 +18,50 @@ public class PlayerManager : MonoBehaviour
         }
 
         instance = this;
-        DontDestroyOnLoad(gameObject); // ±£³Ö PlayerManager ÔÚ³¡¾°ÇĞ»»Ê±²»±»Ïú»Ù
+        DontDestroyOnLoad(gameObject); // ä¿æŒ PlayerManager åœ¨åœºæ™¯åˆ‡æ¢æ—¶ä¸è¢«é”€æ¯
 
-        // ¼ÓÔØ³õÊ¼³¡¾°ÖĞµÄÍæ¼Ò
+        // åŠ è½½åˆå§‹åœºæ™¯ä¸­çš„ç©å®¶
         LoadPlayer();
     }
 
     private void LoadPlayer()
     {
-        // ¼ì²éµ±Ç°³¡¾°ÊÇ·ñÓĞÍæ¼Ò¶ÔÏó
+        // æ£€æŸ¥å½“å‰åœºæ™¯æ˜¯å¦æœ‰ç©å®¶å¯¹è±¡
         playerInstance = GameObject.FindGameObjectWithTag("Player");
         if (playerInstance == null)
         {
-            // Èç¹ûÃ»ÓĞ£¬ÊµÀı»¯ĞÂÍæ¼Ò
+            // å¦‚æœæ²¡æœ‰ï¼Œå®ä¾‹åŒ–æ–°ç©å®¶
             playerInstance = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
-            playerInstance.tag = "Player"; // ÉèÖÃÍæ¼Ò±êÇ©
-            Debug.Log("Íæ¼Ò¶ÔÏóÒÑÊµÀı»¯¡£");
+            playerInstance.tag = "Player"; // è®¾ç½®ç©å®¶æ ‡ç­¾
+            Debug.Log("ç©å®¶å¯¹è±¡å·²å®ä¾‹åŒ–ã€‚");
         }
         else
         {
-            Debug.Log("Íæ¼Ò¶ÔÏóÒÑ´æÔÚ¡£");
+            Debug.Log("ç©å®¶å¯¹è±¡å·²å­˜åœ¨ã€‚");
         }
     }
 
     public void SwitchScene(string sceneName)
     {
-        // µ±ĞèÒªÇĞ»»³¡¾°Ê±µ÷ÓÃ
+        // å½“éœ€è¦åˆ‡æ¢åœºæ™¯æ—¶è°ƒç”¨
         SceneManager.LoadScene(sceneName);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // ÔÚĞÂ³¡¾°¼ÓÔØºó¼ì²éÍæ¼Ò¶ÔÏó
+        // åœ¨æ–°åœºæ™¯åŠ è½½åæ£€æŸ¥ç©å®¶å¯¹è±¡
         LoadPlayer();
     }
 
     private void OnEnable()
     {
-        // ×¢²á³¡¾°¼ÓÔØÊÂ¼ş
+        // æ³¨å†Œåœºæ™¯åŠ è½½äº‹ä»¶
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
-        // ×¢Ïú³¡¾°¼ÓÔØÊÂ¼ş
+        // æ³¨é”€åœºæ™¯åŠ è½½äº‹ä»¶
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }

@@ -11,8 +11,8 @@ public class Enemy : Character
 
     [Header("Chase Settings")]
     [SerializeField] public Transform player;
-    [SerializeField] private float chaseDistance = 3f; // ×·»÷¾àÀë
-    [SerializeField] private float attackDistance = 0.8f; // ¹¥»÷¾àÀë
+    [SerializeField] private float chaseDistance = 3f; // è¿½å‡»è·ç¦»
+    [SerializeField] private float attackDistance = 0.8f; // æ”»å‡»è·ç¦»
 
     [Header("Patrol Settings")]
     [SerializeField] private bool shouldPatrol = true;
@@ -21,15 +21,15 @@ public class Enemy : Character
     [SerializeField] private float waitTimeAtPoint = 1f;
 
     [Header("Attack Settings")]
-    public float meleetAttackDamage; // ½üÕ½¹¥»÷ÉËº¦
-    public LayerMask playerLayer; // ±íÊ¾Íæ¼ÒÍ¼²ã
-    public float AttackCooldownDuration = 2f; // ÀäÈ´Ê±¼ä
+    public float meleetAttackDamage; // è¿‘æˆ˜æ”»å‡»ä¼¤å®³
+    public LayerMask playerLayer; // è¡¨ç¤ºç©å®¶å›¾å±‚
+    public float AttackCooldownDuration = 2f; // å†·å´æ—¶é—´
 
     private Seeker seeker;
-    private List<Vector3> pathPointList; // Â·¾¶µãÁĞ±í
-    private int currentIndex = 0; // Â·¾¶µãµÄË÷Òı
-    private float pathGenerateInterval = 0.5f; // Ã¿ 0.5 ÃëÉú³ÉÒ»´ÎÂ·¾¶
-    private float pathGenerateTimer = 0f; // ¼ÆÊ±Æ÷
+    private List<Vector3> pathPointList; // è·¯å¾„ç‚¹åˆ—è¡¨
+    private int currentIndex = 0; // è·¯å¾„ç‚¹çš„ç´¢å¼•
+    private float pathGenerateInterval = 0.5f; // æ¯ 0.5 ç§’ç”Ÿæˆä¸€æ¬¡è·¯å¾„
+    private float pathGenerateTimer = 0f; // è®¡æ—¶å™¨
 
     private Animator animator;
     private bool isAttack = true;
@@ -39,14 +39,14 @@ public class Enemy : Character
     private float waitTimer = 0f;
     private SpriteRenderer sr;
 
-    // ĞÂÔö±êÖ¾Î»£¬±íÊ¾µĞÈËÊÇ·ñ´æ»î
+    // æ–°å¢æ ‡å¿—ä½ï¼Œè¡¨ç¤ºæ•Œäººæ˜¯å¦å­˜æ´»
     private bool isAlive = true;
-    // ĞÂÔö±êÖ¾Î»£¬±íÊ¾µ±Ç°ÊÇ·ñÔÚÑ²Âß
+    // æ–°å¢æ ‡å¿—ä½ï¼Œè¡¨ç¤ºå½“å‰æ˜¯å¦åœ¨å·¡é€»
     private bool isPatrolling = true;
-    // ĞÂÔö·½Ïò±äÁ¿£¬1 ±íÊ¾ÕıÏò£¬ -1 ±íÊ¾·´Ïò
+    // æ–°å¢æ–¹å‘å˜é‡ï¼Œ1 è¡¨ç¤ºæ­£å‘ï¼Œ -1 è¡¨ç¤ºåå‘
     private int patrolDirection = 1;
 
-    // ĞÂÔö£ºÒıÓÃµÀ¾ßÉú³ÉÆ÷
+    // æ–°å¢ï¼šå¼•ç”¨é“å…·ç”Ÿæˆå™¨
     public PickupSpawner pickupSpawner;
 
     private void Awake()
@@ -61,7 +61,7 @@ public class Enemy : Character
         }
         else
         {
-            Debug.LogError("ÕÒ²»µ½´øÓĞ 'Player' ±êÇ©µÄÓÎÏ·¶ÔÏó£¡");
+            Debug.LogError("æ‰¾ä¸åˆ°å¸¦æœ‰ 'Player' æ ‡ç­¾çš„æ¸¸æˆå¯¹è±¡ï¼");
         }
     }
 
@@ -72,38 +72,38 @@ public class Enemy : Character
 
         float distanceToPlayer = Vector2.Distance(GetPlayerCenterPosition(), transform.position);
 
-        // ¼ì²éÍæ¼ÒÊÇ·ñÔÚ×·»÷·¶Î§ÄÚ
+        // æ£€æŸ¥ç©å®¶æ˜¯å¦åœ¨è¿½å‡»èŒƒå›´å†…
         if (distanceToPlayer < chaseDistance)
         {
             isChasing = true;
-            isPatrolling = false; // Í£Ö¹Ñ²Âß
+            isPatrolling = false; // åœæ­¢å·¡é€»
             HandleChaseBehavior(distanceToPlayer);
         }
         else
         {
-            // Èç¹ûÖ®Ç°ÔÚ×·»÷£¬µ«ÏÖÔÚÍæ¼Ò³¬³ö·¶Î§
+            // å¦‚æœä¹‹å‰åœ¨è¿½å‡»ï¼Œä½†ç°åœ¨ç©å®¶è¶…å‡ºèŒƒå›´
             if (isChasing)
             {
-                isChasing = false; // Í£Ö¹×·»÷
-                pathPointList = null; // Çå³ıµ±Ç°Â·¾¶
+                isChasing = false; // åœæ­¢è¿½å‡»
+                pathPointList = null; // æ¸…é™¤å½“å‰è·¯å¾„
 
-                // »Ö¸´Ñ²Âß×´Ì¬
+                // æ¢å¤å·¡é€»çŠ¶æ€
                 isPatrolling = shouldPatrol;
                 if (isPatrolling && patrolPoints.Count > 0)
                 {
-                    currentPatrolPointIndex = 0; // ÖØÖÃÑ²ÂßµãË÷Òı
-                    GeneratePath(patrolPoints[currentPatrolPointIndex].position); // Éú³ÉÑ²ÂßÂ·¾¶
+                    currentPatrolPointIndex = 0; // é‡ç½®å·¡é€»ç‚¹ç´¢å¼•
+                    GeneratePath(patrolPoints[currentPatrolPointIndex].position); // ç”Ÿæˆå·¡é€»è·¯å¾„
                 }
             }
 
-            // ½øĞĞÑ²Âß
+            // è¿›è¡Œå·¡é€»
             if (isPatrolling && patrolPoints.Count > 0)
             {
                 Patrol();
             }
             else
             {
-                OnMovementInput?.Invoke(Vector2.zero); // Í£Ö¹ÒÆ¶¯
+                OnMovementInput?.Invoke(Vector2.zero); // åœæ­¢ç§»åŠ¨
             }
         }
     }
@@ -116,7 +116,7 @@ public class Enemy : Character
 
         if (distanceToPlayer <= attackDistance)
         {
-            // Í£Ö¹ÒÆ¶¯²¢½øĞĞ¹¥»÷
+            // åœæ­¢ç§»åŠ¨å¹¶è¿›è¡Œæ”»å‡»
             OnMovementInput?.Invoke(Vector2.zero);
             if (isAttack)
             {
@@ -125,7 +125,7 @@ public class Enemy : Character
                 StartCoroutine(nameof(AttackCooldownCoroutine));
             }
 
-            // ¸ù¾İÍæ¼ÒÎ»ÖÃ·­×ª¾«Áé
+            // æ ¹æ®ç©å®¶ä½ç½®ç¿»è½¬ç²¾çµ
             sr.flipX = GetPlayerCenterPosition().x > transform.position.x;
         }
         else
@@ -147,28 +147,28 @@ public class Enemy : Character
     {
         pathGenerateTimer += Time.deltaTime;
 
-        // ¼ä¸ôÒ»¶¨Ê±¼äÀ´»ñÈ¡Â·¾¶µã
+        // é—´éš”ä¸€å®šæ—¶é—´æ¥è·å–è·¯å¾„ç‚¹
         if (pathGenerateTimer >= pathGenerateInterval)
         {
             Vector3 target = isChasing ? GetPlayerCenterPosition() : patrolPoints[currentPatrolPointIndex].position;
             GeneratePath(target);
-            pathGenerateTimer = 0; // ÖØÖÃ¼ÆÊ±Æ÷
+            pathGenerateTimer = 0; // é‡ç½®è®¡æ—¶å™¨
         }
 
-        // µ±Â·¾¶µãÁĞ±íÎª¿ÕÊ±£¬½øĞĞÂ·¾¶¼ÆËã
+        // å½“è·¯å¾„ç‚¹åˆ—è¡¨ä¸ºç©ºæ—¶ï¼Œè¿›è¡Œè·¯å¾„è®¡ç®—
         if (pathPointList == null || pathPointList.Count <= 0)
         {
             Vector3 target = isChasing ? GetPlayerCenterPosition() : patrolPoints[currentPatrolPointIndex].position;
             GeneratePath(target);
         }
-        // µ±µĞÈËµ½´ïµ±Ç°Â·¾¶µãÊ±£¬µİÔöË÷Òı currentIndex ²¢½øĞĞÂ·¾¶¼ÆËã
+        // å½“æ•Œäººåˆ°è¾¾å½“å‰è·¯å¾„ç‚¹æ—¶ï¼Œé€’å¢ç´¢å¼• currentIndex å¹¶è¿›è¡Œè·¯å¾„è®¡ç®—
         else if (Vector2.Distance(transform.position, pathPointList[currentIndex]) <= 0.1f)
         {
             currentIndex++;
             if (currentIndex >= pathPointList.Count)
             {
                 currentIndex = 0;
-                // Èç¹û²»ÊÇÔÚ×·»÷×´Ì¬£¬ÔòÉèÖÃÎªµÈ´ı×´Ì¬
+                // å¦‚æœä¸æ˜¯åœ¨è¿½å‡»çŠ¶æ€ï¼Œåˆ™è®¾ç½®ä¸ºç­‰å¾…çŠ¶æ€
                 if (!isChasing)
                 {
                     isWaitingAtPoint = true;
@@ -178,13 +178,13 @@ public class Enemy : Character
         }
     }
 
-    // »ñÈ¡Â·¾¶µã
+    // è·å–è·¯å¾„ç‚¹
     private void GeneratePath(Vector3 target)
     {
         currentIndex = 0;
         seeker.StartPath(transform.position, target, Path =>
         {
-            pathPointList = Path.vectorPath; // Path.vectorPath °üº¬ÁË´ÓÆğµãµ½ÖÕµãµÄÍêÕûÂ·¾¶
+            pathPointList = Path.vectorPath; // Path.vectorPath åŒ…å«äº†ä»èµ·ç‚¹åˆ°ç»ˆç‚¹çš„å®Œæ•´è·¯å¾„
         });
     }
 
@@ -197,38 +197,38 @@ public class Enemy : Character
             {
                 isWaitingAtPoint = false;
                 waitTimer = 0f;
-                MoveToNextPatrolPoint(); // ÒÆ¶¯µ½ÏÂÒ»¸öÑ²Âßµã
-                GeneratePath(patrolPoints[currentPatrolPointIndex].position); // Éú³ÉĞÂµÄÂ·¾¶
+                MoveToNextPatrolPoint(); // ç§»åŠ¨åˆ°ä¸‹ä¸€ä¸ªå·¡é€»ç‚¹
+                GeneratePath(patrolPoints[currentPatrolPointIndex].position); // ç”Ÿæˆæ–°çš„è·¯å¾„
             }
             return;
         }
 
-        // Èç¹ûÂ·¾¶µãÁĞ±íÎª¿Õ£¬Éú³ÉÂ·¾¶
+        // å¦‚æœè·¯å¾„ç‚¹åˆ—è¡¨ä¸ºç©ºï¼Œç”Ÿæˆè·¯å¾„
         if (pathPointList == null || pathPointList.Count <= 0)
         {
             GeneratePath(patrolPoints[currentPatrolPointIndex].position);
             return;
         }
 
-        // ÒÆ¶¯µ½µ±Ç°Â·¾¶µã
+        // ç§»åŠ¨åˆ°å½“å‰è·¯å¾„ç‚¹
         if (currentIndex >= 0 && currentIndex < pathPointList.Count)
         {
             Vector2 direction = (pathPointList[currentIndex] - transform.position).normalized;
             OnMovementInput?.Invoke(direction);
 
-            // ¸ù¾İÒÆ¶¯·½Ïò·­×ª¾«Áé
+            // æ ¹æ®ç§»åŠ¨æ–¹å‘ç¿»è½¬ç²¾çµ
             sr.flipX = direction.x > 0;
         }
 
-        // ¼ì²éÊÇ·ñµ½´ïµ±Ç°Â·¾¶µã
+        // æ£€æŸ¥æ˜¯å¦åˆ°è¾¾å½“å‰è·¯å¾„ç‚¹
         if (Vector2.Distance(transform.position, pathPointList[currentIndex]) <= 0.1f)
         {
             currentIndex++;
-            // Èç¹ûµ½´ïÂ·¾¶Ä©Î²£¬ÇĞ»»µ½ÏÂÒ»¸öÑ²Âßµã
+            // å¦‚æœåˆ°è¾¾è·¯å¾„æœ«å°¾ï¼Œåˆ‡æ¢åˆ°ä¸‹ä¸€ä¸ªå·¡é€»ç‚¹
             if (currentIndex >= pathPointList.Count)
             {
-                currentIndex = 0; // ÖØÖÃË÷Òı
-                isWaitingAtPoint = true; // ÉèÖÃÎªµÈ´ı×´Ì¬
+                currentIndex = 0; // é‡ç½®ç´¢å¼•
+                isWaitingAtPoint = true; // è®¾ç½®ä¸ºç­‰å¾…çŠ¶æ€
             }
         }
     }
@@ -237,23 +237,23 @@ public class Enemy : Character
     {
         currentPatrolPointIndex += patrolDirection;
 
-        // µ½´ïÂ·¾¶ÖÕµã£¬¸Ä±ä·½Ïò
+        // åˆ°è¾¾è·¯å¾„ç»ˆç‚¹ï¼Œæ”¹å˜æ–¹å‘
         if (currentPatrolPointIndex >= patrolPoints.Count)
         {
-            currentPatrolPointIndex = patrolPoints.Count - 1; // ±£³ÖÔÚ×îºóÒ»¸öµã
-            patrolDirection = -1; // ·´ÏòÑ²Âß
+            currentPatrolPointIndex = patrolPoints.Count - 1; // ä¿æŒåœ¨æœ€åä¸€ä¸ªç‚¹
+            patrolDirection = -1; // åå‘å·¡é€»
         }
-        // µ½´ïÂ·¾¶Æğµã£¬¸Ä±ä·½Ïò
+        // åˆ°è¾¾è·¯å¾„èµ·ç‚¹ï¼Œæ”¹å˜æ–¹å‘
         else if (currentPatrolPointIndex <= 0)
         {
-            currentPatrolPointIndex = 0; // ±£³ÖÔÚµÚÒ»¸öµã
-            patrolDirection = 1; // ÕıÏòÑ²Âß
+            currentPatrolPointIndex = 0; // ä¿æŒåœ¨ç¬¬ä¸€ä¸ªç‚¹
+            patrolDirection = 1; // æ­£å‘å·¡é€»
         }
     }
 
     private void MeleeAttackEvent()
     {
-        // ¼ì²âÅö×²
+        // æ£€æµ‹ç¢°æ’
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(GetPlayerCenterPosition(), attackDistance, playerLayer);
         foreach (Collider2D hitCollider in hitColliders)
         {
@@ -261,24 +261,24 @@ public class Enemy : Character
         }
     }
 
-    // ¹¥»÷ÀäÈ´Ê±¼ä
+    // æ”»å‡»å†·å´æ—¶é—´
     IEnumerator AttackCooldownCoroutine()
     {
-        yield return new WaitForSeconds(AttackCooldownDuration); // µÈ´ıÀäÈ´Ê±¼ä
-        isAttack = true; // ÖØÖÃ¹¥»÷×´Ì¬
+        yield return new WaitForSeconds(AttackCooldownDuration); // ç­‰å¾…å†·å´æ—¶é—´
+        isAttack = true; // é‡ç½®æ”»å‡»çŠ¶æ€
     }
 
     public void OnDrawGizmosSelected()
     {
-        // ¹¥»÷·¶Î§
+        // æ”»å‡»èŒƒå›´
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackDistance);
 
-        // ×·»÷·¶Î§
+        // è¿½å‡»èŒƒå›´
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, chaseDistance);
 
-        // Ñ²ÂßÂ·¾¶
+        // å·¡é€»è·¯å¾„
         if (shouldPatrol && patrolPoints.Count > 1)
         {
             Gizmos.color = Color.blue;
@@ -299,20 +299,20 @@ public class Enemy : Character
         }
     }
 
-    // ÖØĞ´ Die ·½·¨£¬ÔÚµĞÈËËÀÍöÊ±¸üĞÂ±êÖ¾Î»
+    // é‡å†™ Die æ–¹æ³•ï¼Œåœ¨æ•Œäººæ­»äº¡æ—¶æ›´æ–°æ ‡å¿—ä½
     public override void Die()
     {
         base.Die();
         isAlive = false;
-        // ¼ì²éÊÇ·ñÓĞµÀ¾ßÉú³ÉÆ÷²¢µ÷ÓÃ DropItems ·½·¨
+        // æ£€æŸ¥æ˜¯å¦æœ‰é“å…·ç”Ÿæˆå™¨å¹¶è°ƒç”¨ DropItems æ–¹æ³•
         if (pickupSpawner != null)
         {
             pickupSpawner.DropItems();
         }
-        // ¿ÉÒÔÔÚÕâÀïÌí¼Ó²¥·ÅËÀÍö¶¯»­µÈÂß¼­
+        // å¯ä»¥åœ¨è¿™é‡Œæ·»åŠ æ’­æ”¾æ­»äº¡åŠ¨ç”»ç­‰é€»è¾‘
     }
 
-    // »ñÈ¡Íæ¼ÒµÄÖĞĞÄÎ»ÖÃ
+    // è·å–ç©å®¶çš„ä¸­å¿ƒä½ç½®
     private Vector3 GetPlayerCenterPosition()
     {
         Collider2D playerCollider = player.GetComponent<Collider2D>();
