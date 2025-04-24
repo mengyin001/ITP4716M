@@ -1,46 +1,67 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MovingSoundControl : MonoBehaviour
 {
-	[Header("音效配置")] // 新增音效Header
-	[SerializeField] private AudioClip MovingSound;
-	[SerializeField] private AudioSource audioSource;
-	float dirX;
-	[SerializeField]
-	Rigidbody2D rb;
-	bool isMoving = false;
-	float moveSpeed = 5f;
+    [Header("音效配置")]
+    [SerializeField] private AudioClip MovingSound;
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private float moveSpeed = 5f;
 
-	// Use this for initialization
-	void Start()
-	{
-		rb = GetComponent<Rigidbody2D>();
-		audioSource = GetComponent<AudioSource>();
-	}
+    private float dirX;
+    private bool isMoving = false;
+    private HealthSystem healthSystem;
+    private bool wasDead = false;
 
-	// Update is called once per frame
-	void Update()
-	{
-		dirX = Input.GetAxis("Horizontal") * moveSpeed;
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        audioSource = GetComponent<AudioSource>();
 
-		if (rb.linearVelocity.x != 0)
-			isMoving = true;
-		else
-			isMoving = false;
+        // Get reference to HealthSystem component
+        healthSystem = GetComponent<HealthSystem>();
+        if (healthSystem == null)
+        {
+            Debug.LogError("HealthSystem component not found on the same GameObject!");
+        }
+    }
 
-		if (isMoving)
-		{
-			if (!audioSource.isPlaying)
-				audioSource.Play();
-		}
-		else
-			audioSource.Stop();
-	}
+    void Update()
+    {
+        // If health system is missing or character is dead, disable sound and movement
+        if (healthSystem == null || healthSystem.IsDead)
+        {
+            if (!wasDead)
+            {
+                // First frame detecting death
+                audioSource.Stop();
+                enabled = false; // Disable this entire component
+                wasDead = true;
+            }
+            return;
+        }
 
-	void FixedUpdate()
-	{
-		rb.linearVelocity = new Vector2(dirX, rb.linearVelocity.y);
-	}
+        dirX = Input.GetAxis("Horizontal") * moveSpeed;
+
+        if (rb.linearVelocity.x != 0)
+            isMoving = true;
+        else
+            isMoving = false;
+
+        if (isMoving)
+        {
+            if (!audioSource.isPlaying)
+                audioSource.Play();
+        }
+        else
+            audioSource.Stop();
+    }
+
+    void FixedUpdate()
+    {
+        // Skip if dead
+        if (healthSystem != null && healthSystem.IsDead) return;
+
+        rb.linearVelocity = new Vector2(dirX, rb.linearVelocity.y);
+    }
 }

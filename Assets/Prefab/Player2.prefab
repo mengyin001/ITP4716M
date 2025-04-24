@@ -462,7 +462,7 @@ MonoBehaviour:
   autoRegen: 0
   regenRate: 1
   autoRegenEn: 1
-  regenRateEn: 2
+  regenRateEn: 20
   onDeath:
     m_PersistentCalls:
       m_Calls: []

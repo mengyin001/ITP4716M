@@ -17,11 +17,14 @@ MonoBehaviour:
     - name: Default
       type: 0
       hdr: 1
-      darknessColor: {r: 0, g: 0, b: 0, a: 1}
+      darknessColor: {r: 0, g: 0, b: 0.078431375, a: 1}
       depth: -100
       resolution: 1
       dayLayers:
-        list: []
+        list:
+        - id: 0
+          type: 0
+          sorting: 0
       lightLayers:
         list:
         - id: 0
@@ -47,6 +50,10 @@ MonoBehaviour:
         list:
         - layerID: 0
     - name: Basic Events
+      layerSetting:
+        list:
+        - layerID: 0
+    - name: First Events
       layerSetting:
         list:
         - layerID: 0
