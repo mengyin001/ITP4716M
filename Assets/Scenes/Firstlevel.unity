@@ -4295,7 +4295,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 4
+  orthographic size: 3
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -11930,6 +11930,10 @@ PrefabInstance:
     - target: {fileID: 7441264378417542713, guid: b69c7240ba78ea74584d594dc0a1a60a, type: 3}
       propertyPath: tasks.Array.data[0].description
       value: Kill all enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 7441264378417542713, guid: b69c7240ba78ea74584d594dc0a1a60a, type: 3}
+      propertyPath: tasks.Array.data[0].requiredSteps
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7441264378417542713, guid: b69c7240ba78ea74584d594dc0a1a60a, type: 3}
       propertyPath: tasks.Array.data[0].showProgressBar
