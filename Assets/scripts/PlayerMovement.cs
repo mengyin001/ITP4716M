@@ -8,7 +8,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 movement;
     private Animator animator;
     public GameObject[] guns;       //Gun list
-    int gunNum = 0;
+    public int gunNum = 0;
     private Vector2 mousePos;
     private float flipY;
     public GameObject myBag;
@@ -21,6 +21,14 @@ public class PlayerMovement : MonoBehaviour
         guns[0].SetActive(true);    //default gun0 active
         flipY = transform.localScale.y;
         mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        // 恢复当前武器
+        gunNum = PlayerData.CurrentGunIndex;
+        guns[gunNum].SetActive(true);
+    }
+    void OnDisable()
+    {
+        // 保存武器索引
+        PlayerData.CurrentGunIndex = gunNum;
     }
 
     void Update()

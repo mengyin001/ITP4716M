@@ -1,7 +1,7 @@
-﻿using System.Collections;
-using TMPro;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
 using UnityEngine.SceneManagement;
+using TMPro;
 using UnityEngine.UI;
 
 public class SceneLoader : MonoBehaviour
@@ -12,7 +12,26 @@ public class SceneLoader : MonoBehaviour
 
     void Start()
     {
+        SaveCurrentSceneData();
         StartCoroutine(LoadSceneAsync());
+    }
+
+    void SaveCurrentSceneData()
+    {
+        // 保存健康数据
+        var healthSystem = FindObjectOfType<HealthSystem>();
+        if (healthSystem != null)
+            PlayerData.Health = healthSystem.currentHealth;
+
+        // 保存金钱数据
+        var moneyManager = FindObjectOfType<MoneyManager>();
+        if (moneyManager != null)
+            PlayerData.Money = moneyManager.GetCurrentMoney();
+
+        // 保存武器数据
+        var playerMovement = FindObjectOfType<PlayerMovement>();
+        if (playerMovement != null)
+            PlayerData.CurrentGunIndex = playerMovement.gunNum;
     }
 
     IEnumerator LoadSceneAsync()

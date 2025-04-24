@@ -2,32 +2,32 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public float maxHealth = 100f; // ×î´óÉúÃüÖµ
-    private float currentHealth; // µ±Ç°ÉúÃüÖµ
+    public float maxHealth = 100f; // æœ€å¤§ç”Ÿå‘½å€¼
+    private float currentHealth; // å½“å‰ç”Ÿå‘½å€¼
 
     private void Start()
     {
-        // ³õÊ¼»¯µ±Ç°ÉúÃüÖµ
+        // åˆå§‹åŒ–å½“å‰ç”Ÿå‘½å€¼
         currentHealth = maxHealth;
     }
 
-    // ´¦ÀíµôÑªµÄ·½·¨
+    // å¤„ç†æ‰è¡€çš„æ–¹æ³•
     public void TakeDamage(float damage)
     {
-        currentHealth -= damage; // ¼õÉÙÉúÃüÖµ
+        currentHealth -= damage; // å‡å°‘ç”Ÿå‘½å€¼
         Debug.Log($"Player takes damage: {damage}. Current health: {currentHealth}");
 
         if (currentHealth <= 0)
         {
-            Die(); // µ÷ÓÃËÀÍö·½·¨
+            Die(); // è°ƒç”¨æ­»äº¡æ–¹æ³•
         }
     }
 
-    // ´¦Àí½ÇÉ«ËÀÍöµÄ·½·¨
+    // å¤„ç†è§’è‰²æ­»äº¡çš„æ–¹æ³•
     private void Die()
     {
         Debug.Log("Player has died!");
         Destroy(this.gameObject);
-        // ÕâÀï¿ÉÒÔÌí¼ÓËÀÍöÂß¼­£¬±ÈÈç½ûÓÃÍæ¼Ò»ò²¥·ÅËÀÍö¶¯»­
+        // è¿™é‡Œå¯ä»¥æ·»åŠ æ­»äº¡é€»è¾‘ï¼Œæ¯”å¦‚ç¦ç”¨ç©å®¶æˆ–æ’­æ”¾æ­»äº¡åŠ¨ç”»
     }
 }

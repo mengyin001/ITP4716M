@@ -13,7 +13,7 @@ public class HealthSystem : MonoBehaviour
 
     [Header("血量控制")]
     [SerializeField] private float maxHealth = 100f; // 最大血量
-    [SerializeField] private float currentHealth;     // 开始前血量
+    [SerializeField] public float currentHealth;     // 开始前血量
     [SerializeField] private Slider healthSlider;     // 血量Slider组件
     [SerializeField] private TextMeshProUGUI healthText; // TMP血量文本
 
@@ -54,11 +54,20 @@ public class HealthSystem : MonoBehaviour
         private set { isDead = value; } // 保持内部修改权限
     }
 
+    void OnDisable()
+    {
+        // 保存生命值
+        PlayerData.Health = currentHealth;
+    }
+
     void Start()
     {
         // 初始化血量和蓝量
         currentHealth = maxHealth;
         currentEnergy = maxEnergy;
+        // 恢复生命值
+        currentHealth = PlayerData.Health;
+        UpdateHealthUI();
         // 自动获取Slider组件（如果未手赋予值）
         if (healthSlider == null)
             healthSlider = GetComponent<Slider>();

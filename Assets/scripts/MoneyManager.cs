@@ -5,8 +5,8 @@ public class MoneyManager : MonoBehaviour
 {
     public static MoneyManager Instance;
 
-    [SerializeField] private MoneyData moneyData; // 在 Inspector 中拖拽赋值
-    [SerializeField] private TMP_Text moneyText;  // 在 Inspector 中拖拽赋值
+    [SerializeField] public MoneyData moneyData; // 在 Inspector 中拖拽赋值
+    [SerializeField] public TMP_Text moneyText;  // 在 Inspector 中拖拽赋值
 
     private void Awake()
     {
@@ -27,6 +27,7 @@ public class MoneyManager : MonoBehaviour
 
     private void Start()
     {
+        moneyData.itemHeld = PlayerData.Money;
         UpdateMoneyDisplay();
     }
 
@@ -96,5 +97,18 @@ public class MoneyManager : MonoBehaviour
     public string GetCurrencyName()
     {
         return moneyData.itemName;
+    }
+
+    void OnEnable()
+    {
+        // 加载时恢复数据
+        moneyData.itemHeld = PlayerData.Money;
+        UpdateMoneyDisplay();
+    }
+
+    void OnDisable()
+    {
+        // 退出时保存数据
+        PlayerData.Money = moneyData.itemHeld;
     }
 }
