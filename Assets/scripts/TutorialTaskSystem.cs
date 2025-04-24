@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using TMPro;
@@ -73,6 +73,7 @@ public class TutorialTaskSystem : MonoBehaviour
             if (task.taskType == Task.TaskType.CompleteGame)
             {
                 task.requiredSteps = EnemyManager.Instance.MaxWaves+1; // 设置为最大波数
+                task.currentStep++;
             }
 
             if (task.showProgressBar)
