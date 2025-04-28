@@ -11,7 +11,6 @@ public class MovingSoundControl : MonoBehaviour
 	[SerializeField]
 	Rigidbody2D rb;
 	bool isMoving = false;
-	float moveSpeed = 5f;
 
 	// Use this for initialization
 	void Start()
@@ -23,7 +22,7 @@ public class MovingSoundControl : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-		dirX = Input.GetAxis("Horizontal") * moveSpeed;
+		dirX = Input.GetAxis("Horizontal");
 
 		if (rb.linearVelocity.x != 0)
 			isMoving = true;
@@ -39,8 +38,4 @@ public class MovingSoundControl : MonoBehaviour
 			audioSource.Stop();
 	}
 
-	void FixedUpdate()
-	{
-		rb.linearVelocity = new Vector2(dirX, rb.linearVelocity.y);
-	}
 }
