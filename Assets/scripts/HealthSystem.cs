@@ -125,10 +125,6 @@ public class HealthSystem : MonoBehaviour
             RestartGame();
             canRestart = false;
         }
-
-
-
-
     }
 
     // 受到伤害
@@ -275,7 +271,6 @@ public class HealthSystem : MonoBehaviour
         if (destroyOnDeath)
         {
             yield return new WaitForSeconds(destroyDelay);
-            Destroy(gameObject);
         }
     }
 
