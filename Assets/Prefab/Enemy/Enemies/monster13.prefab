@@ -317,6 +317,8 @@ MonoBehaviour:
     dropPercentage: 52.3
   - prefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
     dropPercentage: 28.5
+  - prefab: {fileID: 7153547426953709824, guid: 61c6ca7f6d9d4da49a62a1c77c01d372, type: 3}
+    dropPercentage: 40.2
 --- !u!114 &5437350505921305044
 MonoBehaviour:
   m_ObjectHideFlags: 0
