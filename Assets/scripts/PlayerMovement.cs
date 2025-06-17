@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using Photon.Pun;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviourPun
 {
     [Header("移动参数")]
     public float moveSpeed = 5f;
@@ -25,6 +26,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        if (!photonView.IsMine && PhotonNetwork.IsConnected)
+            return;
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
         if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
