@@ -15,7 +15,5 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         base.OnConnectedToMaster();         //Á´½ÓPhoton·þÎñÆ÷
         Debug.Log("Connect done");
-
-        PhotonNetwork.JoinOrCreateRoom("Room", new Photon.Realtime.RoomOptions() { MaxPlayers = roomNumber }, default);
     }
 }
