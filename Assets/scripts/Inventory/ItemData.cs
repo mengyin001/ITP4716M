@@ -1,37 +1,27 @@
-﻿// ItemData.cs
-using System;
+﻿using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]
 public class ItemData : ScriptableObject
 {
     public enum ItemType { Consumable, Equipment, Material, Quest }
+    public enum EffectType { Health, Energy, Attack }
 
-    [Header("基础信息")]
+    [Header("Basic Info")]
     public string itemID;
     public string itemName;
     public Sprite icon;
-    [NonSerialized] public int itemHeld; 
-    [TextArea] public string description;
+    [NonSerialized] public int itemHeld;
     public ItemType itemType;
 
-    [Tooltip("基础售价")]
-    public int price;
+    [Header("Effects")]
+    public EffectType effectType;
+    public float effectAmount; // Unified effect value
+    public GameObject usePrefab;
 
-    [Header("属性")]
+    [Header("Other Properties")]
     public float weight = 0.1f;
     public bool isUnique = false;
-
-    [Header("使用效果")]
-    public GameObject usePrefab;
-    public int restoreHealth;
-    public int attackBonus;
-}
-
-// ItemInstance.cs
-[System.Serializable]
-public class ItemInstance
-{
-    public ItemData data;
-    public int quantity;
+    public int price;
+    [TextArea] public string description;
 }

@@ -15,11 +15,11 @@ MonoBehaviour:
   itemID: 003
   itemName: 
   icon: {fileID: 4902729985760503732, guid: 368f625759658cb48893fcaad6b9eddb, type: 3}
-  description: 
   itemType: 0
-  price: 100
+  effectType: 0
+  effectAmount: 20
+  usePrefab: {fileID: 0}
   weight: 0.1
   isUnique: 0
-  usePrefab: {fileID: 0}
-  restoreHealth: 0
-  attackBonus: 0
+  price: 100
+  description: 

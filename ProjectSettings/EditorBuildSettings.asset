@@ -17,7 +17,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Teachlevel.unity
     guid: e9791b2d95c836e49b9eff8f70e559a7
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SafeHouse.unity
     guid: 5aa6eb0b99f7d924abb17aa068724bed
   m_configObjects:
