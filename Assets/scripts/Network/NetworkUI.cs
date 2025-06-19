@@ -12,6 +12,10 @@ public class NetworkUI : MonoBehaviourPunCallbacks
     public GameObject roomListPanel;
     public Transform roomListContent;
     public GameObject roomEntryPrefab;
+    public TextMeshProUGUI noRoomsText; // 改为文字组件
+    public Button createRoomButton; // 创建按钮始终可见
+    public TMP_InputField roomNameInput;
+    public GameObject createRoomPanel;
 
     private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
 
@@ -20,6 +24,12 @@ public class NetworkUI : MonoBehaviourPunCallbacks
         // 初始化UI状态
         connectionStatusText.text = "Connecting...";
         roomListPanel.SetActive(false);
+        noRoomsText.gameObject.SetActive(false); // 初始隐藏无房间提示
+        createRoomPanel.SetActive(false);
+        createRoomButton.gameObject.SetActive(true); // 创建按钮始终可见
+
+        // 设置创建房间按钮事件
+        createRoomButton.onClick.AddListener(ShowCreateRoomPanel);
 
         // 清除旧的房间列表
         foreach (Transform child in roomListContent)
@@ -85,15 +95,26 @@ public class NetworkUI : MonoBehaviourPunCallbacks
             Destroy(child.gameObject);
         }
 
-        // 创建新的房间条目
-        foreach (KeyValuePair<string, RoomInfo> entry in cachedRoomList)
+        // 根据房间数量更新UI
+        if (cachedRoomList.Count == 0)
         {
-            GameObject newEntry = Instantiate(roomEntryPrefab, roomListContent);
-            RoomEntry entryScript = newEntry.GetComponent<RoomEntry>();
+            noRoomsText.text = "No rooms available currently. Create your own!"; // 设置文字内容
+            noRoomsText.gameObject.SetActive(true); // 显示文字提示
+        }
+        else
+        {
+            noRoomsText.gameObject.SetActive(false); // 隐藏文字提示
 
-            if (entryScript != null)
+            // 创建新的房间条目
+            foreach (KeyValuePair<string, RoomInfo> entry in cachedRoomList)
             {
-                entryScript.Initialize(entry.Value);
+                GameObject newEntry = Instantiate(roomEntryPrefab, roomListContent);
+                RoomEntry entryScript = newEntry.GetComponent<RoomEntry>();
+
+                if (entryScript != null)
+                {
+                    entryScript.Initialize(entry.Value);
+                }
             }
         }
     }
@@ -101,7 +122,32 @@ public class NetworkUI : MonoBehaviourPunCallbacks
     // 连接失败时的回调
     public override void OnDisconnected(DisconnectCause cause)
     {
-        connectionStatusText.text = $"连接失败: {cause}";
+        connectionStatusText.text = $"Connection failed: {cause}";
         roomListPanel.SetActive(false);
+        noRoomsText.gameObject.SetActive(false);
+    }
+
+    // 显示创建房间面板
+    private void ShowCreateRoomPanel()
+    {
+        createRoomPanel.SetActive(true);
+    }
+
+    // 创建房间方法
+    public void CreateNewRoom()
+    {
+        if (string.IsNullOrEmpty(roomNameInput.text))
+        {
+            Debug.LogError("Room name cannot be empty!");
+            return;
+        }
+
+        RoomOptions options = new RoomOptions();
+        options.MaxPlayers = 4; // 固定最大玩家数为4
+        options.IsOpen = true;
+        options.IsVisible = true;
+
+        PhotonNetwork.CreateRoom(roomNameInput.text, options);
+        createRoomPanel.SetActive(false);
     }
 }
