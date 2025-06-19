@@ -12,14 +12,21 @@ public class RoomEntry : MonoBehaviour
 
     private RoomInfo roomInfo;
 
-    public void Initialize(RoomInfo info)
+    public void Initialize(RoomInfo info, NetworkUI networkUI)
+    {
+        roomInfo = info;
+        UpdateRoomInfo(info);
+
+        joinButton.onClick.RemoveAllListeners();
+        joinButton.onClick.AddListener(JoinRoom);
+    }
+
+    // 新添加：更新房间信息的方法
+    public void UpdateRoomInfo(RoomInfo info)
     {
         roomInfo = info;
         roomNameText.text = info.Name;
         playerCountText.text = $"{info.PlayerCount}/{info.MaxPlayers}";
-
-        joinButton.onClick.RemoveAllListeners();
-        joinButton.onClick.AddListener(() => JoinRoom());
     }
 
     private void JoinRoom()
