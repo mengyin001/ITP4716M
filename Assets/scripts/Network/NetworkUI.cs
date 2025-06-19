@@ -14,7 +14,6 @@ public class NetworkUI : MonoBehaviourPunCallbacks
     public GameObject roomEntryPrefab;
     public TextMeshProUGUI noRoomsText; // 改为文字组件
     public Button createRoomButton; // 创建按钮始终可见
-    public TMP_InputField roomNameInput;
     public GameObject createRoomPanel;
 
     private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
@@ -133,21 +132,4 @@ public class NetworkUI : MonoBehaviourPunCallbacks
         createRoomPanel.SetActive(true);
     }
 
-    // 创建房间方法
-    public void CreateNewRoom()
-    {
-        if (string.IsNullOrEmpty(roomNameInput.text))
-        {
-            Debug.LogError("Room name cannot be empty!");
-            return;
-        }
-
-        RoomOptions options = new RoomOptions();
-        options.MaxPlayers = 4; // 固定最大玩家数为4
-        options.IsOpen = true;
-        options.IsVisible = true;
-
-        PhotonNetwork.CreateRoom(roomNameInput.text, options);
-        createRoomPanel.SetActive(false);
-    }
 }
