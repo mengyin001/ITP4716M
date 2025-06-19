@@ -357,10 +357,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   minionPrefab: {fileID: 4800886895020340632, guid: 072c7c2ab5474b949a3c6e31ce2f3f8e, type: 3}
-  minionsPerSummon: 2
+  minionsPerSummon: 5
   summonRadius: 9
   summonInterval: 10
-  summonTimer: 0
+  summonTimer: 2
   absorbRadius: 5
   healthRestoreAmount: 10
   walkableLayer:
