@@ -69,6 +69,8 @@ public class PlayerMovement : MonoBehaviourPun
     }
     void FixedUpdate()
     {
+        if (!photonView.IsMine && PhotonNetwork.IsConnected)
+            return;
         // 应用移动（保留原有物理逻辑）
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
     }
@@ -98,6 +100,14 @@ public class PlayerMovement : MonoBehaviourPun
                 gunNum = 0;
             }
             guns[gunNum].SetActive(true);
+        }
+    }
+    void OnDestroy()
+    {
+        // 确保使用 Photon 方式销毁
+        if (photonView != null && photonView.IsMine && PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.Destroy(gameObject);
         }
     }
 }

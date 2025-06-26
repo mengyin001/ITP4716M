@@ -5,6 +5,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class NetworkUI : MonoBehaviourPunCallbacks
 {
@@ -14,19 +15,30 @@ public class NetworkUI : MonoBehaviourPunCallbacks
     public TextMeshProUGUI statusText;
     public GameObject roomPanel;
     public Button actionButton;
-    public GameObject planePanel;
+    public GameObject createRoom;
     private bool isConnecting = false;
 
     private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
     private Dictionary<string, RoomEntry> roomEntries = new Dictionary<string, RoomEntry>();
-    private bool isInRoom = false; // 新增：跟踪是否在房间中
+    private bool isInRoom = false; 
 
     void Start()
     {
+        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom)
+        {
+            isInRoom = true;
+            statusText.text = $"In Room: {PhotonNetwork.CurrentRoom.Name}";
+            roomListParent.parent.gameObject.SetActive(false);
+            if (roomPanel) roomPanel.SetActive(true);
+            if (actionButton) actionButton.gameObject.SetActive(false);
+            UpdateRoomPlayerCount();
+            return; // 跳过初始连接流程
+        }
+
         statusText.text = "Initializing...";
         if (roomPanel) roomPanel.SetActive(false);
         if (actionButton) actionButton.gameObject.SetActive(false);
-        if (planePanel) planePanel.SetActive(false);
+        if (createRoom) createRoom.SetActive(false);
 
         if (actionButton != null)
         {
@@ -58,9 +70,9 @@ public class NetworkUI : MonoBehaviourPunCallbacks
 
     private void OnActionButtonClicked()
     {
-        if (planePanel != null)
+        if (createRoom != null)
         {
-            planePanel.SetActive(true);
+            createRoom.SetActive(true);
         }
     }
 
@@ -251,6 +263,7 @@ public class NetworkUI : MonoBehaviourPunCallbacks
 
         // 更新房间内人数显示
         UpdateRoomPlayerCount();
+        LoadGameScene();
     }
 
     // 更新房间内玩家数量显示
@@ -288,6 +301,12 @@ public class NetworkUI : MonoBehaviourPunCallbacks
         isInRoom = false; // 标记离开房间
         statusText.text = "Left room";
 
+        // 清理玩家对象
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnLeftRoom();
+        }
+
         // 重新显示按钮
         if (actionButton != null && !actionButton.gameObject.activeSelf)
         {
@@ -309,6 +328,10 @@ public class NetworkUI : MonoBehaviourPunCallbacks
     {
         isInRoom = false;
         statusText.text = $"Disconnected: {cause}";
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnLeftRoom();
+        }
         if (actionButton != null)
         {
             actionButton.gameObject.SetActive(false);
@@ -320,5 +343,30 @@ public class NetworkUI : MonoBehaviourPunCallbacks
     {
         yield return new WaitForSeconds(delay);
         ConnectToPhoton();
+    }
+
+    public override void OnCreatedRoom()
+    {
+        Debug.Log($"Room created: {PhotonNetwork.CurrentRoom.Name}");
+       createRoom.SetActive(false);
+        isInRoom = true;
+
+        // 更新UI状态
+        statusText.text = $"Room created: {PhotonNetwork.CurrentRoom.Name}";
+        roomListParent.parent.gameObject.SetActive(false);
+
+        if (roomPanel) roomPanel.SetActive(true);
+        if (actionButton) actionButton.gameObject.SetActive(false);
+
+        // 更新玩家数量显示
+        UpdateRoomPlayerCount();
+    }
+    private void LoadGameScene()
+    {
+        // 确保只有一个客户端加载场景
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.LoadLevel("SafeHouse");
+        }
     }
 }

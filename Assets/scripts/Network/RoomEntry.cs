@@ -33,7 +33,7 @@ public class RoomEntry : MonoBehaviour
     {
         if (roomInfo != null)
         {
-            PhotonNetwork.JoinRoom(roomInfo.Name);
+            NetworkManager.Instance.JoinRoom(roomInfo.Name);
         }
     }
 }
