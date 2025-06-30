@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -15,7 +15,7 @@ public class LongRangeEnemy : Character
     [SerializeField] private float attackDistance = 3f; // 远程攻击距离
 
     [Header("Patrol Settings")]
-    [SerializeField] private bool shouldPatrol = true;
+    [SerializeField] public bool shouldPatrol = true;
     [SerializeField] public List<Transform> patrolPoints;
     [SerializeField] private float patrolPointReachedDistance = 0.5f;
     [SerializeField] private float waitTimeAtPoint = 1f;
@@ -32,6 +32,10 @@ public class LongRangeEnemy : Character
 
     [Header("Bullet Spawn Point")]
     [SerializeField] private Transform bulletSpawnPoint; // 新增：子弹发射点
+
+    [Header("Behavior Override")]
+    public bool forceChaseMode = false;
+    public bool publicMode = true;
 
     private Seeker seeker;
     private List<Vector3> pathPointList; // 路径点列表
@@ -63,7 +67,8 @@ public class LongRangeEnemy : Character
     {
         // 初始化子弹池
         InitializeBulletPool();
-        if (shouldPatrol && patrolPoints.Count > 0)
+
+        if (publicMode && shouldPatrol && patrolPoints.Count > 0)
         {
             // 随机选择开始路径点和终点
             int startIndex = Random.Range(0, patrolPoints.Count);
@@ -112,50 +117,142 @@ public class LongRangeEnemy : Character
         if (!isAlive || player == null)
             return;
 
-        float distanceToPlayer = Vector2.Distance(player.position, transform.position);
-
-        // 检查玩家是否在追击范围内
-        if (distanceToPlayer < chaseDistance)
+        if (forceChaseMode)
         {
-            isChasing = true;
-            isPatrolling = false; // 停止巡逻
-            HandleChaseBehavior(distanceToPlayer);
+            // 强制追击模式下，始终追击玩家
+            HandleForceChaseBehavior();
+            return;
         }
-        else
+        if (publicMode)
         {
-            // 如果之前在追击，但现在玩家超出范围
-            if (isChasing)
+
+            float distanceToPlayer = Vector2.Distance(GetPlayerCenterPosition(), transform.position);
+
+            // 检查玩家是否在追击范围内
+            if (distanceToPlayer < chaseDistance)
             {
-                isChasing = false; // 停止追击
-                pathPointList = null; // 清除当前路径
-
-                // 恢复巡逻状态
-                isPatrolling = shouldPatrol;
-                if (isPatrolling && patrolPoints.Count > 0)
-                {
-                    // 随机选择开始路径点和终点
-                    int startIndex = Random.Range(0, patrolPoints.Count);
-                    int endIndex;
-                    do
-                    {
-                        endIndex = Random.Range(0, patrolPoints.Count);
-                    } while (endIndex == startIndex);
-
-                    GeneratePath(patrolPoints[startIndex].position, patrolPoints[endIndex].position);
-                    currentPatrolPointIndex = startIndex;
-                }
-            }
-
-            // 进行巡逻
-            if (isPatrolling && patrolPoints.Count > 0)
-            {
-                Patrol();
+                isChasing = true;
+                isPatrolling = false; // 停止巡逻
+                HandleChaseBehavior(distanceToPlayer);
             }
             else
             {
-                OnMovementInput?.Invoke(Vector2.zero); // 停止移动
+                // 如果之前在追击，但现在玩家超出范围
+                if (isChasing)
+                {
+                    isChasing = false; // 停止追击
+                    pathPointList = null; // 清除当前路径
+
+                    // 恢复巡逻状态
+                    isPatrolling = shouldPatrol;
+                    if (isPatrolling && patrolPoints.Count > 0)
+                    {
+                        // 随机选择开始路径点和终点
+                        int startIndex = Random.Range(0, patrolPoints.Count);
+                        int endIndex;
+                        do
+                        {
+                            endIndex = Random.Range(0, patrolPoints.Count);
+                        } while (endIndex == startIndex);
+
+                        GeneratePath(patrolPoints[startIndex].position, patrolPoints[endIndex].position);
+                        currentPatrolPointIndex = startIndex;
+                    }
+                }
+
+                // 进行巡逻
+                if (isPatrolling && patrolPoints.Count > 0)
+                {
+                    Patrol();
+                }
+                else
+                {
+                    OnMovementInput?.Invoke(Vector2.zero); // 停止移动
+                }
             }
         }
+    }
+
+    private void HandleForceChaseBehavior()
+    {
+        // 强制追击模式下，始终生成路径追击玩家
+        pathGenerateTimer += Time.deltaTime;
+        if (pathGenerateTimer >= pathGenerateInterval)
+        {
+            GeneratePath(transform.position, GetPlayerCenterPosition());
+            pathGenerateTimer = 0;
+        }
+
+        float distanceToPlayer = Vector2.Distance(GetPlayerCenterPosition(), transform.position);
+
+        if (distanceToPlayer <= attackDistance)
+        {
+            // 在攻击范围内停止移动并进行攻击
+            OnMovementInput?.Invoke(Vector2.zero);
+            Fire();
+
+            // 根据玩家位置翻转精灵
+            float x = player.position.x - transform.position.x;
+            if (x > 0)
+            {
+                if (!sr.flipX)
+                {
+                    sr.flipX = true;
+                    FlipBulletSpawnPoint();
+                }
+            }
+            else
+            {
+                if (sr.flipX)
+                {
+                    sr.flipX = false;
+                    FlipBulletSpawnPoint();
+                }
+            }
+        }
+        else
+        {
+            // 追击玩家
+            if (pathPointList != null && pathPointList.Count > 0)
+            {
+                // 找到最近的路径点
+                if (currentIndex >= pathPointList.Count)
+                {
+                    currentIndex = pathPointList.Count - 1;
+                }
+
+                Vector2 direction = (pathPointList[currentIndex] - transform.position).normalized;
+                OnMovementInput?.Invoke(direction);
+
+                // 根据移动方向翻转精灵
+                if (direction.x > 0 && !sr.flipX)
+                {
+                    sr.flipX = true;
+                    FlipBulletSpawnPoint();
+                }
+                else if (direction.x < 0 && sr.flipX)
+                {
+                    sr.flipX = false;
+                    FlipBulletSpawnPoint();
+                }
+
+                // 检查是否到达当前路径点
+                if (Vector2.Distance(transform.position, pathPointList[currentIndex]) < 0.1f)
+                {
+                    currentIndex++;
+                }
+            }
+        }
+    }
+
+    private Vector3 GetPlayerCenterPosition()
+    {
+        Collider2D playerCollider = player.GetComponent<Collider2D>();
+        if (playerCollider != null)
+        {
+            return playerCollider.bounds.center;
+        }
+        return player.position;
     }
 
     private void HandleChaseBehavior(float distanceToPlayer)

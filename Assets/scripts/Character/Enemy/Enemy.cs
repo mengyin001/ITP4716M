@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -15,7 +15,7 @@ public class Enemy : Character
     [SerializeField] private float attackDistance = 0.8f; // 攻击距离
 
     [Header("Patrol Settings")]
-    [SerializeField] private bool shouldPatrol = true;
+    [SerializeField] public bool shouldPatrol = true;
     [SerializeField] public List<Transform> patrolPoints;
     [SerializeField] private float patrolPointReachedDistance = 0.5f;
     [SerializeField] private float waitTimeAtPoint = 1f;
@@ -24,6 +24,11 @@ public class Enemy : Character
     public float meleetAttackDamage; // 近战攻击伤害
     public LayerMask playerLayer; // 表示玩家图层
     public float AttackCooldownDuration = 2f; // 冷却时间
+
+    [Header("Behavior Override")]
+    public bool forceChaseMode = false;
+    public bool publicMode = true;
+
 
     private Seeker seeker;
     private List<Vector3> pathPointList; // 路径点列表
@@ -70,40 +75,102 @@ public class Enemy : Character
         if (!isAlive || player == null)
             return;
 
-        float distanceToPlayer = Vector2.Distance(GetPlayerCenterPosition(), transform.position);
-
-        // 检查玩家是否在追击范围内
-        if (distanceToPlayer < chaseDistance)
+        if (forceChaseMode)
         {
-            isChasing = true;
-            isPatrolling = false; // 停止巡逻
-            HandleChaseBehavior(distanceToPlayer);
+            // 强制追击模式下，始终追击玩家
+            HandleForceChaseBehavior();
+            return;
         }
-        else
+
+        if (publicMode)
         {
-            // 如果之前在追击，但现在玩家超出范围
-            if (isChasing)
-            {
-                isChasing = false; // 停止追击
-                pathPointList = null; // 清除当前路径
+            float distanceToPlayer = Vector2.Distance(GetPlayerCenterPosition(), transform.position);
 
-                // 恢复巡逻状态
-                isPatrolling = shouldPatrol;
-                if (isPatrolling && patrolPoints.Count > 0)
-                {
-                    currentPatrolPointIndex = 0; // 重置巡逻点索引
-                    GeneratePath(transform.position, patrolPoints[currentPatrolPointIndex].position); // 生成巡逻路径
-                }
-            }
-
-            // 进行巡逻
-            if (isPatrolling && patrolPoints.Count > 0)
+            // 检查玩家是否在追击范围内
+            if (distanceToPlayer < chaseDistance)
             {
-                Patrol();
+                isChasing = true;
+                isPatrolling = false; // 停止巡逻
+                HandleChaseBehavior(distanceToPlayer);
             }
             else
             {
-                OnMovementInput?.Invoke(Vector2.zero); // 停止移动
+                // 如果之前在追击，但现在玩家超出范围
+                if (isChasing)
+                {
+                    isChasing = false; // 停止追击
+                    pathPointList = null; // 清除当前路径
+
+                    // 恢复巡逻状态
+                    isPatrolling = shouldPatrol;
+                    if (isPatrolling && patrolPoints.Count > 0)
+                    {
+                        currentPatrolPointIndex = 0; // 重置巡逻点索引
+                        GeneratePath(transform.position, patrolPoints[currentPatrolPointIndex].position); // 生成巡逻路径
+                    }
+                }
+
+                // 进行巡逻
+                if (isPatrolling && patrolPoints.Count > 0)
+                {
+                    Patrol();
+                }
+                else
+                {
+                    OnMovementInput?.Invoke(Vector2.zero); // 停止移动
+                }
+            }
+        }
+    }
+
+    private void HandleForceChaseBehavior()
+    {
+        // 强制追击模式下，始终生成路径追击玩家
+        pathGenerateTimer += Time.deltaTime;
+        if (pathGenerateTimer >= pathGenerateInterval)
+        {
+            GeneratePath(transform.position, GetPlayerCenterPosition());
+            pathGenerateTimer = 0;
+        }
+
+        float distanceToPlayer = Vector2.Distance(GetPlayerCenterPosition(), transform.position);
+
+        if (distanceToPlayer <= attackDistance)
+        {
+            // 停止移动并进行攻击
+            OnMovementInput?.Invoke(Vector2.zero);
+            if (isAttack)
+            {
+                isAttack = false;
+                OnAttack?.Invoke();
+                StartCoroutine(nameof(AttackCooldownCoroutine));
+            }
+
+            // 根据玩家位置翻转精灵
+            sr.flipX = GetPlayerCenterPosition().x > transform.position.x;
+        }
+        else
+        {
+            // 追击玩家
+            if (pathPointList != null && pathPointList.Count > 0)
+            {
+                // 找到最近的路径点
+                if (currentIndex >= pathPointList.Count)
+                {
+                    currentIndex = pathPointList.Count - 1;
+                }
+
+                Vector2 direction = (pathPointList[currentIndex] - transform.position).normalized;
+                OnMovementInput?.Invoke(direction);
+
+                // 根据移动方向翻转精灵
+                sr.flipX = direction.x > 0;
+
+                // 检查是否到达当前路径点
+                if (Vector2.Distance(transform.position, pathPointList[currentIndex]) < 0.1f)
+                {
+                    currentIndex++;
+                }
             }
         }
     }
@@ -176,16 +243,6 @@ public class Enemy : Character
                 }
             }
         }
-    }
-
-    // 获取路径点，单个目标点版本
-    private void GeneratePath(Vector3 target)
-    {
-        currentIndex = 0;
-        seeker.StartPath(transform.position, target, Path =>
-        {
-            pathPointList = Path.vectorPath; // Path.vectorPath 包含了从起点到终点的完整路径
-        });
     }
 
     // 获取路径点，重载方法，接受起点和终点
@@ -295,9 +352,12 @@ public class Enemy : Character
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackDistance);
 
-        // 追击范围
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, chaseDistance);
+        // 追击范围（仅在非强制追击模式下显示）
+        if (!forceChaseMode)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(transform.position, chaseDistance);
+        }
 
         // 巡逻路径
         if (shouldPatrol && patrolPoints.Count > 1)
