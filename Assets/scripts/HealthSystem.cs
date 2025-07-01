@@ -25,12 +25,12 @@ public class HealthSystem : MonoBehaviourPunCallbacks
     [SerializeField] private TextMeshProUGUI energyText; // TMP蓝量文本
 
     [Header("自动回复血量")]
-    [SerializeField] private bool autoRegen = false;  // 是否自动回复
-    [SerializeField] private float regenRate = 1f;    // 每秒回复量
+    [SerializeField] public bool autoRegen = false;  // 是否自动回复
+    [SerializeField] public float regenRate = 1f;    // 每秒回复量
 
     [Header("自动回复蓝量")]
-    [SerializeField] private bool autoRegenEn = false;  // 是否自动回复
-    [SerializeField] private float regenRateEn = 1f;    // 每秒回复量
+    [SerializeField] public bool autoRegenEn = false;  // 是否自动回复
+    [SerializeField] public float regenRateEn = 1f;    // 每秒回复量
 
     [Header("死亡效果")]
     [SerializeField] private UnityEvent onDeath; // 死亡事件
