@@ -15,11 +15,11 @@ MonoBehaviour:
   itemID: 002
   itemName: Energy Restore Potion
   icon: {fileID: 7763498119798118100, guid: 368f625759658cb48893fcaad6b9eddb, type: 3}
-  description: Energy Restore Potion
   itemType: 0
-  price: 50
+  effectType: 1
+  effectAmount: 10
+  usePrefab: {fileID: 0}
   weight: 0.1
   isUnique: 0
-  usePrefab: {fileID: 0}
-  restoreHealth: 10
-  attackBonus: 0
+  price: 50
+  description: Energy Restore Potion

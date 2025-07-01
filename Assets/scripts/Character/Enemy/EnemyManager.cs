@@ -21,6 +21,7 @@ public class EnemyManager : MonoBehaviour
     public int AliveEnemyCount { get; private set; } = 0;
     public bool IsLastWave => CurrentWaveIndex >= enemyWaves.Count;
     public bool IsWaveInProgress { get; private set; } = false;
+    public bool AllWavesCompleted { get; private set; } = false; // 新增：所有波次是否完成
 
     private Transform playerTarget;
     private List<GameObject> activeEnemies = new List<GameObject>();
@@ -71,6 +72,7 @@ public class EnemyManager : MonoBehaviour
         playerTarget = GameObject.FindGameObjectWithTag("Player")?.transform;
         CurrentWaveIndex = 0;
         IsWaveInProgress = false;
+        AllWavesCompleted = false;
         activeEnemies.Clear();
     }
 
@@ -78,7 +80,6 @@ public class EnemyManager : MonoBehaviour
     {
         AliveEnemyCount = 0;  // 明确重置AliveEnemyCount变量
         Initialize();
-        // 其他需要重置的内容可以在这里添加
     }
 
     private void Start()
@@ -88,7 +89,7 @@ public class EnemyManager : MonoBehaviour
 
     private void Update()
     {
-        if (AliveEnemyCount <= 0 && !IsWaveInProgress && !IsLastWave)
+        if (AliveEnemyCount <= 0 && !IsWaveInProgress && !IsLastWave && !AllWavesCompleted)
         {
             StartCoroutine(StartNextWaveCoroutine());
         }
@@ -96,13 +97,13 @@ public class EnemyManager : MonoBehaviour
 
     private IEnumerator StartNextWaveCoroutine()
     {
-        IsWaveInProgress = true;
-
-        if (IsLastWave)
+        if (IsLastWave || AllWavesCompleted)
         {
             IsWaveInProgress = false;
             yield break;
         }
+
+        IsWaveInProgress = true;
 
         List<EnemyData> currentWaveEnemies = enemyWaves[CurrentWaveIndex].enemies;
         List<Collider2D> spawnedEnemyColliders = new List<Collider2D>();
@@ -161,6 +162,13 @@ public class EnemyManager : MonoBehaviour
         IgnoreEnemyCollisions(spawnedEnemyColliders);
 
         CurrentWaveIndex++;
+
+        // 检查是否是最后一波
+        if (IsLastWave)
+        {
+            AllWavesCompleted = true;
+        }
+
         IsWaveInProgress = false;
     }
 
@@ -227,16 +235,13 @@ public class EnemyManager : MonoBehaviour
         if (activeEnemies.Contains(enemy))
         {
             activeEnemies.Remove(enemy);
-            Destroy(enemy); // 添加这行代码来销毁敌人对象
+            Destroy(enemy);
         }
 
-        if (AliveEnemyCount <= 0)
+        // 只有当所有波次都完成并且没有存活的敌人时才生成传送门
+        if (AllWavesCompleted && AliveEnemyCount <= 0)
         {
-            if (IsLastWave)
-            {
-                CurrentWaveIndex++;
-                GenerateTeleportationCircle();
-            }
+            GenerateTeleportationCircle();
         }
     }
 

@@ -243,7 +243,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e239991bad3c9294faed4e178d6378b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 100
+  MaxHealth: 200
   currentHealth: 0
   invulnerable: 0
   invulnerableDuration: 0
@@ -315,7 +315,7 @@ MonoBehaviour:
   patrolPoints: []
   patrolPointReachedDistance: 2
   waitTimeAtPoint: 1
-  meleetAttackDamage: 20
+  meleetAttackDamage: 15
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -334,8 +334,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   propPrefabs:
-  - prefab: {fileID: 0}
-    dropPercentage: 0
+  - prefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
+    dropPercentage: 100
+  - prefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
+    dropPercentage: 100
+  - prefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
+    dropPercentage: 100
+  - prefab: {fileID: 7153547426953709824, guid: 61c6ca7f6d9d4da49a62a1c77c01d372, type: 3}
+    dropPercentage: 100
+  - prefab: {fileID: 7153547426953709824, guid: 61c6ca7f6d9d4da49a62a1c77c01d372, type: 3}
+    dropPercentage: 100
 --- !u!114 &3122383274565057928
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,16 +357,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   minionPrefab: {fileID: 4800886895020340632, guid: 072c7c2ab5474b949a3c6e31ce2f3f8e, type: 3}
-  minionsPerSummon: 10
+  minionsPerSummon: 5
   summonRadius: 9
-  summonInterval: 5
-  summonTimer: 0
+  summonInterval: 10
+  summonTimer: 2
   absorbRadius: 5
-  healthRestoreAmount: 20
+  healthRestoreAmount: 10
   walkableLayer:
     serializedVersion: 2
     m_Bits: 128
-  maxSpawnAttempts: 20
+  maxSpawnAttempts: 10
 --- !u!82 &8883066757460760827
 AudioSource:
   m_ObjectHideFlags: 0

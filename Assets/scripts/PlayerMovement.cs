@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using Photon.Pun;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviourPun
 {
     [Header("移动参数")]
     public float moveSpeed = 5f;
@@ -25,6 +26,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        if (!photonView.IsMine && PhotonNetwork.IsConnected)
+            return;
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
         if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
@@ -66,6 +69,8 @@ public class PlayerMovement : MonoBehaviour
     }
     void FixedUpdate()
     {
+        if (!photonView.IsMine && PhotonNetwork.IsConnected)
+            return;
         // 应用移动（保留原有物理逻辑）
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
     }
@@ -95,6 +100,14 @@ public class PlayerMovement : MonoBehaviour
                 gunNum = 0;
             }
             guns[gunNum].SetActive(true);
+        }
+    }
+    void OnDestroy()
+    {
+        // 确保使用 Photon 方式销毁
+        if (photonView != null && photonView.IsMine && PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.Destroy(gameObject);
         }
     }
 }

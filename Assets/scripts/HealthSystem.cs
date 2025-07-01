@@ -4,8 +4,9 @@ using TMPro;
 using UnityEngine.Events;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using Photon.Pun;
 
-public class HealthSystem : MonoBehaviour
+public class HealthSystem : MonoBehaviourPunCallbacks
 {
     [Header("音效配置")] // 新增音效Header
     [SerializeField] private AudioClip hurtSound;    // 受伤音效
@@ -87,8 +88,6 @@ public class HealthSystem : MonoBehaviour
 
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
-
-
     }
 
     void Update()
@@ -125,15 +124,12 @@ public class HealthSystem : MonoBehaviour
             RestartGame();
             canRestart = false;
         }
-
-
-
-
     }
 
     // 受到伤害
     public void TakeDamage(float damage)
     {
+        if (!photonView.IsMine) return;
         if (isDead) return;
         float previousHealth = currentHealth;
         currentHealth = Mathf.Clamp(currentHealth - damage, 0, maxHealth);
@@ -202,15 +198,6 @@ public class HealthSystem : MonoBehaviour
         return currentEnergy >= amount;
     }
 
-    private void InitializeSlider(Slider slider, float maxValue)
-    {
-        if (slider != null)
-        {
-            slider.maxValue = maxValue;
-            slider.value = maxValue;
-        }
-    }
-
     private void HandleDeath()
     {
         isDead = true;
@@ -262,6 +249,21 @@ public class HealthSystem : MonoBehaviour
                 deathImage.alpha = Mathf.SmoothStep(0, 1, t);
             }
 
+            if (destroyOnDeath)
+            {
+                yield return new WaitForSeconds(destroyDelay);
+
+                // 使用 Photon 方式销毁对象
+                if (photonView != null && photonView.IsMine)
+                {
+                    PhotonNetwork.Destroy(gameObject);
+                }
+                else
+                {
+                    Destroy(gameObject);
+                }
+            }
+
             yield return null;
         }
 
@@ -275,7 +277,6 @@ public class HealthSystem : MonoBehaviour
         if (destroyOnDeath)
         {
             yield return new WaitForSeconds(destroyDelay);
-            Destroy(gameObject);
         }
     }
 
