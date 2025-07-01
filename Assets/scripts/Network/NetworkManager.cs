@@ -8,6 +8,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [Header("Setting")]
     public int roomNumber = 4;
     public static NetworkManager Instance;
+    public GameObject player;
+    [Header("Space")]
+    public Transform spacePoint;
 
     void Start()
     {
@@ -16,44 +19,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        base.OnConnectedToMaster();         //链接Photon服务器
-        Debug.Log("Connect done");
-    }
-    private void Awake()  //确保网络管理器始终存在
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            PhotonNetwork.AutomaticallySyncScene = true;
-            if (!PhotonNetwork.IsConnected)
-            {
-                PhotonNetwork.ConnectUsingSettings();
-            }
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        base.OnConnectedToMaster();
+        Debug.Log("Welcome");
+        PhotonNetwork.JoinOrCreateRoom("Room", new Photon.Realtime.RoomOptions() { MaxPlayers = 4 }, default);
     }
 
-    // 创建房间的统一入口
-    public void CreateRoom(string roomName, int maxPlayers)
+    public override void OnJoinedRoom()
     {
-        RoomOptions options = new RoomOptions
-        {
-            MaxPlayers = (byte)maxPlayers,
-            IsOpen = true,
-            IsVisible = true
-        };
+        base.OnJoinedRoom();
 
-        PhotonNetwork.CreateRoom(roomName, options);
-    }
-
-    // 加入房间的统一入口
-    public void JoinRoom(string roomName)
-    {
-        PhotonNetwork.JoinRoom(roomName);
-        PhotonNetwork.LoadLevel("SafeHouse");
+        GameObject _player = PhotonNetwork.Instantiate(player.name,spacePoint.position,Quaternion.identity,0);
     }
 }

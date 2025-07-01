@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using TMPro;
+using Photon.Pun;
 
-public class MoneyManager : MonoBehaviour
+public class MoneyManager : MonoBehaviourPun
 {
     public static MoneyManager Instance;
 
@@ -18,7 +19,7 @@ public class MoneyManager : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject);
+            PhotonNetwork.Destroy(gameObject);
             return;
         }
 

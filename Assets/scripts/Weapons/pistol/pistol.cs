@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
 
-public class pistol : MonoBehaviour
+public class pistol : MonoBehaviourPun
 {
     public float interval;
     public GameObject bulletPrefab;
@@ -44,6 +45,8 @@ public class pistol : MonoBehaviour
 
     void Update()
     {
+        if (!photonView.IsMine && PhotonNetwork.IsConnected)
+            return;
         mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         if (mousePos.x < transform.position.x)
         {
