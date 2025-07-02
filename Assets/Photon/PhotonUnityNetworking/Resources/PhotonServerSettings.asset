@@ -39,6 +39,21 @@ MonoBehaviour:
   - DestroySpaceship
   - Fire
   - RespawnSpaceship
+  - AddHealth
+  - PlayFireEffects
+  - RPC_ConsumeEnergy
+  - RPC_Die
+  - RPC_FireShotgun
+  - RPC_FireSingle
+  - RPC_Invulnerable
+  - RPC_PlayAttackAnimation
+  - RPC_ShootBullet
+  - RPC_TakeDamage
+  - RPC_UpdateFlip
+  - RPC_UpdateHealth
+  - SetFiringState
+  - TakeDamage
+  - UpdateLaserVisuals
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

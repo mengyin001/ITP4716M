@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using Pathfinding;
+using Photon.Pun;
 
 public class LongRangeEnemy : Character
 {
@@ -11,8 +12,8 @@ public class LongRangeEnemy : Character
 
     [Header("Chase Settings")]
     [SerializeField] public Transform player;
-    [SerializeField] private float chaseDistance = 3f; // 追击距离
-    [SerializeField] private float attackDistance = 3f; // 远程攻击距离
+    [SerializeField] private float chaseDistance = 3f;
+    [SerializeField] private float attackDistance = 3f;
 
     [Header("Patrol Settings")]
     [SerializeField] private bool shouldPatrol = true;
@@ -21,24 +22,24 @@ public class LongRangeEnemy : Character
     [SerializeField] private float waitTimeAtPoint = 1f;
 
     [Header("Attack Settings")]
-    public float rangedAttackDamage; // 远程攻击伤害
-    public LayerMask playerLayer; // 表示玩家图层
-    public float fireRate = 1f; // 射击频率，每秒发射的子弹数
-    public GameObject enemyBulletPrefab; // 敌人子弹预制体
-    public float bulletSpeed = 10f; // 子弹速度
+    public float rangedAttackDamage;
+    public LayerMask playerLayer;
+    public float fireRate = 1f;
+    public GameObject enemyBulletPrefab;
+    public float bulletSpeed = 10f;
 
     [Header("Bullet Pool Settings")]
-    [SerializeField] private int initialPoolSize = 20; // 初始池大小
+    [SerializeField] private int initialPoolSize = 20;
 
     [Header("Bullet Spawn Point")]
-    [SerializeField] private Transform bulletSpawnPoint; // 新增：子弹发射点
+    [SerializeField] private Transform bulletSpawnPoint;
 
     private Seeker seeker;
-    private List<Vector3> pathPointList; // 路径点列表
-    private int currentIndex = 0; // 路径点的索引
-    private float pathGenerateInterval = 0.5f; // 每 0.5 秒生成一次路径
-    private float pathGenerateTimer = 0f; // 计时器
-    private float fireTimer = 0f; // 射击计时器
+    private List<Vector3> pathPointList;
+    private int currentIndex = 0;
+    private float pathGenerateInterval = 0.5f;
+    private float pathGenerateTimer = 0f;
+    private float fireTimer = 0f;
 
     private Animator animator;
     private bool isChasing = false;
@@ -47,25 +48,47 @@ public class LongRangeEnemy : Character
     private float waitTimer = 0f;
     private SpriteRenderer sr;
 
-    // 新增标志位，表示敌人是否存活
     private bool isAlive = true;
-    // 新增标志位，表示当前是否在巡逻
     private bool isPatrolling = true;
-    // 新增方向变量，1 表示正向， -1 表示反向
     private int patrolDirection = 1;
 
-    // 每个敌人拥有自己的子弹池
     private EnemyBulletPool bulletPool;
-    // 新增：引用道具生成器
     public PickupSpawner pickupSpawner;
+
+    protected override void Awake()
+    {
+        base.Awake(); // 调用基类的Awake方法
+
+        seeker = GetComponent<Seeker>();
+        sr = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
+
+        // 设置敌人标识
+        isEnemy = true;
+
+        // 初始化子弹池
+        InitializeBulletPool();
+
+        // 只在主客户端查找玩家
+        if (PhotonNetwork.IsMasterClient)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                player = playerObj.transform;
+            }
+            else
+            {
+                Debug.LogError("找不到带有 'Player' 标签的游戏对象！");
+            }
+        }
+    }
 
     private void Start()
     {
-        // 初始化子弹池
-        InitializeBulletPool();
-        if (shouldPatrol && patrolPoints.Count > 0)
+        // 只在主客户端初始化巡逻路径
+        if (PhotonNetwork.IsMasterClient && shouldPatrol && patrolPoints.Count > 0)
         {
-            // 随机选择开始路径点和终点
             int startIndex = Random.Range(0, patrolPoints.Count);
             int endIndex;
             do
@@ -80,6 +103,7 @@ public class LongRangeEnemy : Character
 
     private void InitializeBulletPool()
     {
+        // 子弹池应该在所有客户端都存在
         GameObject poolObj = new GameObject("BulletPool");
         poolObj.transform.parent = transform;
         bulletPool = poolObj.AddComponent<EnemyBulletPool>();
@@ -88,52 +112,30 @@ public class LongRangeEnemy : Character
         bulletPool.InitializePool();
     }
 
-    private void Awake()
-    {
-        seeker = GetComponent<Seeker>();
-        sr = GetComponent<SpriteRenderer>();
-        animator = GetComponent<Animator>();
-
-        // 查找带有 "Player" 标签的游戏对象并赋值给 player 变量
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
-        {
-            player = playerObj.transform;
-        }
-        else
-        {
-            Debug.LogError("找不到带有 'Player' 标签的游戏对象！");
-        }
-    }
-
     private void Update()
     {
-        // 如果敌人死亡或者玩家不存在，不执行后续逻辑
-        if (!isAlive || player == null)
-            return;
+        // 只在主客户端运行AI逻辑
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (!isAlive || player == null) return;
 
         float distanceToPlayer = Vector2.Distance(player.position, transform.position);
 
-        // 检查玩家是否在追击范围内
         if (distanceToPlayer < chaseDistance)
         {
             isChasing = true;
-            isPatrolling = false; // 停止巡逻
+            isPatrolling = false;
             HandleChaseBehavior(distanceToPlayer);
         }
         else
         {
-            // 如果之前在追击，但现在玩家超出范围
             if (isChasing)
             {
-                isChasing = false; // 停止追击
-                pathPointList = null; // 清除当前路径
+                isChasing = false;
+                pathPointList = null;
 
-                // 恢复巡逻状态
                 isPatrolling = shouldPatrol;
                 if (isPatrolling && patrolPoints.Count > 0)
                 {
-                    // 随机选择开始路径点和终点
                     int startIndex = Random.Range(0, patrolPoints.Count);
                     int endIndex;
                     do
@@ -146,60 +148,47 @@ public class LongRangeEnemy : Character
                 }
             }
 
-            // 进行巡逻
             if (isPatrolling && patrolPoints.Count > 0)
             {
                 Patrol();
             }
             else
             {
-                OnMovementInput?.Invoke(Vector2.zero); // 停止移动
+                OnMovementInput?.Invoke(Vector2.zero);
             }
         }
     }
 
     private void HandleChaseBehavior(float distanceToPlayer)
     {
-        // 如果敌人死亡，不执行后续逻辑
-        if (!isAlive)
-            return;
+        if (!isAlive) return;
 
         AutoPath();
-        if (pathPointList == null)
-            return;
+        if (pathPointList == null) return;
 
         if (distanceToPlayer <= attackDistance)
         {
-            // 停止移动并进行攻击
             OnMovementInput?.Invoke(Vector2.zero);
             Fire();
 
-            // Flip sprite based on player position
             float x = player.position.x - transform.position.x;
-            if (x > 0)
+            bool shouldFlip = x > 0;
+
+            // 如果方向需要改变，同步到所有客户端
+            if (shouldFlip != sr.flipX)
             {
-                if (!sr.flipX)
-                {
-                    sr.flipX = true;
-                    FlipBulletSpawnPoint();
-                }
-            }
-            else
-            {
-                if (sr.flipX)
-                {
-                    sr.flipX = false;
-                    FlipBulletSpawnPoint();
-                }
+                photonView.RPC("RPC_UpdateFlip", RpcTarget.All, shouldFlip);
             }
         }
         else
         {
-            // Chase player
             if (currentIndex >= 0 && currentIndex < pathPointList.Count)
             {
                 Vector2 direction = (pathPointList[currentIndex] - transform.position).normalized;
                 OnMovementInput?.Invoke(direction);
+
+                // 同步移动方向
+                photonView.RPC("RPC_UpdateFlip", RpcTarget.All, direction.x > 0);
             }
             else
             {
@@ -208,30 +197,24 @@ public class LongRangeEnemy : Character
         }
     }
 
-    // 自动寻路
     private void AutoPath()
     {
-        // 如果敌人死亡，不执行后续逻辑
-        if (!isAlive)
-            return;
+        if (!isAlive) return;
 
         pathGenerateTimer += Time.deltaTime;
 
-        // 间隔一定时间来获取路径点
         if (pathGenerateTimer >= pathGenerateInterval)
         {
             Vector3 target = isChasing ? player.position : patrolPoints[currentPatrolPointIndex].position;
             GeneratePath(target);
-            pathGenerateTimer = 0; // 重置计时器
+            pathGenerateTimer = 0;
         }
 
-        // 当路径点列表为空时，进行路径计算
         if (pathPointList == null || pathPointList.Count <= 0)
         {
             Vector3 target = isChasing ? player.position : patrolPoints[currentPatrolPointIndex].position;
             GeneratePath(target);
         }
-        // 当敌人到达当前路径点时，递增索引 currentIndex 并进行路径计算
         else if (Vector2.Distance(transform.position, pathPointList[currentIndex]) <= 0.1f)
         {
             currentIndex++;
@@ -258,27 +241,20 @@ public class LongRangeEnemy : Character
         }
     }
 
-    // 获取路径点
     private void GeneratePath(Vector3 target)
     {
-        // 如果敌人死亡，不执行后续逻辑
-        if (!isAlive)
-            return;
+        if (!isAlive) return;
 
         currentIndex = 0;
-        // 三个参数：起点、终点、回调函数
         seeker.StartPath(transform.position, target, Path =>
         {
-            pathPointList = Path.vectorPath; // Path.vectorPath 包含了从起点到终点的完整路径
+            pathPointList = Path.vectorPath;
         });
     }
 
-    // 重载 GeneratePath 方法，接受起点和终点
     private void GeneratePath(Vector3 start, Vector3 end)
     {
-        // 如果敌人死亡，不执行后续逻辑
-        if (!isAlive)
-            return;
+        if (!isAlive) return;
 
         currentIndex = 0;
         seeker.StartPath(start, end, Path =>
@@ -289,7 +265,6 @@ public class LongRangeEnemy : Character
 
     private void Patrol()
     {
-        // 如果敌人死亡，不执行后续逻辑
         if (!isAlive) return;
 
         if (isWaitingAtPoint)
@@ -299,8 +274,7 @@ public class LongRangeEnemy : Character
             {
                 isWaitingAtPoint = false;
                 waitTimer = 0f;
-                MoveToNextPatrolPoint(); // 移动到下一个巡逻点
-                // 随机选择下一个路径点
+                MoveToNextPatrolPoint();
                 int nextIndex;
                 do
                 {
@@ -313,94 +287,85 @@ public class LongRangeEnemy : Character
             return;
         }
 
-        // 如果路径点列表为空，生成路径
         if (pathPointList == null || pathPointList.Count <= 0)
         {
-            // 随机选择路径点
             int randomIndex = Random.Range(0, patrolPoints.Count);
             GeneratePath(patrolPoints[currentPatrolPointIndex].position, patrolPoints[randomIndex].position);
             return;
         }
 
-        // 移动到当前路径点
         if (currentIndex >= 0 && currentIndex < pathPointList.Count)
         {
             Vector2 direction = (pathPointList[currentIndex] - transform.position).normalized;
             OnMovementInput?.Invoke(direction);
 
-            // 根据移动方向翻转精灵
-            if (direction.x > 0 && !sr.flipX)
-            {
-                sr.flipX = true;
-                FlipBulletSpawnPoint();
-            }
-            else if (direction.x < 0 && sr.flipX)
-            {
-                sr.flipX = false;
-                FlipBulletSpawnPoint();
-            }
+            // 同步移动方向
+            photonView.RPC("RPC_UpdateFlip", RpcTarget.All, direction.x > 0);
         }
 
-        // 检查是否到达当前路径点
         if (Vector2.Distance(transform.position, pathPointList[currentIndex]) <= 0.1f)
         {
             currentIndex++;
-            // 如果到达路径末尾，切换到下一个巡逻点
             if (currentIndex >= pathPointList.Count)
             {
-                currentIndex = 0; // 重置索引
-                isWaitingAtPoint = true; // 设置为等待状态
+                currentIndex = 0;
+                isWaitingAtPoint = true;
             }
         }
     }
 
-
     private void MoveToNextPatrolPoint()
     {
-        // 如果敌人死亡，不执行后续逻辑
         if (!isAlive) return;
 
         currentPatrolPointIndex += patrolDirection;
 
-        // 到达路径终点，改变方向
         if (currentPatrolPointIndex >= patrolPoints.Count)
         {
-            currentPatrolPointIndex = patrolPoints.Count - 1; // 保持在最后一个点
-            patrolDirection = -1; // 反向巡逻
+            currentPatrolPointIndex = patrolPoints.Count - 1;
+            patrolDirection = -1;
         }
-        // 到达路径起点，改变方向
         else if (currentPatrolPointIndex <= 0)
         {
-            currentPatrolPointIndex = 0; // 保持在第一个点
-            patrolDirection = 1; // 正向巡逻
+            currentPatrolPointIndex = 0;
+            patrolDirection = 1;
         }
     }
 
     private void Fire()
     {
-        // 如果敌人死亡，不执行后续逻辑
-        if (!isAlive)
-            return;
+        if (!isAlive) return;
 
         fireTimer += Time.deltaTime;
         if (fireTimer >= 1f / fireRate)
         {
             fireTimer = 0f;
             OnAttack?.Invoke();
+
+            // 同步攻击动作
+            photonView.RPC("RPC_ShootBullet", RpcTarget.All);
+        }
+    }
+
+    [PunRPC]
+    private void RPC_ShootBullet()
+    {
+        // 所有客户端播放攻击动画
+        animator.SetTrigger("Attack");
+
+        // 只在主客户端实际发射子弹（避免重复生成）
+        if (PhotonNetwork.IsMasterClient)
+        {
             ShootBullet();
         }
     }
 
-    // 发射子弹的方法
     private void ShootBullet()
     {
         if (!isAlive || enemyBulletPrefab == null || bulletPool == null)
             return;
 
-        // 确保玩家位置是准确的中心位置
         Vector3 playerCenter = player.position;
-
-        // 考虑玩家的碰撞体中心（如果有必要）
         Collider2D playerCollider = player.GetComponent<Collider2D>();
         if (playerCollider != null)
         {
@@ -409,7 +374,6 @@ public class LongRangeEnemy : Character
 
         Vector2 direction = ((Vector2)playerCenter - (Vector2)bulletSpawnPoint.position).normalized;
 
-        // 使用对象池获取子弹
         GameObject bullet = bulletPool.GetBullet();
         bullet.transform.position = bulletSpawnPoint.position;
 
@@ -417,7 +381,15 @@ public class LongRangeEnemy : Character
         if (bulletScript != null)
         {
             bulletScript.Setup(rangedAttackDamage, playerLayer, bulletSpeed, direction);
+            bulletScript.photonView.RPC("RPC_Initialize", RpcTarget.All, direction, bulletSpeed);
         }
+    }
+
+    [PunRPC]
+    private void RPC_UpdateFlip(bool flipRight)
+    {
+        sr.flipX = flipRight;
+        FlipBulletSpawnPoint();
     }
 
     private void FlipBulletSpawnPoint()
@@ -430,15 +402,12 @@ public class LongRangeEnemy : Character
 
     public void OnDrawGizmosSelected()
     {
-        // Attack range
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackDistance);
 
-        // Chase range
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, chaseDistance);
 
-        // Patrol path
         if (shouldPatrol && patrolPoints.Count > 1)
         {
             Gizmos.color = Color.blue;
@@ -459,15 +428,23 @@ public class LongRangeEnemy : Character
         }
     }
 
-    // 重写 Die 方法，在敌人死亡时更新标志位
-    public override void Die()
+    // 重写RPC_Die方法
+    [PunRPC]
+    public override void RPC_Die()
     {
-        base.Die();
+        base.RPC_Die(); // 调用基类死亡逻辑
         isAlive = false;
-        // 可以在这里添加播放死亡动画等逻辑
-        if (pickupSpawner != null)
+
+        // 只在主客户端生成掉落物
+        if (PhotonNetwork.IsMasterClient && pickupSpawner != null)
         {
             pickupSpawner.DropItems();
         }
+
+        // 销毁敌人对象
+        if (photonView.IsMine)
+        {
+            PhotonNetwork.Destroy(gameObject);
+        }
     }
-}    
+}

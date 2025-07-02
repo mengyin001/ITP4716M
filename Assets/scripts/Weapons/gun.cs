@@ -1,18 +1,20 @@
 using UnityEngine;
+using Photon.Pun;
 
 public abstract class gun : MonoBehaviour
 {
-    [Header("射击设置")]
+    [Header("通用射击设置")]
     public float interval = 0.5f;
-    public GameObject bulletPrefab;  // 确保在Inspector中赋值
-    public GameObject shellPrefab;   // 可选
+    public GameObject bulletPrefab;
+    public GameObject shellPrefab;
     public float energyCostPerShot = 1f;
-    public AudioClip shootSound;     // 可选
-    
-    [Header("组件参考")]
-    [SerializeField] protected Transform muzzlePos;  // 序列化以便调试
-    [SerializeField] protected Transform shellPos;   // 可选
-    
+    public AudioClip shootSound;
+    public float damage = 10f;
+
+    [Header("通用组件参考")]
+    [SerializeField] protected Transform muzzlePos;
+    [SerializeField] protected Transform shellPos;
+
     protected Vector2 mousePos;
     protected Vector2 direction;
     protected float timer = 0;
@@ -20,162 +22,91 @@ public abstract class gun : MonoBehaviour
     protected Animator animator;
     protected PlayerMovement playerMovement;
     protected HealthSystem healthSystem;
+    protected PhotonView parentPhotonView;
+
+    // 公共接口，用於從外部安全地獲取彈殼生成位置
+    public Transform ShellPosition => shellPos;
 
     protected virtual void Awake()
     {
-        // 确保关键组件在Awake中初始化
         animator = GetComponent<Animator>();
-        
-        // 确保枪口位置存在
-        if (muzzlePos == null)
-        {
-            muzzlePos = transform.Find("Muzzle");
-            if (muzzlePos == null)
-            {
-                Debug.LogError($"武器 {name} 缺少Muzzle子物体", this);
-                muzzlePos = new GameObject("Muzzle").transform;
-                muzzlePos.SetParent(transform);
-                muzzlePos.localPosition = Vector3.right * 0.5f;
-            }
-        }
-        
-        // 弹壳位置可选
-        if (shellPos == null)
-        {
-            shellPos = transform.Find("ShellPos");
-        }
+        if (muzzlePos == null) muzzlePos = transform.Find("Muzzle");
+        if (shellPos == null) shellPos = transform.Find("BulletShell");
     }
 
     protected virtual void Start()
     {
         flipY = transform.localScale.y;
-        
-        // 动态查找组件
+        parentPhotonView = GetComponentInParent<PhotonView>();
         playerMovement = GetComponentInParent<PlayerMovement>();
         healthSystem = GetComponentInParent<HealthSystem>();
-        
-        if (playerMovement == null)
-        {
-            playerMovement = FindObjectOfType<PlayerMovement>();
-            Debug.LogWarning($"武器 {name} 动态查找PlayerMovement", this);
-        }
-        
-        if (healthSystem == null)
-        {
-            healthSystem = FindObjectOfType<HealthSystem>();
-            Debug.LogWarning($"武器 {name} 动态查找HealthSystem", this);
-        }
-        
-        // 初始检查
-        if (bulletPrefab == null)
-        {
-            Debug.LogError($"武器 {name} 未设置bulletPrefab", this);
-        }
     }
 
     protected virtual void Update()
     {
+        // 只讓本地玩家控制自己的武器
+        if (parentPhotonView == null || !parentPhotonView.IsMine) return;
+
         if (Camera.main == null) return;
-        
         mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         UpdateWeaponRotation();
-        
+
         if (playerMovement != null && !playerMovement.isOpen)
         {
-            Shoot();
+            HandleShootingInput();
         }
     }
 
     protected virtual void UpdateWeaponRotation()
-{
-    direction = (mousePos - (Vector2)transform.position).normalized;
-    
-    // 计算基础角度
-    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-    
-    // 鼠标在左侧
-    if (mousePos.x < transform.position.x)
     {
-        transform.localScale = new Vector3(-flipY, flipY, 1); // Y轴翻转使枪托向下
-        transform.rotation = Quaternion.Euler(0, 0, angle + 180f); // 加180度使武器朝左
-    }
-    // 鼠标在右侧
-    else
-    {
-        transform.localScale = new Vector3(-flipY, flipY, 1); // 保持原有右侧翻转
-        transform.rotation = Quaternion.Euler(0, 0, angle); // 直接使用计算角度
-    }
-}
+        direction = (mousePos - (Vector2)transform.position).normalized;
+        transform.right = direction;
 
-    protected virtual void Shoot()
+        if (mousePos.x < transform.position.x)
+        {
+            transform.localScale = new Vector3(transform.localScale.x, -flipY, transform.localScale.z);
+        }
+        else
+        {
+            transform.localScale = new Vector3(transform.localScale.x, flipY, transform.localScale.z);
+        }
+    }
+
+    protected virtual void HandleShootingInput()
     {
-        if ((healthSystem != null && healthSystem.IsDead) || 
+        if ((healthSystem != null && healthSystem.IsDead) ||
             (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive))
             return;
-            
+
         if (timer > 0)
         {
             timer -= Time.deltaTime;
             return;
         }
 
-        if ((Input.GetButton("Fire1") || Input.GetButtonDown("Fire1")) && timer <= 0)
+        if (Input.GetButton("Fire1") && timer <= 0)
         {
             if (healthSystem == null || healthSystem.HasEnoughEnergy(energyCostPerShot))
             {
                 Fire();
                 timer = interval;
-                
                 if (healthSystem != null)
-                    healthSystem.ConsumeEnergy(energyCostPerShot);
-            }
-            else
-            {
-                Debug.Log("能量不足！");
+                    healthSystem.RPC_ConsumeEnergy(energyCostPerShot);
             }
         }
     }
 
+    /// <summary>
+    /// 預設的開火行為，觸發單發子彈的 RPC。子類可以重寫此方法以實現不同邏輯。
+    /// </summary>
     protected virtual void Fire()
     {
-        // 安全检查
-        if (animator != null)
-            animator.SetTrigger("Shoot");
-        else
-            Debug.LogWarning($"武器 {name} 缺少Animator组件", this);
-        
-        if (bulletPrefab == null || muzzlePos == null)
-        {
-            Debug.LogError($"武器 {name} 无法射击 - bulletPrefab或muzzlePos未设置", this);
-            return;
-        }
-        
-        // 生成子弹
-        GameObject bullet = Instantiate(bulletPrefab, muzzlePos.position, Quaternion.identity);
-        Bullet bulletComponent = bullet.GetComponent<Bullet>();
-        if (bulletComponent != null)
-        {
-            bulletComponent.SetSpeed(direction);
-        }
-        else
-        {
-            Debug.LogWarning($"子弹预制体 {bulletPrefab.name} 缺少Bullet组件", this);
-        }
-        
-        // 生成弹壳（可选）
-        if (shellPrefab != null && shellPos != null)
-        {
-            Instantiate(shellPrefab, shellPos.position, Quaternion.identity);
-        }
-        
-        // 播放音效
-        if (shootSound != null)
-        {
-            AudioSource.PlayClipAtPoint(shootSound, muzzlePos.position);
-        }
-        else
-        {
-            Debug.LogWarning($"武器 {name} 缺少射击音效", this);
-        }
+        if (muzzlePos == null || parentPhotonView == null) return;
+
+        // 呼叫 RPC 在所有客戶端生成子彈
+        parentPhotonView.RPC("RPC_FireSingle", RpcTarget.All, muzzlePos.position, transform.rotation, this.damage);
+
+        // 呼叫 RPC 在所有客戶端播放特效
+        parentPhotonView.RPC("PlayFireEffects", RpcTarget.All, muzzlePos.position);
     }
 }

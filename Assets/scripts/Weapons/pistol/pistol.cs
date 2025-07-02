@@ -1,110 +1,30 @@
-﻿using Photon.Pun;
+﻿// pistol.cs (已修改為繼承 gun 並使用 RPC 框架)
 using UnityEngine;
 
-public class pistol : MonoBehaviourPun
+/// <summary>
+/// 一個標準的手槍武器。
+/// 它繼承自 'gun' 基底類別，從而自動獲得所有通用的武器邏輯和網路功能。
+/// 這個腳本的存在是為了將其掛載到手槍的遊戲物件上，
+/// 並在 Unity 編輯器中設定其獨特的屬性（如射速、傷害、子彈外觀等）。
+/// </summary>
+public class pistol : gun
 {
-    public float interval;
-    public GameObject bulletPrefab;
-    public GameObject shellPrefab;
-    public float energyCostPerShot = 1f;
-    public AudioClip shootSound; // 新增的音效变量
-    private Transform muzzlePos;
-    private Transform shellPos;
-    private Vector2 mousePos;
-    private Vector2 direction;
-    private float timer = 0;
-    private float flipY;
-    private Animator animator;
-    private PlayerMovement playerMovement;
-    private HealthSystem healthSystem;
+    // --- 腳本內容為空 ---
 
-    void Start()
-    {
-        animator = GetComponent<Animator>();
-        muzzlePos = transform.Find("Muzzle");
-        shellPos = transform.Find("BulletShell");
-        flipY = transform.localScale.y;
-        healthSystem = GetComponent<HealthSystem>(); 
-        playerMovement = GetComponentInParent<PlayerMovement>();
-        if (playerMovement == null)
-        {
-            playerMovement = FindObjectOfType<PlayerMovement>();
-        }
-        if (healthSystem == null)
-        {
-            healthSystem = GetComponentInParent<HealthSystem>();
-            if (healthSystem == null)
-            {
-                healthSystem = FindObjectOfType<HealthSystem>();
-                Debug.LogWarning(healthSystem == null ?
-                    "未找到 HealthSystem 组件" :
-                    "已动态关联 HealthSystem");
-            }
-        }
-    }
+    // 因為標準手槍的行為（單發、直線飛行）正是 'gun' 基底類別的預設行為，
+    // 所以我們不需要在這裡重寫 (override) 任何方法。
 
-    void Update()
-    {
-        if (!photonView.IsMine && PhotonNetwork.IsConnected)
-            return;
-        mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        if (mousePos.x < transform.position.x)
-        {
-            transform.localScale = new Vector3(flipY, -flipY, 1);
-        }
-        else
-        {
-            transform.localScale = new Vector3(-flipY, flipY, 1);
-        }
-        if (!playerMovement.isOpen)
-        {
-            Shoot();
-        }
-    }
+    // 'gun' 的 Start() 會自動初始化所有組件。
+    // 'gun' 的 Update() 會自動處理武器旋轉和玩家輸入。
+    // 'gun' 的 HandleShootingInput() 會檢查能量和開火條件。
+    // 'gun' 的 Fire() 會自動觸發正確的 RPC ("RPC_FireSingle") 來在所有客戶端生成視覺子彈。
 
-    void Shoot()
-    {
-        if (healthSystem != null && healthSystem.IsDead) 
-            return;
-        if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
-            return;
-        if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
-            return;
-        direction = (mousePos - new Vector2(transform.position.x, transform.position.y)).normalized;
-        transform.right = direction;
-        if (timer > 0)
-        {
-            timer -= Time.deltaTime;
-        }
-
-
-        if ((Input.GetButton("Fire1") || Input.GetButtonDown("Fire1")) && timer <= 0)
-        {
-            // Check if we have enough energy to shoot
-            if (healthSystem != null && healthSystem.HasEnoughEnergy(energyCostPerShot))
-            {
-                Fire();
-                timer = interval;
-                healthSystem.ConsumeEnergy(energyCostPerShot);
-            }
-            else
-            {
-                // Optional: Play a "no energy" sound or show feedback
-                Debug.Log("Not enough energy to shoot!");
-            }
-        }
-    }
-
-    void Fire()
-    {
-        animator.SetTrigger("Shoot");
-        GameObject bullet = Instantiate(bulletPrefab, muzzlePos.position, Quaternion.identity);
-        bullet.GetComponent<Bullet>().SetSpeed(direction);
-
-        // 新增音效播放代码
-        if (shootSound != null)
-        {
-            AudioSource.PlayClipAtPoint(shootSound, muzzlePos.position);
-        }
-    }
+    // 你唯一需要做的事情，就是在 Unity 編輯器中選中掛載了此腳本的物件，
+    // 然後在 Inspector 面板中設定從 'gun' 繼承來的公開變數，例如：
+    // - Interval (射擊間隔)
+    // - Bullet Prefab (子彈預製體，使用沒有 PhotonView 的那個)
+    // - Damage (傷害值)
+    // - Shoot Sound (開火音效)
+    // - Muzzle Pos (槍口位置的 Transform)
+    // 等等...
 }

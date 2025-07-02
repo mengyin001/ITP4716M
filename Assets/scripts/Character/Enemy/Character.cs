@@ -1,47 +1,62 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Photon.Pun;
+using System;
 
-public class Character : MonoBehaviour
+public class Character : MonoBehaviourPun
 {
-    [Header("Attribute")]
+    [Header("Attributes")]
     [SerializeField] public float MaxHealth;
     [SerializeField] public float currentHealth;
     public bool invulnerable;
-    public float invulnerableDuration; // 拸菩奀潔
-
+    public float invulnerableDuration;
     public bool isEnemy = false;
-    public static Action OnEnemyDeath;// 敌人死亡事件
+    public static Action OnEnemyDeath;
 
+    [Header("Events")]
     public UnityEvent OnHurt;
     public UnityEvent OnDie;
+
+    // 添加 Awake 方法
+    protected virtual void Awake()
+    {
+        // 可以在这里添加基础初始化代码
+    }
 
     protected virtual void OnEnable()
     {
         currentHealth = MaxHealth;
     }
 
+    [PunRPC]
     public virtual void TakeDamage(float damage)
     {
-        if (invulnerable)
-            return;
-        if (currentHealth - damage > 0f)
+        if (invulnerable) return;
+
+        if (photonView.IsMine || (isEnemy && PhotonNetwork.IsMasterClient))
         {
-            currentHealth -= damage;
-            StartCoroutine(nameof(InvulnerableCoroutine));// 雄拸菩奀潔衪最
-            // 硒俴褒伎忳夼雄賒
-            OnHurt?.Invoke();
-        }
-        else
-        {
-            // 侚厗
-            Die();
+            if (currentHealth - damage > 0f)
+            {
+                currentHealth -= damage;
+                photonView.RPC("RPC_Invulnerable", RpcTarget.All);
+                OnHurt?.Invoke();
+            }
+            else
+            {
+                photonView.RPC("RPC_Die", RpcTarget.All);
+            }
         }
     }
 
-    public virtual void Die()
+    [PunRPC]
+    protected virtual void RPC_Invulnerable()
+    {
+        StartCoroutine(InvulnerableCoroutine());
+    }
+
+    [PunRPC]
+    public virtual void RPC_Die()
     {
         currentHealth = 0f;
         OnDie?.Invoke();
@@ -53,17 +68,31 @@ public class Character : MonoBehaviour
         }
     }
 
-    // 拸菩
     protected virtual IEnumerator InvulnerableCoroutine()
     {
         invulnerable = true;
-
-        // 脹渾拸菩奀潔
         yield return new WaitForSeconds(invulnerableDuration);
-
         invulnerable = false;
     }
 
-    // 氝樓 AddHealth 源楊汒隴
+    [PunRPC]
+    public void AddHealth(float amount)
+    {
+        if (photonView.IsMine || (isEnemy && PhotonNetwork.IsMasterClient))
+        {
+            currentHealth = Mathf.Clamp(currentHealth + amount, 0f, MaxHealth);
+            photonView.RPC("RPC_UpdateHealth", RpcTarget.All, currentHealth);
+        }
+    }
 
+    [PunRPC]
+    public void RPC_UpdateHealth(float newHealth)
+    {
+        currentHealth = newHealth;
+    }
+
+    public void NetworkTakeDamage(float damage)
+    {
+        photonView.RPC("TakeDamage", RpcTarget.All, damage);
+    }
 }

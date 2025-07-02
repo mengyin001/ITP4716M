@@ -1,47 +1,59 @@
 ﻿using UnityEngine;
+using Photon.Pun;
 
 public class Bullet : MonoBehaviour
 {
-    public float speed;
-    public GameObject explosionPrefab;
-    new private Rigidbody2D rigidbody;
+    public float speed = 20f;
+    public float lifeTime = 3f;
     public float damage = 5f;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    protected virtual void Awake()        //awake much fast
+    // 記錄是誰發射了這顆子彈，用於進行權威命中判定
+    private PhotonView ownerPhotonView;
+    private Rigidbody2D rb;
+
+    void Awake()
     {
-        rigidbody = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
-    public void SetSpeed(Vector2 direction)        //control flying by direction and speed
+    void Start()
     {
-        rigidbody.linearVelocity = direction * speed;
+        // 子彈被生成後，立即沿自己的前方飛行
+        rb.linearVelocity = transform.right * speed;
+        // 使用 Unity 的常規 Destroy 方法，在一定時間後銷毀本地物件
+        Destroy(gameObject, lifeTime);
     }
 
-    // Update is called once per frame
-    void Update()
+    /// <summary>
+    /// 初始化子彈，由生成它的 RPC 調用，傳入傷害值和發射者的 PhotonView。
+    /// </summary>
+    public void Initialize(float dmg, PhotonView ownerPV)
     {
-
+        this.damage = dmg;
+        this.ownerPhotonView = ownerPV;
     }
 
-    protected virtual void OnTriggerEnter2D(Collider2D other)
+    void OnTriggerEnter2D(Collider2D other)
     {
-        Character character = other.GetComponent<Character>();
-        if (character != null)
+        // 關鍵：只有子彈的擁有者 (ownerPhotonView.IsMine) 才能進行傷害判定
+        if (ownerPhotonView != null && ownerPhotonView.IsMine)
         {
-            character.TakeDamage(damage);
-            Instantiate(explosionPrefab, transform.position, Quaternion.identity);
-            Destroy(gameObject);
-        }
-        else if (other.CompareTag("Wall"))
-        {
-            Instantiate(explosionPrefab, transform.position, Quaternion.identity);
-            Destroy(gameObject);
-        }
-    }
+            Character character = other.GetComponent<Character>();
+            // 確保碰撞到的物體是角色，並且不是發射者自己
+            if (character != null && character.photonView.ViewID != ownerPhotonView.ViewID)
+            {
+                // 命中後，由開火者發起 RPC 來同步傷害給所有客戶端
+                character.photonView.RPC("TakeDamage", RpcTarget.All, this.damage);
 
-    public void SetDamage(float _damage)
-    {
-        damage=_damage;
+                // 碰撞後立即銷毀本地子彈
+                Destroy(gameObject);
+            }
+            // 如果撞到牆等環境物體
+            else if (other.CompareTag("Wall"))
+            {
+                // 立即銷毀本地子彈
+                Destroy(gameObject);
+            }
+        }
     }
 }

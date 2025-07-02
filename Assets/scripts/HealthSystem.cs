@@ -6,72 +6,80 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
 
-public class HealthSystem : MonoBehaviourPunCallbacks
+public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
 {
-    [Header("音效配置")] // 新增音效Header
-    [SerializeField] private AudioClip hurtSound;    // 受伤音效
-    [SerializeField] private AudioSource audioSource; // 音频组件
+    [Header("音效配置")]
+    [SerializeField] private AudioClip hurtSound;
+    [SerializeField] private AudioSource audioSource;
 
     [Header("血量控制")]
-    [SerializeField] private float maxHealth = 100f; // 最大血量
-    [SerializeField] private float currentHealth;     // 开始前血量
-    [SerializeField] private Slider healthSlider;     // 血量Slider组件
-    [SerializeField] private TextMeshProUGUI healthText; // TMP血量文本
+    [SerializeField] private float maxHealth = 100f;
+    [SerializeField] private float currentHealth;
+    [SerializeField] private Slider healthSlider;
+    [SerializeField] private TextMeshProUGUI healthText;
 
     [Header("蓝量控制")]
-    [SerializeField] private float maxEnergy = 100f;  //最大能量
-    [SerializeField] private float currentEnergy;   // 开始前能量
-    [SerializeField] private Slider energySlider;   // 蓝量Silder组件
-    [SerializeField] private TextMeshProUGUI energyText; // TMP蓝量文本
+    [SerializeField] private float maxEnergy = 100f;
+    [SerializeField] private float currentEnergy;
+    [SerializeField] private Slider energySlider;
+    [SerializeField] private TextMeshProUGUI energyText;
 
     [Header("自动回复血量")]
-    [SerializeField] public bool autoRegen = false;  // 是否自动回复
-    [SerializeField] public float regenRate = 1f;    // 每秒回复量
+    [SerializeField] public bool autoRegen = false;
+    [SerializeField] public float regenRate = 1f;
 
     [Header("自动回复蓝量")]
-    [SerializeField] public bool autoRegenEn = false;  // 是否自动回复
-    [SerializeField] public float regenRateEn = 1f;    // 每秒回复量
+    [SerializeField] public bool autoRegenEn = false;
+    [SerializeField] public float regenRateEn = 1f;
 
     [Header("死亡效果")]
-    [SerializeField] private UnityEvent onDeath; // 死亡事件
-    [SerializeField] private bool disableControlOnDeath = true; // 是否禁用控制
-    [SerializeField] private bool destroyOnDeath = false; // 是否销毁对象
-    [SerializeField] private float destroyDelay = 3f; // 销毁延迟
-    [SerializeField] private Transform characterBody; // 需要旋转的角色身体
-    [SerializeField] private CanvasGroup deathImage;  // 渐显的死亡图片
-    [SerializeField] private float deathAnimationTime = 2f; // 死亡动画持续时间
+    [SerializeField] private UnityEvent onDeath;
+    [SerializeField] private bool disableControlOnDeath = true;
+    [SerializeField] private bool destroyOnDeath = false;
+    [SerializeField] private float destroyDelay = 3f;
+    [SerializeField] private Transform characterBody;
+    [SerializeField] private CanvasGroup deathImage;
+    [SerializeField] private float deathAnimationTime = 2f;
 
     [Header("重新开始设置")]
-    [SerializeField] private TextMeshProUGUI restartPrompt; // 重新开始提示文本
-    [SerializeField] private float restartDelay = 1f;    // 允许重新开始前的延迟
+    [SerializeField] private TextMeshProUGUI restartPrompt;
+    [SerializeField] private float restartDelay = 1f;
     private bool canRestart = false;
     [SerializeField] private string restartSceneName = "Startup";
 
-    private bool isDead = false; // 死亡状态标识
-                                 // 在 HealthSystem.cs 中添加公共访问器
+    private bool isDead = false;
     public bool IsDead
     {
         get { return isDead; }
-        private set { isDead = value; } // 保持内部修改权限
+        private set { isDead = value; }
     }
+
+    // 用于网络同步的变量
+    private float networkCurrentHealth;
+    private float networkCurrentEnergy;
+    private bool healthChanged = false;
+    private bool energyChanged = false;
 
     void Start()
     {
-        // 初始化血量和蓝量
-        currentHealth = maxHealth;
-        currentEnergy = maxEnergy;
-        // 自动获取Slider组件（如果未手赋予值）
+        // 只在本地客户端初始化
+        if (photonView.IsMine)
+        {
+            currentHealth = maxHealth;
+            currentEnergy = maxEnergy;
+        }
+
+        // 自动获取Slider组件
         if (healthSlider == null)
-            healthSlider = GetComponent<Slider>();
+            healthSlider = GameObject.Find("HealthSlider")?.GetComponent<Slider>();
         if (energySlider == null)
-            energySlider = GetComponent<Slider>();
-        // 重置Slider
+            energySlider = GameObject.Find("EnergySlider")?.GetComponent<Slider>();
+
+        // 初始化UI
         healthSlider.maxValue = maxHealth;
         healthSlider.value = currentHealth;
         energySlider.maxValue = maxEnergy;
         energySlider.value = currentEnergy;
-
-        // 初始化文本显示
         UpdateHealthText();
         UpdateEnergyText();
 
@@ -92,30 +100,35 @@ public class HealthSystem : MonoBehaviourPunCallbacks
 
     void Update()
     {
+        // 只在本地客户端处理
+        if (!photonView.IsMine) return;
+
         // 自动回复血量
         if (autoRegen && currentHealth < maxHealth)
         {
-            currentHealth = Mathf.Clamp(currentHealth + regenRate * Time.deltaTime,0,maxHealth);
+            currentHealth = Mathf.Clamp(currentHealth + regenRate * Time.deltaTime, 0, maxHealth);
+            healthChanged = true;
             UpdateHealthUI();
         }
 
-        //自动回复蓝量
+        // 自动回复蓝量
         if (autoRegenEn && currentEnergy < maxEnergy)
         {
-            currentEnergy = Mathf.Clamp(currentEnergy + regenRateEn * Time.deltaTime,0,maxEnergy);
+            currentEnergy = Mathf.Clamp(currentEnergy + regenRateEn * Time.deltaTime, 0, maxEnergy);
+            energyChanged = true;
             UpdateEnergyUI();
         }
 
-        // 按H扣血
+        // 测试按键：按H扣血
         if (Input.GetKeyDown(KeyCode.H))
         {
-            TakeDamage(10);
+            photonView.RPC("RPC_TakeDamage", RpcTarget.All, 10f);
         }
 
-        // 测试按键：按J消耗能量（新增测试代码）
+        // 测试按键：按J消耗能量
         if (Input.GetKeyDown(KeyCode.J))
         {
-            ConsumeEnergy(5);
+            photonView.RPC("RPC_ConsumeEnergy", RpcTarget.All, 5f);
         }
 
         // 检测重启输入
@@ -126,76 +139,182 @@ public class HealthSystem : MonoBehaviourPunCallbacks
         }
     }
 
-    // 受到伤害
-    public void TakeDamage(float damage)
+    // 实现网络同步接口
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        if (!photonView.IsMine) return;
-        if (isDead) return;
-        float previousHealth = currentHealth;
-        currentHealth = Mathf.Clamp(currentHealth - damage, 0, maxHealth);
-        if (currentHealth < previousHealth)
+        if (stream.IsWriting)
         {
-            PlayHurtSound();
+            // 发送数据到其他客户端
+            stream.SendNext(currentHealth);
+            stream.SendNext(currentEnergy);
+            stream.SendNext(isDead);
         }
-
-        UpdateHealthUI();
-
-        if (currentHealth <= 0)
+        else
         {
-            Debug.Log("角色死亡！");
-            //这里可以触?死亡事件
-            HandleDeath();
+            object receivedValue; // 使用一個通用的 object 來接收數據
+
+            // 1. 接收第一個值 (Health)
+            receivedValue = stream.ReceiveNext();
+            if (receivedValue is float) // 檢查接收到的值是否真的是 float
+            {
+                this.networkCurrentHealth = (float)receivedValue;
+            }
+            else
+            {
+                // 如果類型不對，可以打印一個警告，但不要讓程式崩潰
+                Debug.LogWarning($"OnPhotonSerializeView: Health 數據類型錯誤。期望 float，收到 {receivedValue.GetType()}", this);
+            }
+
+            // 2. 接收第二個值 (Energy)
+            receivedValue = stream.ReceiveNext();
+            if (receivedValue is float) // 檢查類型
+            {
+                this.networkCurrentEnergy = (float)receivedValue;
+            }
+            else
+            {
+                Debug.LogWarning($"OnPhotonSerializeView: Energy 數據類型錯誤。期望 float，收到 {receivedValue.GetType()}", this);
+            }
+
+            // 3. 接收第三個值 (IsDead)
+            receivedValue = stream.ReceiveNext();
+            if (receivedValue is bool) // 檢查類型
+            {
+                this.isDead = (bool)receivedValue;
+            }
+            else
+            {
+                Debug.LogWarning($"OnPhotonSerializeView: IsDead 數據類型錯誤。期望 bool，收到 {receivedValue.GetType()}", this);
+            }
+
+            // 在安全地接收完所有數據後，再更新 UI
+            UpdateHealthUI();
+            UpdateEnergyUI();
         }
     }
 
-    //减少蓝量 
-    public void ConsumeEnergy(float amount)
+    // 受到伤害 (RPC版本)
+    [PunRPC]
+    public void RPC_TakeDamage(float damage)
     {
-        currentEnergy = Mathf.Clamp(currentEnergy - amount, 0, maxEnergy);
-        UpdateEnergyUI();
+        if (isDead) return;
+
+        // 只在本地客户端处理伤害逻辑
+        if (photonView.IsMine)
+        {
+            float previousHealth = currentHealth;
+            currentHealth = Mathf.Clamp(currentHealth - damage, 0, maxHealth);
+            healthChanged = true;
+
+            if (currentHealth < previousHealth)
+            {
+                PlayHurtSound();
+            }
+
+            UpdateHealthUI();
+
+            if (currentHealth <= 0)
+            {
+                Debug.Log("角色死亡！");
+                HandleDeath();
+            }
+        }
+        else
+        {
+            // 非本地客户端更新UI
+            healthSlider.value = networkCurrentHealth;
+            UpdateHealthText();
+        }
+    }
+
+    // 消耗能量 (RPC版本)
+    [PunRPC]
+    public void RPC_ConsumeEnergy(float amount)
+    {
+        // 只在本地客户端处理能量消耗
+        if (photonView.IsMine)
+        {
+            currentEnergy = Mathf.Clamp(currentEnergy - amount, 0, maxEnergy);
+            energyChanged = true;
+            UpdateEnergyUI();
+        }
+        else
+        {
+            // 非本地客户端更新UI
+            energySlider.value = networkCurrentEnergy;
+            UpdateEnergyText();
+        }
     }
 
     // 治疗角色
     public void Heal(float amount)
     {
+        if (!photonView.IsMine) return;
+
         currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
+        healthChanged = true;
         UpdateHealthUI();
     }
 
-    //回复蓝量
+    // 回复蓝量
     public void RestoreEnergy(float amount)
     {
+        if (!photonView.IsMine) return;
+
         currentEnergy = Mathf.Clamp(currentEnergy + amount, 0, maxEnergy);
+        energyChanged = true;
         UpdateEnergyUI();
     }
 
     // 更新血量显示
     private void UpdateHealthUI()
     {
-        healthSlider.value = currentHealth;
-        healthText.text = $"{Mathf.CeilToInt(currentHealth)}/{maxHealth}";
+        if (healthSlider != null)
+        {
+            healthSlider.value = photonView.IsMine ? currentHealth : networkCurrentHealth;
+        }
+
+        if (healthText != null)
+        {
+            healthText.text = $"{Mathf.CeilToInt(photonView.IsMine ? currentHealth : networkCurrentHealth)}/{maxHealth}";
+        }
     }
 
-    //更新蓝量显示
+    // 更新蓝量显示
     private void UpdateEnergyUI()
     {
-        energySlider.value = currentEnergy;
-        energyText.text = $"{Mathf.CeilToInt(currentEnergy)}/{maxEnergy}";
+        if (energySlider != null)
+        {
+            energySlider.value = photonView.IsMine ? currentEnergy : networkCurrentEnergy;
+        }
+
+        if (energyText != null)
+        {
+            energyText.text = $"{Mathf.CeilToInt(photonView.IsMine ? currentEnergy : networkCurrentEnergy)}/{maxEnergy}";
+        }
     }
 
     // 新增文本更新方法
     private void UpdateHealthText()
     {
-        healthText.text = $"{Mathf.FloorToInt(currentHealth)}/{maxHealth}";
+        if (healthText != null)
+        {
+            healthText.text = $"{Mathf.FloorToInt(photonView.IsMine ? currentHealth : networkCurrentHealth)}/{maxHealth}";
+        }
     }
 
     private void UpdateEnergyText()
     {
-        energyText.text = $"{Mathf.FloorToInt(currentEnergy)} / {maxEnergy}";
+        if (energyText != null)
+        {
+            energyText.text = $"{Mathf.FloorToInt(photonView.IsMine ? currentEnergy : networkCurrentEnergy)} / {maxEnergy}";
+        }
     }
+
     public bool HasEnoughEnergy(float amount)
     {
-        return currentEnergy >= amount;
+        // 只检查本地客户端的能量
+        return photonView.IsMine && currentEnergy >= amount;
     }
 
     private void HandleDeath()
@@ -218,6 +337,7 @@ public class HealthSystem : MonoBehaviourPunCallbacks
         }
         StartCoroutine(PlayDeathAnimation());
     }
+
     private IEnumerator PlayDeathAnimation()
     {
         if (deathImage != null)
@@ -227,8 +347,6 @@ public class HealthSystem : MonoBehaviourPunCallbacks
 
         float elapsed = 0;
         Quaternion startRotation = characterBody.rotation;
-
-        // 计算目标旋转（绕Z轴旋转90度）
         Quaternion targetRotation = startRotation * Quaternion.Euler(0, 0, 90);
 
         while (elapsed < deathAnimationTime)
@@ -236,48 +354,28 @@ public class HealthSystem : MonoBehaviourPunCallbacks
             elapsed += Time.deltaTime;
             float t = elapsed / deathAnimationTime;
 
-            // 使用球面插值实现平滑旋转
-            characterBody.rotation = Quaternion.Slerp(
-                startRotation,
-                targetRotation,
-                t
-            );
+            characterBody.rotation = Quaternion.Slerp(startRotation, targetRotation, t);
 
-            // 图片渐显（使用平滑过渡）
             if (deathImage != null)
             {
                 deathImage.alpha = Mathf.SmoothStep(0, 1, t);
             }
 
-            if (destroyOnDeath)
-            {
-                yield return new WaitForSeconds(destroyDelay);
-
-                // 使用 Photon 方式销毁对象
-                if (photonView != null && photonView.IsMine)
-                {
-                    PhotonNetwork.Destroy(gameObject);
-                }
-                else
-                {
-                    Destroy(gameObject);
-                }
-            }
-
             yield return null;
         }
 
-        // 确保最终角度精确
         characterBody.rotation = targetRotation;
 
-        // 显示重启提示
-        ShowRestartPrompt();
-
-        // 后续处理
         if (destroyOnDeath)
         {
             yield return new WaitForSeconds(destroyDelay);
+            if (photonView.IsMine)
+            {
+                PhotonNetwork.Destroy(gameObject);
+            }
         }
+
+        ShowRestartPrompt();
     }
 
     private void ShowRestartPrompt()
@@ -297,20 +395,9 @@ public class HealthSystem : MonoBehaviourPunCallbacks
 
     private void PlayHurtSound()
     {
-        Debug.Log("尝试播放受伤音效");
-
         if (audioSource != null && hurtSound != null)
         {
             audioSource.PlayOneShot(hurtSound);
         }
-        else
-        {
-            Debug.LogWarning("音效未配置：AudioSource或HurtSound为空");
-        }
-
     }
-
-
 }
-
-

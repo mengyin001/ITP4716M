@@ -432,6 +432,7 @@ GameObject:
   - component: {fileID: 1580066981554597404}
   - component: {fileID: 4465302769913081206}
   - component: {fileID: 9123328552942387578}
+  - component: {fileID: 8786287489346416177}
   - component: {fileID: 4410002484035466281}
   - component: {fileID: 1571607846234698523}
   - component: {fileID: 4978569306038514465}
@@ -573,6 +574,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &8786287489346416177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3321186253624061001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b70faf5b876319a40b73728ba568178c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &4410002484035466281
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -731,9 +744,11 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 0
   ObservedComponents:
+  - {fileID: 4410002484035466281}
   - {fileID: 4979615670249732857}
   - {fileID: 7617656189621957018}
   - {fileID: 6867827025498498728}
+  - {fileID: 2155095535400828646}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -1147,6 +1162,7 @@ GameObject:
   - component: {fileID: 2692392065240976628}
   - component: {fileID: 5238381616681455461}
   - component: {fileID: 5425962852593513094}
+  - component: {fileID: 2155095535400828646}
   m_Layer: 7
   m_Name: pistol
   m_TagString: Untagged
@@ -1243,6 +1259,9 @@ MonoBehaviour:
   shellPrefab: {fileID: 4593197006498107017, guid: e49942af560a23b4b968dd4b84ebdbf6, type: 3}
   energyCostPerShot: 1
   shootSound: {fileID: 8300000, guid: 3ba3ce2e7bf8c1a45b7c2586ee951aa3, type: 3}
+  damage: 10
+  muzzlePos: {fileID: 4276338351698164770}
+  shellPos: {fileID: 4276338351698164770}
 --- !u!95 &5238381616681455461
 Animator:
   serializedVersion: 7
@@ -1362,6 +1381,27 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &2155095535400828646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5235031121612973955}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowLayerWeightsInspector: 1
+  ShowParameterInspector: 1
+  m_SynchronizeParameters:
+  - Type: 9
+    SynchronizeType: 2
+    Name: Shoot
+  m_SynchronizeLayers:
+  - SynchronizeType: 2
+    LayerIndex: 0
 --- !u!1 &6414608655021536432
 GameObject:
   m_ObjectHideFlags: 0
@@ -1471,16 +1511,20 @@ MonoBehaviour:
   shellPrefab: {fileID: 0}
   energyCostPerShot: 0.2
   shootSound: {fileID: 0}
+  damage: 10
   muzzlePos: {fileID: 74227108969692277}
   shellPos: {fileID: 0}
   laserBeam: {fileID: 3488343572417153865}
   laserWidth: 0.3
   laserColor: {r: 0, g: 0.8773585, b: 0.0062738927, a: 1}
-  laserBulletSpeed: 100
   maxLaserDistance: 100
   damagePerSecond: 5
+  hitLayer:
+    serializedVersion: 2
+    m_Bits: 0
   muzzleFlash: {fileID: 0}
-  beamParticles: {fileID: 0}
+  beamImpactParticles: {fileID: 0}
+  isFiring: 0
 --- !u!120 &3488343572417153865
 LineRenderer:
   serializedVersion: 2
@@ -1906,13 +1950,13 @@ MonoBehaviour:
   shellPrefab: {fileID: 4593197006498107017, guid: e49942af560a23b4b968dd4b84ebdbf6, type: 3}
   energyCostPerShot: 5
   shootSound: {fileID: 8300000, guid: 3ba3ce2e7bf8c1a45b7c2586ee951aa3, type: 3}
+  damage: 10
   muzzlePos: {fileID: 346769554862528608}
   shellPos: {fileID: 0}
   spreadSettings:
     pelletCount: 5
     angle: 8.1
     damagePerPellet: 10
-  muzzleFlash: {fileID: 0}
 --- !u!1 &9063206440116887886
 GameObject:
   m_ObjectHideFlags: 0

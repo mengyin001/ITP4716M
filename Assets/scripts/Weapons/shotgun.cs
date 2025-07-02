@@ -1,4 +1,5 @@
 using UnityEngine;
+using Photon.Pun;
 
 public class shotgun : gun
 {
@@ -10,61 +11,26 @@ public class shotgun : gun
         public float damagePerPellet = 5f;
     }
 
-    [Header("霰弹枪设置")] 
+    [Header("霰弹枪设置")]
     public SpreadSettings spreadSettings;
-    public ParticleSystem muzzleFlash;
 
-    protected override void Start()
-    {
-        base.Start();
-        
-        if (muzzleFlash != null)
-        {
-            muzzleFlash.Stop();
-            var main = muzzleFlash.main;
-            main.playOnAwake = false;
-        }
-    }
-
+    /// <summary>
+    /// 重寫 Fire 方法以實現霰彈槍的擴散射擊。
+    /// </summary>
     protected override void Fire()
     {
-        base.Fire(); // 调用基类射击逻辑
-        
-        if (muzzleFlash != null)
-            muzzleFlash.Play();
-        
-        if (bulletPrefab == null || muzzlePos == null) 
-        {
-            Debug.LogError("霰弹枪无法射击 - 缺少必要组件");
-            return;
-        }
+        if (muzzlePos == null || parentPhotonView == null) return;
 
-        int median = spreadSettings.pelletCount / 2;
-        for (int i = 0; i < spreadSettings.pelletCount; i++)
-        {
-            float angle = spreadSettings.pelletCount % 2 == 1 ? 
-                spreadSettings.angle * (i - median) : 
-                spreadSettings.angle * (i - median) + spreadSettings.angle * 0.5f;
-            
-            FirePellet(angle);
-        }
+        // 呼叫為霰彈槍設計的專屬 RPC
+        parentPhotonView.RPC("RPC_FireShotgun", RpcTarget.All,
+            muzzlePos.position,
+            transform.rotation,
+            spreadSettings.damagePerPellet,
+            spreadSettings.pelletCount,
+            spreadSettings.angle
+        );
+
+        // 仍然可以呼叫通用的特效 RPC
+        parentPhotonView.RPC("PlayFireEffects", RpcTarget.All, muzzlePos.position);
     }
-
-    private void FirePellet(float angle)
-    {
-        Vector2 pelletDir = Quaternion.AngleAxis(angle, Vector3.forward) * direction;
-        
-        GameObject pellet = Instantiate(bulletPrefab, muzzlePos.position, Quaternion.identity);
-        Bullet bullet = pellet.GetComponent<Bullet>();
-        if (bullet != null)
-        {
-            bullet.SetSpeed(pelletDir);
-            bullet.SetDamage(spreadSettings.damagePerPellet);
-        }
-        else
-        {
-            Debug.LogWarning("霰弹枪子弹缺少Bullet组件", pellet);
-        }
-    }
-
 }

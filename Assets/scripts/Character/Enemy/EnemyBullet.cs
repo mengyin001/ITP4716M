@@ -1,6 +1,6 @@
 using UnityEngine;
-
-public class EnemyBullet : MonoBehaviour
+using Photon.Pun;
+public class EnemyBullet : MonoBehaviourPun
 {
     private float damage;
     private LayerMask targetLayer;
@@ -42,7 +42,7 @@ public class EnemyBullet : MonoBehaviour
             HealthSystem playerHealth = other.GetComponent<HealthSystem>();
             if (playerHealth != null)
             {
-                playerHealth.TakeDamage(damage);
+                playerHealth.RPC_TakeDamage(damage);
             }
           
             ReturnToPool();
