@@ -13,16 +13,13 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField] private AudioSource audioSource;
 
     [Header("血量控制")]
-    [SerializeField] private float maxHealth = 100f;
-    [SerializeField] private float currentHealth;
-    [SerializeField] private Slider healthSlider;
-    [SerializeField] private TextMeshProUGUI healthText;
+    public float maxHealth = 100f;
+    public float currentHealth;
+
 
     [Header("蓝量控制")]
-    [SerializeField] private float maxEnergy = 100f;
-    [SerializeField] private float currentEnergy;
-    [SerializeField] private Slider energySlider;
-    [SerializeField] private TextMeshProUGUI energyText;
+    public float maxEnergy = 100f;
+    public float currentEnergy;
 
     [Header("自动回复血量")]
     [SerializeField] public bool autoRegen = false;
@@ -47,6 +44,11 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     private bool canRestart = false;
     [SerializeField] private string restartSceneName = "Startup";
 
+    public event System.Action<float, float> OnHealthChanged;
+    public event System.Action<float, float> OnEnergyChanged;
+    public event System.Action OnPlayerDeath;
+    public event System.Action OnRestartAvailable;
+
     private bool isDead = false;
     public bool IsDead
     {
@@ -57,31 +59,15 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     // 用于网络同步的变量
     private float networkCurrentHealth;
     private float networkCurrentEnergy;
-    private bool healthChanged = false;
-    private bool energyChanged = false;
 
-    void Start()
-    {
-        // 只在本地客户端初始化
+    void Start() { 
+
+        // 只在本地客户端初始化玩家状态
         if (photonView.IsMine)
         {
             currentHealth = maxHealth;
             currentEnergy = maxEnergy;
         }
-
-        // 自动获取Slider组件
-        if (healthSlider == null)
-            healthSlider = GameObject.Find("HealthSlider")?.GetComponent<Slider>();
-        if (energySlider == null)
-            energySlider = GameObject.Find("EnergySlider")?.GetComponent<Slider>();
-
-        // 初始化UI
-        healthSlider.maxValue = maxHealth;
-        healthSlider.value = currentHealth;
-        energySlider.maxValue = maxEnergy;
-        energySlider.value = currentEnergy;
-        UpdateHealthText();
-        UpdateEnergyText();
 
         if (deathImage != null)
         {
@@ -98,35 +84,42 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
             audioSource = GetComponent<AudioSource>();
     }
 
+
     void Update()
     {
-        // 只在本地客户端处理
+        // 只在本地客户端处理玩家逻辑
         if (!photonView.IsMine) return;
 
         // 自动回复血量
         if (autoRegen && currentHealth < maxHealth)
         {
-            currentHealth = Mathf.Clamp(currentHealth + regenRate * Time.deltaTime, 0, maxHealth);
-            healthChanged = true;
-            UpdateHealthUI();
+            float newHealth = Mathf.Clamp(currentHealth + regenRate * Time.deltaTime, 0, maxHealth);
+            if (newHealth != currentHealth)
+            {
+                currentHealth = newHealth;
+                OnHealthChanged?.Invoke(currentHealth, maxHealth);
+            }
         }
 
         // 自动回复蓝量
         if (autoRegenEn && currentEnergy < maxEnergy)
         {
-            currentEnergy = Mathf.Clamp(currentEnergy + regenRateEn * Time.deltaTime, 0, maxEnergy);
-            energyChanged = true;
-            UpdateEnergyUI();
+            float newEnergy = Mathf.Clamp(currentEnergy + regenRateEn * Time.deltaTime, 0, maxEnergy);
+            if (newEnergy != currentEnergy)
+            {
+                currentEnergy = newEnergy;
+                OnEnergyChanged?.Invoke(currentEnergy, maxEnergy);
+            }
         }
 
         // 测试按键：按H扣血
-        if (Input.GetKeyDown(KeyCode.H))
+        if (Input.GetKeyDown(KeyCode.H) && !isDead)
         {
             photonView.RPC("RPC_TakeDamage", RpcTarget.All, 10f);
         }
 
         // 测试按键：按J消耗能量
-        if (Input.GetKeyDown(KeyCode.J))
+        if (Input.GetKeyDown(KeyCode.J) && !isDead)
         {
             photonView.RPC("RPC_ConsumeEnergy", RpcTarget.All, 5f);
         }
@@ -151,45 +144,11 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
         }
         else
         {
-            object receivedValue; // 使用一個通用的 object 來接收數據
+            // 接收数据
+            networkCurrentHealth = (float)stream.ReceiveNext();
+            networkCurrentEnergy = (float)stream.ReceiveNext();
+            isDead = (bool)stream.ReceiveNext();
 
-            // 1. 接收第一個值 (Health)
-            receivedValue = stream.ReceiveNext();
-            if (receivedValue is float) // 檢查接收到的值是否真的是 float
-            {
-                this.networkCurrentHealth = (float)receivedValue;
-            }
-            else
-            {
-                // 如果類型不對，可以打印一個警告，但不要讓程式崩潰
-                Debug.LogWarning($"OnPhotonSerializeView: Health 數據類型錯誤。期望 float，收到 {receivedValue.GetType()}", this);
-            }
-
-            // 2. 接收第二個值 (Energy)
-            receivedValue = stream.ReceiveNext();
-            if (receivedValue is float) // 檢查類型
-            {
-                this.networkCurrentEnergy = (float)receivedValue;
-            }
-            else
-            {
-                Debug.LogWarning($"OnPhotonSerializeView: Energy 數據類型錯誤。期望 float，收到 {receivedValue.GetType()}", this);
-            }
-
-            // 3. 接收第三個值 (IsDead)
-            receivedValue = stream.ReceiveNext();
-            if (receivedValue is bool) // 檢查類型
-            {
-                this.isDead = (bool)receivedValue;
-            }
-            else
-            {
-                Debug.LogWarning($"OnPhotonSerializeView: IsDead 數據類型錯誤。期望 bool，收到 {receivedValue.GetType()}", this);
-            }
-
-            // 在安全地接收完所有數據後，再更新 UI
-            UpdateHealthUI();
-            UpdateEnergyUI();
         }
     }
 
@@ -204,26 +163,16 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
         {
             float previousHealth = currentHealth;
             currentHealth = Mathf.Clamp(currentHealth - damage, 0, maxHealth);
-            healthChanged = true;
 
             if (currentHealth < previousHealth)
             {
                 PlayHurtSound();
             }
 
-            UpdateHealthUI();
-
             if (currentHealth <= 0)
             {
-                Debug.Log("角色死亡！");
                 HandleDeath();
             }
-        }
-        else
-        {
-            // 非本地客户端更新UI
-            healthSlider.value = networkCurrentHealth;
-            UpdateHealthText();
         }
     }
 
@@ -232,83 +181,29 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     public void RPC_ConsumeEnergy(float amount)
     {
         // 只在本地客户端处理能量消耗
-        if (photonView.IsMine)
+        if (photonView.IsMine && !isDead)
         {
             currentEnergy = Mathf.Clamp(currentEnergy - amount, 0, maxEnergy);
-            energyChanged = true;
-            UpdateEnergyUI();
-        }
-        else
-        {
-            // 非本地客户端更新UI
-            energySlider.value = networkCurrentEnergy;
-            UpdateEnergyText();
+            OnEnergyChanged?.Invoke(currentEnergy, maxEnergy);
         }
     }
 
     // 治疗角色
     public void Heal(float amount)
     {
-        if (!photonView.IsMine) return;
+        if (!photonView.IsMine || isDead) return;
 
         currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
-        healthChanged = true;
-        UpdateHealthUI();
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
     // 回复蓝量
     public void RestoreEnergy(float amount)
     {
-        if (!photonView.IsMine) return;
+        if (!photonView.IsMine || isDead) return;
 
         currentEnergy = Mathf.Clamp(currentEnergy + amount, 0, maxEnergy);
-        energyChanged = true;
-        UpdateEnergyUI();
-    }
-
-    // 更新血量显示
-    private void UpdateHealthUI()
-    {
-        if (healthSlider != null)
-        {
-            healthSlider.value = photonView.IsMine ? currentHealth : networkCurrentHealth;
-        }
-
-        if (healthText != null)
-        {
-            healthText.text = $"{Mathf.CeilToInt(photonView.IsMine ? currentHealth : networkCurrentHealth)}/{maxHealth}";
-        }
-    }
-
-    // 更新蓝量显示
-    private void UpdateEnergyUI()
-    {
-        if (energySlider != null)
-        {
-            energySlider.value = photonView.IsMine ? currentEnergy : networkCurrentEnergy;
-        }
-
-        if (energyText != null)
-        {
-            energyText.text = $"{Mathf.CeilToInt(photonView.IsMine ? currentEnergy : networkCurrentEnergy)}/{maxEnergy}";
-        }
-    }
-
-    // 新增文本更新方法
-    private void UpdateHealthText()
-    {
-        if (healthText != null)
-        {
-            healthText.text = $"{Mathf.FloorToInt(photonView.IsMine ? currentHealth : networkCurrentHealth)}/{maxHealth}";
-        }
-    }
-
-    private void UpdateEnergyText()
-    {
-        if (energyText != null)
-        {
-            energyText.text = $"{Mathf.FloorToInt(photonView.IsMine ? currentEnergy : networkCurrentEnergy)} / {maxEnergy}";
-        }
+        OnEnergyChanged?.Invoke(currentEnergy, maxEnergy);
     }
 
     public bool HasEnoughEnergy(float amount)
@@ -321,19 +216,11 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     {
         isDead = true;
         onDeath.Invoke();
-
+        OnPlayerDeath?.Invoke();
         if (disableControlOnDeath)
         {
             var controller = GetComponent<PlayerMovement>();
-            if (controller != null)
-            {
-                controller.enabled = false;
-                Debug.Log("已禁用 PlayerMovement 组件");
-            }
-            else
-            {
-                Debug.LogError("未找到 PlayerMovement 组件！");
-            }
+            if (controller != null) controller.enabled = false;
         }
         StartCoroutine(PlayDeathAnimation());
     }
@@ -381,10 +268,7 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     private void ShowRestartPrompt()
     {
         canRestart = true;
-        if (restartPrompt != null)
-        {
-            restartPrompt.gameObject.SetActive(true);
-        }
+        OnRestartAvailable?.Invoke();
     }
 
     private void RestartGame()
@@ -400,4 +284,6 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
             audioSource.PlayOneShot(hurtSound);
         }
     }
+
+ 
 }

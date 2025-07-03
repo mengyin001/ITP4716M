@@ -7,6 +7,12 @@ TagManager:
   - Text
   - Enemy
   - Wall
+  - Bullet
+  - HealthSliderUI
+  - HealthTextUI
+  - EnergySliderUI
+  - EnergyTextUI
+  - PlayerUI
   layers:
   - Default
   - TransparentFX

@@ -2,6 +2,8 @@ using UnityEngine;
 using Photon.Pun;
 using FunkyCode.Lighting2DMaterial;
 using Photon.Realtime;
+using TMPro;
+using UnityEngine.UI;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
@@ -11,6 +13,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject player;
     [Header("Space")]
     public Transform spacePoint;
+    [Header("UI …Ë÷√")]
+    public Slider healthSlider;
+    public TextMeshProUGUI healthText;
+    public Slider energySlider;
+    public TextMeshProUGUI energyText;
+
+    private GameObject currentPlayer;
 
     void Start()
     {
@@ -27,7 +36,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         base.OnJoinedRoom();
-
-        GameObject _player = PhotonNetwork.Instantiate(player.name,spacePoint.position,Quaternion.identity,0);
+        SpawnPlayer();
     }
+
+    public void SpawnPlayer()
+    {
+        GameObject _player = PhotonNetwork.Instantiate(player.name, spacePoint.position, Quaternion.identity, 0);
+    }
+
 }
