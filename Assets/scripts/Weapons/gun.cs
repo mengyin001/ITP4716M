@@ -19,6 +19,7 @@ public abstract class gun : MonoBehaviour
     protected Vector2 direction;
     protected float timer = 0;
     protected float flipY;
+    protected float flipX;
     protected Animator animator;
     protected PlayerMovement playerMovement;
     protected HealthSystem healthSystem;
@@ -29,6 +30,8 @@ public abstract class gun : MonoBehaviour
 
     protected virtual void Awake()
     {
+        flipY = Mathf.Abs(transform.localScale.y);
+        flipX = Mathf.Abs(transform.localScale.x);
         animator = GetComponent<Animator>();
         if (muzzlePos == null) muzzlePos = transform.Find("Muzzle");
         if (shellPos == null) shellPos = transform.Find("BulletShell");
@@ -37,6 +40,7 @@ public abstract class gun : MonoBehaviour
     protected virtual void Start()
     {
         flipY = transform.localScale.y;
+        flipX = transform.localScale.x;
         parentPhotonView = GetComponentInParent<PhotonView>();
         playerMovement = GetComponentInParent<PlayerMovement>();
         healthSystem = GetComponentInParent<HealthSystem>();
@@ -59,16 +63,24 @@ public abstract class gun : MonoBehaviour
 
     protected virtual void UpdateWeaponRotation()
     {
+        if (parentPhotonView == null || !parentPhotonView.IsMine)
+        {
+            // 对于远程玩家，PhotonTransformView 会自动同步其 Transform
+            return;
+        }
+
         direction = (mousePos - (Vector2)transform.position).normalized;
         transform.right = direction;
 
         if (mousePos.x < transform.position.x)
         {
-            transform.localScale = new Vector3(transform.localScale.x, -flipY, transform.localScale.z);
+            // 鼠标在左边，翻转Y轴
+            transform.localScale = new Vector3(Mathf.Abs(flipX), -Mathf.Abs(flipY), transform.localScale.z);
         }
         else
         {
-            transform.localScale = new Vector3(transform.localScale.x, flipY, transform.localScale.z);
+            // 鼠标在右边，保持Y轴正向
+            transform.localScale = new Vector3(-Mathf.Abs(flipX), Mathf.Abs(flipY), transform.localScale.z);
         }
     }
 

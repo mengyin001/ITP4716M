@@ -4,7 +4,6 @@ using UnityEngine;
 public class PlayerSetUp : MonoBehaviourPun
 {
     public PlayerMovement movement;
-    public GameObject camera;
     private HealthSystem healthSystem;
 
     public void Start()
@@ -29,6 +28,5 @@ public class PlayerSetUp : MonoBehaviourPun
     public void IsLocalPlayer()
     {
         movement.enabled = true;
-        camera.SetActive(true);
     }
 }

@@ -59,11 +59,6 @@ public class QuickUse : MonoBehaviour
         item.itemHeld--;
         lastUseTime = Time.time;
 
-        // Spawn effect prefab
-        if (item.usePrefab != null)
-        {
-            Instantiate(item.usePrefab, transform.position, Quaternion.identity);
-        }
     }
 
     private bool HasItemInInventory(string itemID)

@@ -13,13 +13,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject player;
     [Header("Space")]
     public Transform spacePoint;
-    [Header("UI …Ë÷√")]
-    public Slider healthSlider;
-    public TextMeshProUGUI healthText;
-    public Slider energySlider;
-    public TextMeshProUGUI energyText;
-
-    private GameObject currentPlayer;
 
     void Start()
     {

@@ -17,10 +17,8 @@ public class ItemData : ScriptableObject
     [Header("Effects")]
     public EffectType effectType;
     public float effectAmount; // Unified effect value
-    public GameObject usePrefab;
 
     [Header("Other Properties")]
-    public float weight = 0.1f;
     public bool isUnique = false;
     public int price;
     [TextArea] public string description;

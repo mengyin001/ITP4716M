@@ -6,23 +6,31 @@ using UnityEngine;
 public class CameraController : MonoBehaviourPun
 {
     private Transform player;
+    private Quaternion fixedRotation; // 存储固定旋转值
 
     void Start()
     {
-        // 查找本地玩家角色
+        // 初始查找本地玩家
         FindLocalPlayer();
+
+        // 记录初始旋转值并固定
+        fixedRotation = Quaternion.identity;
+        transform.rotation = fixedRotation;
     }
 
-    void Update()
+    void LateUpdate()
     {
-        // 如果玩家对象丢失（例如角色重生），尝试重新查找
+        // 确保旋转始终固定（即使其他脚本尝试修改）
+        transform.rotation = fixedRotation;
+
+        // 如果玩家对象丢失，尝试重新查找
         if (player == null)
         {
             FindLocalPlayer();
             return; // 本次帧跳过更新位置
         }
 
-        // 只跟随本地玩家
+        // 只更新位置，不更新旋转
         transform.position = new Vector3(player.position.x, player.position.y + 0.2f, -10);
     }
 

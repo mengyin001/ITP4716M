@@ -30,7 +30,6 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     [SerializeField] public float regenRateEn = 1f;
 
     [Header("死亡效果")]
-    [SerializeField] private UnityEvent onDeath;
     [SerializeField] private bool disableControlOnDeath = true;
     [SerializeField] private bool destroyOnDeath = false;
     [SerializeField] private float destroyDelay = 3f;
@@ -215,7 +214,6 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     private void HandleDeath()
     {
         isDead = true;
-        onDeath.Invoke();
         OnPlayerDeath?.Invoke();
         if (disableControlOnDeath)
         {
