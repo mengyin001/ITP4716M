@@ -30,7 +30,7 @@ public class PlayerMovement : MonoBehaviourPun
             return;
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
-        if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
+        if (ShopManager.Instance != null && ShopManager.Instance.isOpen)
             return;
         SwitchGun();
         // 获取输入并计算移动速度
@@ -65,7 +65,7 @@ public class PlayerMovement : MonoBehaviourPun
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             canToggle = false;
 
-        if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
+        if (ShopManager.Instance != null && ShopManager.Instance.isOpen)
             canToggle = false;
 
         if (Input.GetKeyDown(KeyCode.B) && canToggle)
@@ -94,7 +94,7 @@ public class PlayerMovement : MonoBehaviourPun
             return;
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
-        if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
+        if (ShopManager.Instance != null && ShopManager.Instance.isOpen)
             return;
 
         if(Input.GetKeyDown(KeyCode.Q)){

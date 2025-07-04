@@ -21,7 +21,7 @@ public class ShopManager : MonoBehaviour
     private ItemData _selectedItem;
     private int _currentQuantity = 1;
     private ShopItemUI _selectedUI;
-    public bool isOPen = false;
+    public bool isOpen = false;
 
     private void Awake()
     {
@@ -180,7 +180,7 @@ public class ShopManager : MonoBehaviour
     }
     public void OpenShop()
     {
-        isOPen = true;
+        isOpen = true;
         shopContent.parent.gameObject.SetActive(true);
         ResetSelection();
         NPCDialogueTrigger[] npcTriggers = FindObjectsOfType<NPCDialogueTrigger>();
@@ -193,7 +193,7 @@ public class ShopManager : MonoBehaviour
 
     public void CloseShop()
     {
-        isOPen = false;
+        isOpen = false;
         shopContent.parent.gameObject.SetActive(false);
         ResetSelection();
         Time.timeScale = 1;
@@ -201,7 +201,7 @@ public class ShopManager : MonoBehaviour
 
     private void Update()
     {
-        if (isOPen)
+        if (isOpen)
         {
             if (Input.GetKeyDown(KeyCode.Escape))
             {

@@ -206,7 +206,6 @@ public class UnlimitedEnemyManager : MonoBehaviour
             return true;
         }
 
-        return false;
     }
 
     private void IgnoreEnemyCollisions(List<Collider2D> enemyColliders)

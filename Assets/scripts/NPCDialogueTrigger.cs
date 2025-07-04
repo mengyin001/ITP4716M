@@ -30,7 +30,7 @@ public class NPCDialogueTrigger : MonoBehaviour
     void Update()
     {
         if (player == null) return;
-        if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
+        if (ShopManager.Instance != null && ShopManager.Instance.isOpen)
         {
             HidePrompt();
             return;

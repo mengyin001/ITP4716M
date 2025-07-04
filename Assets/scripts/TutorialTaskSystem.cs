@@ -94,7 +94,7 @@ public class TutorialTaskSystem : MonoBehaviour
     {
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
-         if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
+         if (ShopManager.Instance != null && ShopManager.Instance.isOpen)
             return;
         // 长按任务检测
 
