@@ -430,8 +430,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5437059845920856772}
   - component: {fileID: 1580066981554597404}
-  - component: {fileID: 4465302769913081206}
   - component: {fileID: 9123328552942387578}
+  - component: {fileID: 4465302769913081206}
   - component: {fileID: 8786287489346416177}
   - component: {fileID: 4410002484035466281}
   - component: {fileID: 5610537488665135989}
@@ -534,25 +534,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &4465302769913081206
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3321186253624061001}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7dd0718000d1764083a16c536cc144e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 5
-  guns:
-  - {fileID: 5235031121612973955}
-  - {fileID: 7565515423173365012}
-  - {fileID: 6414608655021536432}
-  myBag: {fileID: 0}
-  isOpen: 0
 --- !u!95 &9123328552942387578
 Animator:
   serializedVersion: 7
@@ -575,6 +556,23 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &4465302769913081206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3321186253624061001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7dd0718000d1764083a16c536cc144e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  guns:
+  - {fileID: 5235031121612973955}
+  - {fileID: 7565515423173365012}
+  - {fileID: 6414608655021536432}
 --- !u!114 &8786287489346416177
 MonoBehaviour:
   m_ObjectHideFlags: 0

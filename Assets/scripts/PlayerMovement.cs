@@ -11,16 +11,12 @@ public class PlayerMovement : MonoBehaviourPun
     public GameObject[] guns;       //Gun list
     int gunNum = 0;
     private Vector2 mousePos;
-    private float flipY;
-    public GameObject myBag;
-    public bool isOpen;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         guns[0].SetActive(true);    //default gun0 active
-        flipY = transform.localScale.y;
         mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
     }
 
@@ -28,11 +24,14 @@ public class PlayerMovement : MonoBehaviourPun
     {
         if (!photonView.IsMine && PhotonNetwork.IsConnected)
             return;
+        OpenMyBag();
+        bool isBagOpen = UIManager.Instance != null && UIManager.Instance.IsBagOpen;
+        if (isBagOpen) 
+            return;
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
         if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
             return;
-        OpenMyBag();
         SwitchGun();
         // 获取输入并计算移动速度
         movement.x = Input.GetAxis("Horizontal");
@@ -61,15 +60,24 @@ public class PlayerMovement : MonoBehaviourPun
     }
     void OpenMyBag()
     {
-        if (Input.GetKeyDown(KeyCode.B))
+        bool canToggle = true;
+
+        if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
+            canToggle = false;
+
+        if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
+            canToggle = false;
+
+        if (Input.GetKeyDown(KeyCode.B) && canToggle)
         {
-            isOpen = !isOpen;
-            myBag.SetActive(isOpen);
+            UIManager.Instance?.ToggleBag();
         }
     }
     void FixedUpdate()
     {
         if (!photonView.IsMine && PhotonNetwork.IsConnected)
+            return;
+        if (UIManager.Instance != null && UIManager.Instance.IsBagOpen)
             return;
         // 应用移动（保留原有物理逻辑）
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
@@ -82,19 +90,14 @@ public class PlayerMovement : MonoBehaviourPun
     }
 
     void SwitchGun(){
+        if (UIManager.Instance != null && UIManager.Instance.IsBagOpen)
+            return;
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
         if (ShopManager.Instance != null && ShopManager.Instance.isOPen)
             return;
 
-        if (Input.GetKeyDown(KeyCode.Q)){            // Q and T switch gun
-            guns[gunNum].SetActive(false);
-            if (--gunNum < 0){
-                gunNum = guns.Length - 1;
-            }
-            guns[gunNum].SetActive(true);
-        }
-        if(Input.GetKeyDown(KeyCode.E)){
+        if(Input.GetKeyDown(KeyCode.Q)){
             guns[gunNum].SetActive(false);
             if (++gunNum > guns.Length - 1){
                 gunNum = 0;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using Pathfinding;
+using Photon.Pun;
 
 public class LongRangeEnemy : Character
 {
@@ -557,14 +558,25 @@ public class LongRangeEnemy : Character
     }
 
     // 重写 Die 方法，在敌人死亡时更新标志位
-    public override void Die()
+    public override void RPC_Die()
     {
-        base.Die();
+        // 只有主机执行死亡逻辑
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        base.RPC_Die(); // 调用基类死亡逻辑
         isAlive = false;
-        // 可以在这里添加播放死亡动画等逻辑
+
+        // 主机处理道具生成
         if (pickupSpawner != null)
         {
             pickupSpawner.DropItems();
         }
+
+        // 销毁敌人（网络同步）
+        if (photonView != null && photonView.IsMine)
+        {
+            PhotonNetwork.Destroy(gameObject);
+        }
     }
-}    
+
+}

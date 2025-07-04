@@ -46,20 +46,22 @@ public abstract class gun : MonoBehaviour
         healthSystem = GetComponentInParent<HealthSystem>();
     }
 
-    protected virtual void Update()
+protected virtual void Update()
+{
+    // 只让本地玩家控制自己的武器
+    if (parentPhotonView == null || !parentPhotonView.IsMine) return;
+
+    if (Camera.main == null) return;
+    mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+    UpdateWeaponRotation();
+
+    // 修复这里的访问方式
+    if (playerMovement != null && 
+        (UIManager.Instance == null || !UIManager.Instance.IsBagOpen))
     {
-        // 只讓本地玩家控制自己的武器
-        if (parentPhotonView == null || !parentPhotonView.IsMine) return;
-
-        if (Camera.main == null) return;
-        mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        UpdateWeaponRotation();
-
-        if (playerMovement != null && !playerMovement.isOpen)
-        {
-            HandleShootingInput();
-        }
+        HandleShootingInput();
     }
+}
 
     protected virtual void UpdateWeaponRotation()
     {

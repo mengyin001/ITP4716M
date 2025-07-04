@@ -16,6 +16,10 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private TextMeshProUGUI playerEnergyText;
     [SerializeField] private GameObject deathOverlay;
     [SerializeField] private TextMeshProUGUI restartPrompt;
+    [Header("背包UI")]
+    [SerializeField] private GameObject bagUI; // 添加背包UI引用
+    public bool IsBagOpen { get; private set; } // 背包状态属性
+
 
     private HealthSystem playerHealthSystem;
     private bool isPlayerRegistered = false;
@@ -55,7 +59,17 @@ public class UIManager : MonoBehaviourPunCallbacks
         // 重新初始化UI并尝试查找本地玩家
         InitializeUI();
         TryFindLocalPlayer();
+        ReinitializeUI();
     }
+    private void ReinitializeUI()
+{
+    // 重新查找关键UI组件
+    playerHealthSlider = GameObject.Find("HealthSlider")?.GetComponent<Slider>();
+    // ...其他UI组件查找
+    
+    InitializeUI();
+    TryFindLocalPlayer();
+}
 
     // 尝试查找本地玩家并注册
     private void TryFindLocalPlayer()
@@ -119,6 +133,12 @@ public class UIManager : MonoBehaviourPunCallbacks
         if (restartPrompt != null)
         {
             restartPrompt.gameObject.SetActive(false);
+        }
+
+        if (bagUI != null)
+        {
+            bagUI.SetActive(false);
+            IsBagOpen = false;
         }
     }
 
@@ -226,5 +246,16 @@ public class UIManager : MonoBehaviourPunCallbacks
 
         playerHealthSystem = null;
         isPlayerRegistered = false;
+    }
+
+    public void ToggleBag()
+    {
+        if (bagUI == null) return;
+        
+        IsBagOpen = !bagUI.activeSelf;
+        bagUI.SetActive(IsBagOpen);
+        
+        // 暂停/恢复游戏时间
+        Time.timeScale = IsBagOpen ? 0f : 1f;
     }
 }

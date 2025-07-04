@@ -19,7 +19,5 @@ public class ItemData : ScriptableObject
     public float effectAmount; // Unified effect value
 
     [Header("Other Properties")]
-    public bool isUnique = false;
     public int price;
-    [TextArea] public string description;
 }

@@ -750,6 +750,7 @@ MonoBehaviour:
   playerEnergyText: {fileID: 2088071372}
   deathOverlay: {fileID: 651967394}
   restartPrompt: {fileID: 927226551}
+  bagUI: {fileID: 1365165600}
 --- !u!1 &131508074
 GameObject:
   m_ObjectHideFlags: 0
@@ -7158,8 +7159,8 @@ RenderTexture:
     Hash: 00000000000000000000000000000000
   m_IsAlphaChannelOptional: 0
   serializedVersion: 6
-  m_Width: 706
-  m_Height: 421
+  m_Width: 715
+  m_Height: 417
   m_AntiAliasing: 1
   m_MipCount: -1
   m_DepthStencilFormat: 0
@@ -10655,6 +10656,7 @@ GameObject:
   - component: {fileID: 1365165604}
   - component: {fileID: 1365165603}
   - component: {fileID: 1365165602}
+  - component: {fileID: 1365165605}
   m_Layer: 5
   m_Name: Bag
   m_TagString: Untagged
@@ -10776,6 +10778,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1365165600}
   m_CullTransparentMesh: 1
+--- !u!114 &1365165605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1365165600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4751d44913ea4d04bb2592ccd5e21994, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myBag: {fileID: 0}
+  slotGrid: {fileID: 1472918192}
 --- !u!1 &1403069449
 GameObject:
   m_ObjectHideFlags: 0
@@ -13288,8 +13304,8 @@ Transform:
   m_GameObject: {fileID: 1615996136}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 189.78615, y: 204.52753, z: -670.21814}
-  m_LocalScale: {x: 562.87244, y: 335.97195, z: 1}
+  m_LocalPosition: {x: 254.13863, y: 126.06261, z: -426.1488}
+  m_LocalScale: {x: 369.39175, y: 215.6505, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1320882508}
