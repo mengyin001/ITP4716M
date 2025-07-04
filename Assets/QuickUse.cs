@@ -74,22 +74,35 @@ public class QuickUse : MonoBehaviour
     {
         if (healthSystem == null) return;
 
-        switch (item.effectType)
+        // 遍历物品的所有效果
+        foreach (var effect in item.effects)
         {
-            case ItemData.EffectType.Health:
-                healthSystem.Heal(item.effectAmount);
-                Debug.Log($"Restored {item.effectAmount} health");
-                break;
+            switch (effect.effectType)
+            {
+                case ItemData.EffectType.Health:
+                    healthSystem.Heal(effect.effectAmount);
+                    Debug.Log($"Restored {effect.effectAmount} health");
+                    break;
 
-            case ItemData.EffectType.Energy:
-                healthSystem.RestoreEnergy(item.effectAmount);
-                Debug.Log($"Restored {item.effectAmount} energy");
-                break;
+                case ItemData.EffectType.Energy:
+                    healthSystem.RestoreEnergy(effect.effectAmount);
+                    Debug.Log($"Restored {effect.effectAmount} energy");
+                    break;
 
-            case ItemData.EffectType.Attack:
-                // Implement your attack bonus logic here
-                Debug.Log($"Attack boosted by {item.effectAmount}");
-                break;
+                case ItemData.EffectType.Attack:
+                    // 实现攻击增益逻辑
+                    ApplyAttackBoost(effect.effectAmount);
+                    Debug.Log($"Attack boosted by {effect.effectAmount}");
+                    break;
+            }
+
         }
+    }
+    private void ApplyAttackBoost(float amount)
+    {
+        // 这里添加攻击增益的具体实现
+        // 例如：
+        // playerStats.attackPower += amount;
+        // StartCoroutine(RemoveAttackBoostAfterTime(amount, duration));
     }
 }

@@ -8,7 +8,7 @@ public class MoneyData : ScriptableObject
     public string itemName;
     public Sprite icon;
 
-    [NonSerialized] public int itemHeld; // 使用 NonSerialized 防止数据持久化
+    /*[NonSerialized]*/ public int itemHeld; // 使用 NonSerialized 防止数据持久化
 
     [TextArea] public string description;
 

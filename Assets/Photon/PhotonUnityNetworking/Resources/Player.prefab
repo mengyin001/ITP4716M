@@ -1044,7 +1044,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moneyData: {fileID: 0}
-  moneyText: {fileID: 0}
 --- !u!1 &3667811484937083138
 GameObject:
   m_ObjectHideFlags: 0

@@ -165,6 +165,7 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
 
             if (currentHealth < previousHealth)
             {
+                OnHealthChanged?.Invoke(currentHealth, maxHealth);
                 PlayHurtSound();
             }
 

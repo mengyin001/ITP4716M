@@ -187,13 +187,13 @@ public class MovingSoundControl : MonoBehaviourPun, IPunObservable
     private void LogMessage(string message)
     {
         debugMessage = message;
-        if (enableLogging) Debug.Log($"[MovingSound] {message}", this);
+        //if (enableLogging) Debug.Log($"[MovingSound] {message}", this);
     }
 
     private void LogWarning(string message)
     {
         debugMessage = "WARNING: " + message;
-        if (enableLogging) Debug.LogWarning($"[MovingSound] {message}", this);
+        //if (enableLogging) Debug.LogWarning($"[MovingSound] {message}", this);
     }
 
     private void UpdateDebugDisplay()

@@ -18,6 +18,8 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private TextMeshProUGUI restartPrompt;
     [Header("背包UI")]
     [SerializeField] private GameObject bagUI; // 添加背包UI引用
+    [Header("货币UI")]
+    [SerializeField] private TextMeshProUGUI moneyText;
     public bool IsBagOpen { get; private set; } // 背包状态属性
 
 
@@ -140,6 +142,7 @@ public class UIManager : MonoBehaviourPunCallbacks
             bagUI.SetActive(false);
             IsBagOpen = false;
         }
+        UpdateMoneyUI(MoneyManager.Instance.GetCurrentMoney());
     }
 
     // 初始化玩家UI
@@ -254,8 +257,11 @@ public class UIManager : MonoBehaviourPunCallbacks
         
         IsBagOpen = !bagUI.activeSelf;
         bagUI.SetActive(IsBagOpen);
-        
-        // 暂停/恢复游戏时间
-        Time.timeScale = IsBagOpen ? 0f : 1f;
     }
+    public void UpdateMoneyUI(int amount)
+    {
+        if (moneyText != null)
+            moneyText.text = amount.ToString();
+    }
+
 }

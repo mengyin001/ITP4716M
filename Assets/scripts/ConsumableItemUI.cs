@@ -4,22 +4,6 @@ using UnityEngine.EventSystems;
 
 public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
 {
-    public enum ItemEffectType
-    {
-        Health,
-        Energy,
-        Both
-    }
-
-    [Header("Effect Type")]
-    [SerializeField] private ItemEffectType effectType = ItemEffectType.Health;
-
-    [Header("Health Settings")]
-    [SerializeField] private float healthRestoreAmount = 10f;
-
-    [Header("Energy Settings")]
-    [SerializeField] private float energyRestoreAmount = 10f;
-
     [Header("Visual Feedback")]
     [SerializeField] private Color selectedColor = new Color(0.8f, 0.8f, 0.1f, 1f);
     [SerializeField] private Color zeroQuantityColor = new Color(0.8f, 0.8f, 0.1f, 1f);
@@ -92,10 +76,10 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
             UpdateVisualState();
             UpdateLocalUI();
             DeselectPrevious();
+
         }
     }
 
-    // 以下方法保持原有实现不变
     bool ApplyEffect()
     {
         HealthSystem healthSystem = FindObjectOfType<HealthSystem>();
@@ -105,26 +89,32 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
             return false;
         }
 
+        if (itemSlot.slotItem == null || itemSlot.slotItem.effects == null)
+            return false;
+
         bool effectApplied = false;
 
-        switch (effectType)
+        // 应用所有效果
+        foreach (var effect in itemSlot.slotItem.effects)
         {
-            case ItemEffectType.Health:
-                healthSystem.Heal(healthRestoreAmount);
-                Debug.Log($"Restored {healthRestoreAmount} health!");
-                effectApplied = true;
-                break;
-            case ItemEffectType.Energy:
-                healthSystem.RestoreEnergy(energyRestoreAmount);
-                Debug.Log($"Restored {energyRestoreAmount} energy!");
-                effectApplied = true;
-                break;
-            case ItemEffectType.Both:
-                healthSystem.Heal(healthRestoreAmount);
-                healthSystem.RestoreEnergy(energyRestoreAmount);
-                Debug.Log($"Restored {healthRestoreAmount} health and {energyRestoreAmount} energy!");
-                effectApplied = true;
-                break;
+            switch (effect.effectType)
+            {
+                case ItemData.EffectType.Health:
+                    healthSystem.Heal(effect.effectAmount);
+                    Debug.Log($"Restored {effect.effectAmount} health!");
+                    effectApplied = true;
+                    break;
+                case ItemData.EffectType.Energy:
+                    healthSystem.RestoreEnergy(effect.effectAmount);
+                    Debug.Log($"Restored {effect.effectAmount} energy!");
+                    effectApplied = true;
+                    break;
+                case ItemData.EffectType.Attack:
+                    // 这里可以添加攻击效果实现
+                    Debug.Log($"Attack buff applied: +{effect.effectAmount} attack!");
+                    effectApplied = true;
+                    break;
+            }
         }
 
         return effectApplied;
