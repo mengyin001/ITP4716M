@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class EnemyManager : MonoBehaviour
+public class UnlimitedEnemyManager : MonoBehaviour
 {
-    public static EnemyManager Instance { get; private set; }
+    public static UnlimitedEnemyManager Instance { get; private set; }
 
     [Header("敌人刷新点")]
     public Transform[] spawnPoints;
@@ -181,6 +181,9 @@ public class EnemyManager : MonoBehaviour
 
         if (meleeEnemy != null)
         {
+            meleeEnemy.forceChaseMode = true;
+            meleeEnemy.publicMode = false;
+            meleeEnemy.shouldPatrol = false;
             if (patrolPoints != null && patrolPoints.Length > 0)
             {
                 meleeEnemy.patrolPoints = new List<Transform>(patrolPoints);
@@ -190,6 +193,9 @@ public class EnemyManager : MonoBehaviour
             return true;
         }
         else if (rangedEnemy != null)
+            rangedEnemy.forceChaseMode = true;
+            rangedEnemy.publicMode = false;
+            rangedEnemy.shouldPatrol = false;
         {
             if (patrolPoints != null && patrolPoints.Length > 0)
             {

@@ -1,9 +1,8 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using Pathfinding;
-using Photon.Pun;
 
 public class Enemy : Character
 {
@@ -12,25 +11,30 @@ public class Enemy : Character
 
     [Header("Chase Settings")]
     [SerializeField] public Transform player;
-    [SerializeField] private float chaseDistance = 3f;
-    [SerializeField] private float attackDistance = 0.8f;
+    [SerializeField] private float chaseDistance = 3f; // 追击距离
+    [SerializeField] private float attackDistance = 0.8f; // 攻击距离
 
     [Header("Patrol Settings")]
-    [SerializeField] private bool shouldPatrol = true;
+    [SerializeField] public bool shouldPatrol = true;
     [SerializeField] public List<Transform> patrolPoints;
     [SerializeField] private float patrolPointReachedDistance = 0.5f;
     [SerializeField] private float waitTimeAtPoint = 1f;
 
     [Header("Attack Settings")]
-    public float meleetAttackDamage;
-    public LayerMask playerLayer;
-    public float AttackCooldownDuration = 2f;
+    public float meleetAttackDamage; // 近战攻击伤害
+    public LayerMask playerLayer; // 表示玩家图层
+    public float AttackCooldownDuration = 2f; // 冷却时间
+
+    [Header("Behavior Override")]
+    public bool forceChaseMode = false;
+    public bool publicMode = true;
+
 
     private Seeker seeker;
-    private List<Vector3> pathPointList;
-    private int currentIndex = 0;
-    private float pathGenerateInterval = 0.5f;
-    private float pathGenerateTimer = 0f;
+    private List<Vector3> pathPointList; // 路径点列表
+    private int currentIndex = 0; // 路径点的索引
+    private float pathGenerateInterval = 0.5f; // 每 0.5 秒生成一次路径
+    private float pathGenerateTimer = 0f; // 计时器
 
     private Animator animator;
     private bool isAttack = true;
@@ -40,70 +44,133 @@ public class Enemy : Character
     private float waitTimer = 0f;
     private SpriteRenderer sr;
 
+    // 新增标志位，表示敌人是否存活
     private bool isAlive = true;
+    // 新增标志位，表示当前是否在巡逻
     private bool isPatrolling = true;
+    // 新增方向变量，1 表示正向， -1 表示反向
     private int patrolDirection = 1;
 
+    // 新增：引用道具生成器
     public PickupSpawner pickupSpawner;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
         seeker = GetComponent<Seeker>();
         sr = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
-
-        // 只在主客户端查找玩家
-        if (PhotonNetwork.IsMasterClient)
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
         {
-            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-            if (playerObj != null)
-            {
-                player = playerObj.transform;
-            }
-            else
-            {
-                Debug.LogError("找不到带有 'Player' 标签的游戏对象！");
-            }
+            player = playerObj.transform;
+        }
+        else
+        {
+            Debug.LogError("找不到带有 'Player' 标签的游戏对象！");
         }
     }
 
     private void Update()
     {
-        // 只在主客户端运行AI逻辑
-        if (!PhotonNetwork.IsMasterClient) return;
-        if (!isAlive || player == null) return;
+        if (!isAlive || player == null)
+            return;
 
-        float distanceToPlayer = Vector2.Distance(GetPlayerCenterPosition(), transform.position);
-
-        if (distanceToPlayer < chaseDistance)
+        if (forceChaseMode)
         {
-            isChasing = true;
-            isPatrolling = false;
-            HandleChaseBehavior(distanceToPlayer);
+            // 强制追击模式下，始终追击玩家
+            HandleForceChaseBehavior();
+            return;
         }
-        else
+
+        if (publicMode)
         {
-            if (isChasing)
-            {
-                isChasing = false;
-                pathPointList = null;
+            float distanceToPlayer = Vector2.Distance(GetPlayerCenterPosition(), transform.position);
 
-                isPatrolling = shouldPatrol;
-                if (isPatrolling && patrolPoints.Count > 0)
-                {
-                    currentPatrolPointIndex = 0;
-                    GeneratePath(transform.position, patrolPoints[currentPatrolPointIndex].position);
-                }
-            }
-
-            if (isPatrolling && patrolPoints.Count > 0)
+            // 检查玩家是否在追击范围内
+            if (distanceToPlayer < chaseDistance)
             {
-                Patrol();
+                isChasing = true;
+                isPatrolling = false; // 停止巡逻
+                HandleChaseBehavior(distanceToPlayer);
             }
             else
             {
-                OnMovementInput?.Invoke(Vector2.zero);
+                // 如果之前在追击，但现在玩家超出范围
+                if (isChasing)
+                {
+                    isChasing = false; // 停止追击
+                    pathPointList = null; // 清除当前路径
+
+                    // 恢复巡逻状态
+                    isPatrolling = shouldPatrol;
+                    if (isPatrolling && patrolPoints.Count > 0)
+                    {
+                        currentPatrolPointIndex = 0; // 重置巡逻点索引
+                        GeneratePath(transform.position, patrolPoints[currentPatrolPointIndex].position); // 生成巡逻路径
+                    }
+                }
+
+                // 进行巡逻
+                if (isPatrolling && patrolPoints.Count > 0)
+                {
+                    Patrol();
+                }
+                else
+                {
+                    OnMovementInput?.Invoke(Vector2.zero); // 停止移动
+                }
+            }
+        }
+    }
+
+    private void HandleForceChaseBehavior()
+    {
+        // 强制追击模式下，始终生成路径追击玩家
+        pathGenerateTimer += Time.deltaTime;
+        if (pathGenerateTimer >= pathGenerateInterval)
+        {
+            GeneratePath(transform.position, GetPlayerCenterPosition());
+            pathGenerateTimer = 0;
+        }
+
+        float distanceToPlayer = Vector2.Distance(GetPlayerCenterPosition(), transform.position);
+
+        if (distanceToPlayer <= attackDistance)
+        {
+            // 停止移动并进行攻击
+            OnMovementInput?.Invoke(Vector2.zero);
+            if (isAttack)
+            {
+                isAttack = false;
+                OnAttack?.Invoke();
+                StartCoroutine(nameof(AttackCooldownCoroutine));
+            }
+
+            // 根据玩家位置翻转精灵
+            sr.flipX = GetPlayerCenterPosition().x > transform.position.x;
+        }
+        else
+        {
+            // 追击玩家
+            if (pathPointList != null && pathPointList.Count > 0)
+            {
+                // 找到最近的路径点
+                if (currentIndex >= pathPointList.Count)
+                {
+                    currentIndex = pathPointList.Count - 1;
+                }
+
+                Vector2 direction = (pathPointList[currentIndex] - transform.position).normalized;
+                OnMovementInput?.Invoke(direction);
+
+                // 根据移动方向翻转精灵
+                sr.flipX = direction.x > 0;
+
+                // 检查是否到达当前路径点
+                if (Vector2.Distance(transform.position, pathPointList[currentIndex]) < 0.1f)
+                {
+                    currentIndex++;
+                }
             }
         }
     }
@@ -111,32 +178,30 @@ public class Enemy : Character
     private void HandleChaseBehavior(float distanceToPlayer)
     {
         AutoPath();
-        if (pathPointList == null) return;
+        if (pathPointList == null)
+            return;
 
         if (distanceToPlayer <= attackDistance)
         {
+            // 停止移动并进行攻击
             OnMovementInput?.Invoke(Vector2.zero);
             if (isAttack)
             {
                 isAttack = false;
                 OnAttack?.Invoke();
                 StartCoroutine(nameof(AttackCooldownCoroutine));
-
-                // 同步攻击动画
-                photonView.RPC("RPC_PlayAttackAnimation", RpcTarget.All);
             }
 
+            // 根据玩家位置翻转精灵
             sr.flipX = GetPlayerCenterPosition().x > transform.position.x;
         }
         else
         {
+            // Chase player
             if (currentIndex >= 0 && currentIndex < pathPointList.Count)
             {
                 Vector2 direction = (pathPointList[currentIndex] - transform.position).normalized;
                 OnMovementInput?.Invoke(direction);
-
-                // 同步移动方向
-                photonView.RPC("RPC_UpdateFlip", RpcTarget.All, direction.x > 0);
             }
             else
             {
@@ -149,24 +214,28 @@ public class Enemy : Character
     {
         pathGenerateTimer += Time.deltaTime;
 
+        // 间隔一定时间来获取路径点
         if (pathGenerateTimer >= pathGenerateInterval)
         {
             Vector3 target = isChasing ? GetPlayerCenterPosition() : patrolPoints[currentPatrolPointIndex].position;
             GeneratePath(transform.position, target);
-            pathGenerateTimer = 0;
+            pathGenerateTimer = 0; // 重置计时器
         }
 
+        // 当路径点列表为空时，进行路径计算
         if (pathPointList == null || pathPointList.Count <= 0)
         {
             Vector3 target = isChasing ? GetPlayerCenterPosition() : patrolPoints[currentPatrolPointIndex].position;
             GeneratePath(transform.position, target);
         }
+        // 当敌人到达当前路径点时，递增索引 currentIndex 并进行路径计算
         else if (Vector2.Distance(transform.position, pathPointList[currentIndex]) <= 0.1f)
         {
             currentIndex++;
             if (currentIndex >= pathPointList.Count)
             {
                 currentIndex = 0;
+                // 如果不是在追击状态，则设置为等待状态
                 if (!isChasing)
                 {
                     isWaitingAtPoint = true;
@@ -176,15 +245,7 @@ public class Enemy : Character
         }
     }
 
-    private void GeneratePath(Vector3 target)
-    {
-        currentIndex = 0;
-        seeker.StartPath(transform.position, target, Path =>
-        {
-            pathPointList = Path.vectorPath;
-        });
-    }
-
+    // 获取路径点，重载方法，接受起点和终点
     private void GeneratePath(Vector3 start, Vector3 end)
     {
         currentIndex = 0;
@@ -203,8 +264,9 @@ public class Enemy : Character
             {
                 isWaitingAtPoint = false;
                 waitTimer = 0f;
-                MoveToNextPatrolPoint();
+                MoveToNextPatrolPoint(); // 移动到下一个巡逻点
 
+                // 随机选择下一个路径点
                 int nextIndex;
                 do
                 {
@@ -217,29 +279,34 @@ public class Enemy : Character
             return;
         }
 
+        // 如果路径点列表为空，生成路径
         if (pathPointList == null || pathPointList.Count <= 0)
         {
+            // 随机选择路径点
             int randomIndex = Random.Range(0, patrolPoints.Count);
             GeneratePath(patrolPoints[currentPatrolPointIndex].position, patrolPoints[randomIndex].position);
             return;
         }
 
+        // 移动到当前路径点
         if (currentIndex >= 0 && currentIndex < pathPointList.Count)
         {
             Vector2 direction = (pathPointList[currentIndex] - transform.position).normalized;
             OnMovementInput?.Invoke(direction);
 
-            // 同步移动方向
-            photonView.RPC("RPC_UpdateFlip", RpcTarget.All, direction.x > 0);
+            // 根据移动方向翻转精灵
+            sr.flipX = direction.x > 0;
         }
 
+        // 检查是否到达当前路径点
         if (Vector2.Distance(transform.position, pathPointList[currentIndex]) <= 0.1f)
         {
             currentIndex++;
+            // 如果到达路径末尾，切换到下一个巡逻点
             if (currentIndex >= pathPointList.Count)
             {
-                currentIndex = 0;
-                isWaitingAtPoint = true;
+                currentIndex = 0; // 重置索引
+                isWaitingAtPoint = true; // 设置为等待状态
             }
         }
     }
@@ -248,59 +315,51 @@ public class Enemy : Character
     {
         currentPatrolPointIndex += patrolDirection;
 
+        // 到达路径终点，改变方向
         if (currentPatrolPointIndex >= patrolPoints.Count)
         {
-            currentPatrolPointIndex = patrolPoints.Count - 1;
-            patrolDirection = -1;
+            currentPatrolPointIndex = patrolPoints.Count - 1; // 保持在最后一个点
+            patrolDirection = -1; // 反向巡逻
         }
+        // 到达路径起点，改变方向
         else if (currentPatrolPointIndex <= 0)
         {
-            currentPatrolPointIndex = 0;
-            patrolDirection = 1;
+            currentPatrolPointIndex = 0; // 保持在第一个点
+            patrolDirection = 1; // 正向巡逻
         }
-    }
-
-    [PunRPC]
-    private void RPC_PlayAttackAnimation()
-    {
-        animator.SetTrigger("Attack");
-        MeleeAttackEvent();
     }
 
     private void MeleeAttackEvent()
     {
+        // 检测碰撞
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(GetPlayerCenterPosition(), attackDistance, playerLayer);
         foreach (Collider2D hitCollider in hitColliders)
         {
-            Character character = hitCollider.GetComponent<Character>();
-            if (character != null)
-            {
-                // 使用RPC调用伤害
-                character.photonView.RPC("TakeDamage", RpcTarget.All, meleetAttackDamage);
-            }
+            hitCollider.GetComponent<HealthSystem>().TakeDamage(meleetAttackDamage);
         }
     }
 
+    // 攻击冷却时间
     IEnumerator AttackCooldownCoroutine()
     {
-        yield return new WaitForSeconds(AttackCooldownDuration);
-        isAttack = true;
-    }
-
-    [PunRPC]
-    private void RPC_UpdateFlip(bool flipRight)
-    {
-        sr.flipX = flipRight;
+        yield return new WaitForSeconds(AttackCooldownDuration); // 等待冷却时间
+        isAttack = true; // 重置攻击状态
     }
 
     public void OnDrawGizmosSelected()
     {
+        // 攻击范围
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackDistance);
 
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, chaseDistance);
+        // 追击范围（仅在非强制追击模式下显示）
+        if (!forceChaseMode)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(transform.position, chaseDistance);
+        }
 
+        // 巡逻路径
         if (shouldPatrol && patrolPoints.Count > 1)
         {
             Gizmos.color = Color.blue;
@@ -321,30 +380,22 @@ public class Enemy : Character
         }
     }
 
-    // 重写RPC_Die方法
-    [PunRPC]
-    public override void RPC_Die()
+    // 重写 Die 方法，在敌人死亡时更新标志位
+    public override void Die()
     {
-        base.RPC_Die();
+        base.Die();
         isAlive = false;
-
-        // 只在主客户端生成掉落物
-        if (PhotonNetwork.IsMasterClient && pickupSpawner != null)
+        // 检查是否有道具生成器并调用 DropItems 方法
+        if (pickupSpawner != null)
         {
             pickupSpawner.DropItems();
         }
-
-        // 销毁敌人对象
-        if (photonView.IsMine)
-        {
-            PhotonNetwork.Destroy(gameObject);
-        }
+        // 可以在这里添加播放死亡动画等逻辑
     }
 
+    // 获取玩家的中心位置
     private Vector3 GetPlayerCenterPosition()
     {
-        if (player == null) return Vector3.zero;
-
         Collider2D playerCollider = player.GetComponent<Collider2D>();
         if (playerCollider != null)
         {
