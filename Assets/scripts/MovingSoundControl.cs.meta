@@ -1,2 +1,14 @@
 fileFormatVersion: 2
 guid: fa22bc0f4dadd9341a4d9263f4387d81
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - MovingSound: {fileID: 8300000, guid: 529d23839b4d7264d9ede6de103f6c7e, type: 3}
+  - audioSource: {instanceID: 0}
+  - rb: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -598,7 +598,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hurtSound: {fileID: 8300000, guid: 8e4df8e9240444a41aa073db51980fd6, type: 3}
-  audioSource: {fileID: 0}
+  audioSource: {fileID: 2446138068358179150}
   maxHealth: 100
   currentHealth: 0
   maxEnergy: 20
@@ -830,7 +830,7 @@ AudioSource:
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
-  Loop: 1
+  Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -1021,9 +1021,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa22bc0f4dadd9341a4d9263f4387d81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MovingSound: {fileID: 8300000, guid: 529d23839b4d7264d9ede6de103f6c7e, type: 3}
-  audioSource: {fileID: 1348620704109730526, guid: b69c7240ba78ea74584d594dc0a1a60a, type: 3}
-  rb: {fileID: 0}
+  movingSound: {fileID: 8300000, guid: 529d23839b4d7264d9ede6de103f6c7e, type: 3}
+  audioSource: {fileID: 2732121414444680533}
+  rb: {fileID: 4978569306038514465}
+  velocityThreshold: 0.1
+  positionChangeThreshold: 0.01
+  stopDelay: 0.2
+  useInputDetection: 1
+  debugText: {fileID: 0}
+  showSceneDebug: 1
+  enableLogging: 1
 --- !u!114 &-3938189721013784715
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -7159,8 +7159,8 @@ RenderTexture:
     Hash: 00000000000000000000000000000000
   m_IsAlphaChannelOptional: 0
   serializedVersion: 6
-  m_Width: 715
-  m_Height: 417
+  m_Width: 906
+  m_Height: 427
   m_AntiAliasing: 1
   m_MipCount: -1
   m_DepthStencilFormat: 0
@@ -13304,8 +13304,8 @@ Transform:
   m_GameObject: {fileID: 1615996136}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 254.13863, y: 126.06261, z: -426.1488}
-  m_LocalScale: {x: 369.39175, y: 215.6505, z: 1}
+  m_LocalPosition: {x: -0.2660489, y: 0.37598228, z: -8.928313}
+  m_LocalScale: {x: 9.589098, y: 4.524955, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1320882508}
@@ -15008,7 +15008,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 48.2, y: 354}
+  m_AnchoredPosition: {x: 48.19995, y: 354}
   m_SizeDelta: {x: 250, y: 75}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &1938145408
