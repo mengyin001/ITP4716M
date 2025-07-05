@@ -29,16 +29,23 @@ public class Character : MonoBehaviourPun
     }
 
     [PunRPC]
-    public virtual void TakeDamage(float damage)
+    public virtual void TakeDamage(float damage, bool bypassInvulnerable = false)
     {
-        if (invulnerable) return;
+        // 新增参数：bypassInvulnerable 用于跳过无敌时间检查
+        if (!bypassInvulnerable && invulnerable) return;
 
         if (photonView.IsMine || (isEnemy && PhotonNetwork.IsMasterClient))
         {
             if (currentHealth - damage > 0f)
             {
                 currentHealth -= damage;
-                photonView.RPC("RPC_Invulnerable", RpcTarget.All);
+
+                // 只有非镭射枪攻击才触发无敌时间
+                if (!bypassInvulnerable)
+                {
+                    photonView.RPC("RPC_Invulnerable", RpcTarget.All);
+                }
+
                 OnHurt?.Invoke();
             }
             else
@@ -58,14 +65,13 @@ public class Character : MonoBehaviourPun
     public virtual void DieRPC()
     {
         currentHealth = 0f;
+        OnDie?.Invoke();
 
         // 新增死亡动画播放逻辑
         if (characterAnimator != null)
         {
             characterAnimator.SetTrigger(dieAnimationTrigger);
         }
-
-        OnDie?.Invoke();
 
         if (isEnemy && photonView.IsMine)
         {

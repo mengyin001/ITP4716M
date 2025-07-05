@@ -66,6 +66,7 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
         {
             currentHealth = maxHealth;
             currentEnergy = maxEnergy;
+            ForceUpdateUI();
         }
 
         if (deathImage != null)
@@ -81,6 +82,7 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
 
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
+
     }
 
 
@@ -148,6 +150,12 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
             networkCurrentEnergy = (float)stream.ReceiveNext();
             isDead = (bool)stream.ReceiveNext();
 
+            if (!photonView.IsMine)
+            {
+                currentHealth = networkCurrentHealth;
+                currentEnergy = networkCurrentEnergy;
+                ForceUpdateUI();
+            }
         }
     }
 
@@ -284,5 +292,10 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
- 
+    public void ForceUpdateUI()
+    {
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+        OnEnergyChanged?.Invoke(currentEnergy, maxEnergy);
+    }
+
 }

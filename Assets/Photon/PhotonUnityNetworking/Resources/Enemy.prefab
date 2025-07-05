@@ -226,6 +226,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e239991bad3c9294faed4e178d6378b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterAnimator: {fileID: 0}
+  dieAnimationTrigger: isDie
   MaxHealth: 20
   currentHealth: 0
   invulnerable: 0
@@ -595,7 +597,7 @@ MonoBehaviour:
     invertX: 0
     invertY: 0
     depth: 1
-    spriteRenderer: {fileID: 0}
+    spriteRenderer: {fileID: 2275381867571678184}
   mainShape:
     shadowType: 1
     maskType: 1
@@ -614,7 +616,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useDistance: 0
-  visability: 0
+  visability: 1
 --- !u!114 &-8399258525340980546
 MonoBehaviour:
   m_ObjectHideFlags: 0

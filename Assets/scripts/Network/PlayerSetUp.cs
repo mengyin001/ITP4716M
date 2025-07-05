@@ -14,6 +14,7 @@ public class PlayerSetUp : MonoBehaviourPun
         if (photonView.IsMine && healthSystem != null)
         {
             UIManager.Instance.RegisterLocalPlayer(healthSystem);
+            healthSystem.ForceUpdateUI();
         }
     }
     void OnDestroy()
