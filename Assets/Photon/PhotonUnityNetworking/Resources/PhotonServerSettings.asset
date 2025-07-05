@@ -59,6 +59,12 @@ MonoBehaviour:
   - RPC_StartDialogue
   - UpdateNetworkPosition
   - RequestDestroyPickup
+  - RPC_Attack
+  - RPC_EnemyDead
+  - RPC_EnemyHurt
+  - RPC_UpdateAliveEnemyCount
+  - DieRPC
+  - SyncDeath
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

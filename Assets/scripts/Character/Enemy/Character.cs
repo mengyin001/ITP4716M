@@ -6,6 +6,11 @@ using System;
 
 public class Character : MonoBehaviourPun
 {
+    // 新增动画控制参数
+    [Header("Animation Parameters")]
+    [SerializeField] private Animator characterAnimator;
+    [SerializeField] private string dieAnimationTrigger = "isDie"; // 匹配您的动画控制器参数
+
     [Header("Attributes")]
     [SerializeField] public float MaxHealth;
     [SerializeField] public float currentHealth;
@@ -17,12 +22,6 @@ public class Character : MonoBehaviourPun
     [Header("Events")]
     public UnityEvent OnHurt;
     public UnityEvent OnDie;
-
-    // 添加 Awake 方法
-    protected virtual void Awake()
-    {
-        // 可以在这里添加基础初始化代码
-    }
 
     protected virtual void OnEnable()
     {
@@ -44,7 +43,7 @@ public class Character : MonoBehaviourPun
             }
             else
             {
-                photonView.RPC("RPC_Die", RpcTarget.All);
+                photonView.RPC("DieRPC", RpcTarget.All);
             }
         }
     }
@@ -56,16 +55,37 @@ public class Character : MonoBehaviourPun
     }
 
     [PunRPC]
-    public virtual void RPC_Die()
+    public virtual void DieRPC()
     {
         currentHealth = 0f;
+
+        // 新增死亡动画播放逻辑
+        if (characterAnimator != null)
+        {
+            characterAnimator.SetTrigger(dieAnimationTrigger);
+        }
+
         OnDie?.Invoke();
 
-        if (isEnemy)
+        if (isEnemy && photonView.IsMine)
         {
             Debug.Log($"敌人 {gameObject.name} 死亡");
             OnEnemyDeath?.Invoke();
+
+            if (PhotonNetwork.IsMasterClient)
+            {
+                // 延迟销毁以允许动画播放
+                StartCoroutine(DestroyAfterAnimation());
+            }
         }
+    }
+
+    // 新增协程：等待动画播放后销毁对象
+    private IEnumerator DestroyAfterAnimation()
+    {
+        // 等待动画长度（可调整时间或使用动画事件）
+        yield return new WaitForSeconds(2f);
+        PhotonNetwork.Destroy(gameObject);
     }
 
     protected virtual IEnumerator InvulnerableCoroutine()

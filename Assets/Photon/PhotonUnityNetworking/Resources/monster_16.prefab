@@ -53,6 +53,10 @@ GameObject:
   - component: {fileID: 7729178539615500609}
   - component: {fileID: 8861822382185373359}
   - component: {fileID: 6166895439797018315}
+  - component: {fileID: 1387137787377340231}
+  - component: {fileID: 3467102981555421043}
+  - component: {fileID: 5810123973146234838}
+  - component: {fileID: 8555149736755069095}
   m_Layer: 6
   m_Name: monster_16
   m_TagString: Enemy
@@ -282,6 +286,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dff8a5fc3e19bc545a95d053299c7fc1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterAnimator: {fileID: 0}
+  dieAnimationTrigger: isDie
   MaxHealth: 10
   currentHealth: 0
   invulnerable: 0
@@ -365,6 +371,8 @@ MonoBehaviour:
   bulletSpeed: 2
   initialPoolSize: 20
   bulletSpawnPoint: {fileID: 3094904388301418936}
+  forceChaseMode: 0
+  publicMode: 1
   pickupSpawner: {fileID: 9192020753057309946}
 --- !u!114 &9192020753057309946
 MonoBehaviour:
@@ -645,3 +653,91 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   useDistance: 0
   visability: 0
+--- !u!114 &1387137787377340231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4608412696461306354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents:
+  - {fileID: 7633091332884551747}
+  - {fileID: 3467102981555421043}
+  - {fileID: 5810123973146234838}
+  - {fileID: 8555149736755069095}
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
+--- !u!114 &3467102981555421043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4608412696461306354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 1
+  m_SynchronizeScale: 1
+  m_UseLocal: 1
+--- !u!114 &5810123973146234838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4608412696461306354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b8c4a61274f60b4ea5fb4299cfdbf14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowLayerWeightsInspector: 1
+  ShowParameterInspector: 1
+  m_SynchronizeParameters:
+  - Type: 4
+    SynchronizeType: 2
+    Name: isWalk
+  - Type: 9
+    SynchronizeType: 2
+    Name: isAttack
+  - Type: 9
+    SynchronizeType: 2
+    Name: isHurt
+  - Type: 4
+    SynchronizeType: 2
+    Name: isDie
+  m_SynchronizeLayers:
+  - SynchronizeType: 2
+    LayerIndex: 0
+--- !u!114 &8555149736755069095
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4608412696461306354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e7cb724808c322458aa4d15f5035fa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizeVelocity: 0
+  m_SynchronizeAngularVelocity: 0
+  m_TeleportEnabled: 1
+  m_TeleportIfDistanceGreaterThan: 3

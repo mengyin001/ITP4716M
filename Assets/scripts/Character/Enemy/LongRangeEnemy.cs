@@ -64,11 +64,15 @@ public class LongRangeEnemy : Character
     // 新增：引用道具生成器
     public PickupSpawner pickupSpawner;
 
+    private List<GameObject> players = new List<GameObject>();
+    private GameObject currentTarget;
+
+
     private void Start()
     {
         // 初始化子弹池
         InitializeBulletPool();
-
+        animator = GetComponent<Animator>();
         if (publicMode && shouldPatrol && patrolPoints.Count > 0)
         {
             // 随机选择开始路径点和终点
@@ -117,7 +121,10 @@ public class LongRangeEnemy : Character
         // 如果敌人死亡或者玩家不存在，不执行后续逻辑
         if (!isAlive || player == null)
             return;
-
+        if (!PhotonNetwork.IsMasterClient) return;
+        if (Time.frameCount % 120 == 0) FindPlayers();
+        currentTarget = GetClosestPlayer();
+        if (currentTarget == null) return;
         if (forceChaseMode)
         {
             // 强制追击模式下，始终追击玩家
@@ -172,6 +179,34 @@ public class LongRangeEnemy : Character
                 }
             }
         }
+    }
+
+    private void FindPlayers()
+    {
+        players.Clear();
+        GameObject[] playerObjects = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject playerObj in playerObjects)
+        {
+            if (playerObj.GetComponent<PhotonView>().IsMine) continue;
+            players.Add(playerObj);
+        }
+    }
+
+    private GameObject GetClosestPlayer()
+    {
+        GameObject closest = null;
+        float minDistance = Mathf.Infinity;
+
+        foreach (GameObject player in players)
+        {
+            float distance = Vector2.Distance(transform.position, player.transform.position);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closest = player;
+            }
+        }
+        return closest;
     }
 
     private void HandleForceChaseBehavior()
@@ -492,30 +527,24 @@ public class LongRangeEnemy : Character
     // 发射子弹的方法
     private void ShootBullet()
     {
-        if (!isAlive || enemyBulletPrefab == null || bulletPool == null)
-            return;
+        if (!isAlive) return;
 
-        // 确保玩家位置是准确的中心位置
-        Vector3 playerCenter = player.position;
+        Vector3 spawnPosition = bulletSpawnPoint.position;
+        Vector2 direction = ((Vector2)currentTarget.transform.position - (Vector2)spawnPosition).normalized;
 
-        // 考虑玩家的碰撞体中心（如果有必要）
-        Collider2D playerCollider = player.GetComponent<Collider2D>();
-        if (playerCollider != null)
-        {
-            playerCenter = playerCollider.bounds.center;
-        }
+        // 使用PhotonNetwork实例化子弹
+        GameObject bullet = PhotonNetwork.Instantiate(
+            enemyBulletPrefab.name,
+            spawnPosition,
+            Quaternion.identity
+        );
 
-        Vector2 direction = ((Vector2)playerCenter - (Vector2)bulletSpawnPoint.position).normalized;
-
-        // 使用对象池获取子弹
-        GameObject bullet = bulletPool.GetBullet();
-        bullet.transform.position = bulletSpawnPoint.position;
-
-        EnemyBullet bulletScript = bullet.GetComponent<EnemyBullet>();
-        if (bulletScript != null)
-        {
-            bulletScript.Setup(rangedAttackDamage, playerLayer, bulletSpeed, direction);
-        }
+        // 同步子弹参数
+        bullet.GetComponent<PhotonView>().RPC("SetupBullet", RpcTarget.All,
+            rangedAttackDamage,
+            bulletSpeed,
+            direction
+        );
     }
 
     private void FlipBulletSpawnPoint()
@@ -558,24 +587,18 @@ public class LongRangeEnemy : Character
     }
 
     // 重写 Die 方法，在敌人死亡时更新标志位
-    public override void RPC_Die()
+    [PunRPC]
+    public override void DieRPC()
     {
-        // 只有主机执行死亡逻辑
-        if (!PhotonNetwork.IsMasterClient) return;
+        // 先执行基类死亡逻辑
+        base.DieRPC();
 
-        base.RPC_Die(); // 调用基类死亡逻辑
+        // 敌人特有逻辑
         isAlive = false;
 
-        // 主机处理道具生成
-        if (pickupSpawner != null)
+        if (PhotonNetwork.IsMasterClient && pickupSpawner != null)
         {
             pickupSpawner.DropItems();
-        }
-
-        // 销毁敌人（网络同步）
-        if (photonView != null && photonView.IsMine)
-        {
-            PhotonNetwork.Destroy(gameObject);
         }
     }
 

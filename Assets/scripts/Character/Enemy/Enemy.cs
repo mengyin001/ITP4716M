@@ -381,25 +381,18 @@ public class Enemy : Character
         }
     }
 
-    // 重写 Die 方法，在敌人死亡时更新标志位
-    public override void RPC_Die()
+    [PunRPC]
+    public override void DieRPC()
     {
-        // 只有主机执行死亡逻辑
-        if (!PhotonNetwork.IsMasterClient) return;
+        // 先执行基类死亡逻辑
+        base.DieRPC();
 
-        base.RPC_Die(); // 调用基类死亡逻辑
+        // 敌人特有逻辑
         isAlive = false;
 
-        // 主机处理道具生成
-        if (pickupSpawner != null)
+        if (PhotonNetwork.IsMasterClient && pickupSpawner != null)
         {
             pickupSpawner.DropItems();
-        }
-
-        // 销毁敌人（网络同步）
-        if (photonView != null && photonView.IsMine)
-        {
-            PhotonNetwork.Destroy(gameObject);
         }
     }
 
