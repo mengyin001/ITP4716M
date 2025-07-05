@@ -349,9 +349,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a1a6de40b5011441aa8f1a3cc5ce1a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  effectType: 0
-  healthRestoreAmount: 10
-  energyRestoreAmount: 0
   selectedColor: {r: 0.8, g: 0.8, b: 0.1, a: 1}
   zeroQuantityColor: {r: 0.6226415, g: 0.6226415, b: 0.6226415, a: 0.1764706}
 --- !u!1001 &92628151
@@ -751,6 +748,7 @@ MonoBehaviour:
   deathOverlay: {fileID: 651967394}
   restartPrompt: {fileID: 927226551}
   bagUI: {fileID: 1365165600}
+  moneyText: {fileID: 1452441282}
 --- !u!1 &131508074
 GameObject:
   m_ObjectHideFlags: 0
@@ -2224,9 +2222,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a1a6de40b5011441aa8f1a3cc5ce1a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  effectType: 0
-  healthRestoreAmount: 0
-  energyRestoreAmount: 20
   selectedColor: {r: 0.8, g: 0.8, b: 0.1, a: 1}
   zeroQuantityColor: {r: 0.62352943, g: 0.62352943, b: 0.62352943, a: 1}
 --- !u!1 &312956788
@@ -5707,7 +5702,7 @@ MonoBehaviour:
   totalPriceText: {fileID: 1105125476}
   messageText: {fileID: 1190629239}
   buyButton: {fileID: 1511969062}
-  isOPen: 0
+  isOpen: 0
 --- !u!114 &811073132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7159,8 +7154,8 @@ RenderTexture:
     Hash: 00000000000000000000000000000000
   m_IsAlphaChannelOptional: 0
   serializedVersion: 6
-  m_Width: 906
-  m_Height: 427
+  m_Width: 1655
+  m_Height: 424
   m_AntiAliasing: 1
   m_MipCount: -1
   m_DepthStencilFormat: 0
@@ -7684,6 +7679,67 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1047969954}
   m_CullTransparentMesh: 1
+--- !u!1001 &1052051697
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -5945292564130539699, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
+      propertyPath: sceneViewId
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 518350309778571424, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 4.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 518350309778571424, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.43
+      objectReference: {fileID: 0}
+    - target: {fileID: 518350309778571424, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 518350309778571424, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 518350309778571424, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 518350309778571424, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 518350309778571424, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 518350309778571424, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 518350309778571424, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 518350309778571424, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 782630537697650885, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
+      propertyPath: m_Name
+      value: Point
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
 --- !u!1 &1068330650
 GameObject:
   m_ObjectHideFlags: 0
@@ -11806,7 +11862,7 @@ GameObject:
   - component: {fileID: 1452441283}
   - component: {fileID: 1452441282}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Point
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12796,9 +12852,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a1a6de40b5011441aa8f1a3cc5ce1a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  effectType: 1
-  healthRestoreAmount: 0
-  energyRestoreAmount: 10
   selectedColor: {r: 0.8, g: 0.8, b: 0.1, a: 1}
   zeroQuantityColor: {r: 0.62352943, g: 0.62352943, b: 0.62352943, a: 1}
 --- !u!1001 &1538756952
@@ -13304,8 +13357,8 @@ Transform:
   m_GameObject: {fileID: 1615996136}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.2660489, y: 0.37598228, z: -8.928313}
-  m_LocalScale: {x: 9.589098, y: 4.524955, z: 1}
+  m_LocalPosition: {x: -3.8842697, y: 2.6034248, z: -8.643759}
+  m_LocalScale: {x: 17.07593, y: 4.3824096, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1320882508}
@@ -16316,3 +16369,4 @@ SceneRoots:
   - {fileID: 1446965448}
   - {fileID: 177788389}
   - {fileID: 122705527}
+  - {fileID: 1052051697}

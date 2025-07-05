@@ -10,9 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 983bfd1b2b48fc3409db7ab3aa758aa5, type: 3}
-  m_Name: money01
+  m_Name: Point
   m_EditorClassIdentifier: 
   itemID: Money01
   itemName: Money01
   icon: {fileID: -3543547022137978817, guid: a684cad87feab71429094fe960bba1eb, type: 3}
+  itemHeld: 30
   description: Money

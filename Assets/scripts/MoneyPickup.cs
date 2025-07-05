@@ -1,20 +1,28 @@
 ﻿using UnityEngine;
+using Photon.Pun;
 
-public class MoneyPickup : MonoBehaviour
+public class MoneyPickup : MonoBehaviourPun
 {
-    [SerializeField] private int value = 10; // 单个金钱的价值
-    [SerializeField] private AudioClip pickupSound; // 捡起音效
+    [SerializeField] private int value = 10;
+    [SerializeField] private AudioClip pickupSound;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
-            MoneyManager.Instance.AddMoney(value);
+            PhotonView playerView = other.GetComponent<PhotonView>();
 
-            if (pickupSound != null)
-                AudioSource.PlayClipAtPoint(pickupSound, transform.position);
+            // 确保只有触发碰撞的玩家才能捡起
+            if (playerView != null && playerView.IsMine)
+            {
+                MoneyManager.Instance.AddMoney(value);
 
-            Destroy(gameObject);
+                if (pickupSound != null)
+                    AudioSource.PlayClipAtPoint(pickupSound, transform.position);
+
+                // 销毁物品
+                PhotonNetwork.Destroy(gameObject);
+            }
         }
     }
 }
