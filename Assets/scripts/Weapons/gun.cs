@@ -1,7 +1,7 @@
 using UnityEngine;
 using Photon.Pun;
 
-public abstract class gun : MonoBehaviour
+public abstract class gun : MonoBehaviourPun // 改为继承 MonoBehaviourPun
 {
     [Header("通用射击设置")]
     public float interval = 0.5f;
@@ -46,22 +46,22 @@ public abstract class gun : MonoBehaviour
         healthSystem = GetComponentInParent<HealthSystem>();
     }
 
-protected virtual void Update()
-{
-    // 只让本地玩家控制自己的武器
-    if (parentPhotonView == null || !parentPhotonView.IsMine) return;
-
-    if (Camera.main == null) return;
-    mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-    UpdateWeaponRotation();
-
-    // 修复这里的访问方式
-    if (playerMovement != null && 
-        (UIManager.Instance == null || !UIManager.Instance.IsBagOpen))
+    protected virtual void Update()
     {
-        HandleShootingInput();
+        // 只让本地玩家控制自己的武器
+        if (parentPhotonView == null || !parentPhotonView.IsMine) return;
+
+        if (Camera.main == null) return;
+        mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        UpdateWeaponRotation();
+
+        // 修复这里的访问方式
+        if (playerMovement != null &&
+            (UIManager.Instance == null || !UIManager.Instance.IsBagOpen))
+        {
+            HandleShootingInput();
+        }
     }
-}
 
     protected virtual void UpdateWeaponRotation()
     {
@@ -111,16 +111,56 @@ protected virtual void Update()
     }
 
     /// <summary>
-    /// 預設的開火行為，觸發單發子彈的 RPC。子類可以重寫此方法以實現不同邏輯。
+    /// 預設的開火行為，現在改為只在本地生成子彈
     /// </summary>
     protected virtual void Fire()
     {
         if (muzzlePos == null || parentPhotonView == null) return;
 
-        // 呼叫 RPC 在所有客戶端生成子彈
-        parentPhotonView.RPC("RPC_FireSingle", RpcTarget.All, muzzlePos.position, transform.rotation, this.damage);
+        // 只在本地客户端生成子弹（网络对象）
+        if (parentPhotonView.IsMine)
+        {
+            // 使用 PhotonNetwork.Instantiate 创建网络同步的子弹
+            GameObject bulletObj = PhotonNetwork.Instantiate(
+                bulletPrefab.name,
+                muzzlePos.position,
+                transform.rotation
+            );
 
-        // 呼叫 RPC 在所有客戶端播放特效
-        parentPhotonView.RPC("PlayFireEffects", RpcTarget.All, muzzlePos.position);
+            // 获取子弹组件并初始化
+            Bullet bullet = bulletObj.GetComponent<Bullet>();
+            if (bullet != null)
+            {
+                bullet.Initialize(damage, parentPhotonView);
+            }
+        }
+
+        // 播放开火效果（所有客户端）
+        PlayFireEffects(muzzlePos.position);
+    }
+
+    /// <summary>
+    /// 播放开火效果（PUN RPC方法）
+    /// </summary>
+    [PunRPC]
+    protected void PlayFireEffects(Vector3 position)
+    {
+        // 生成弹壳（本地效果）
+        if (shellPrefab != null)
+        {
+            Instantiate(shellPrefab, shellPos.position, shellPos.rotation);
+        }
+
+        // 播放射击音效
+        if (shootSound != null)
+        {
+            AudioSource.PlayClipAtPoint(shootSound, position);
+        }
+
+        // 播放射击动画
+        if (animator != null)
+        {
+            animator.SetTrigger("Fire");
+        }
     }
 }

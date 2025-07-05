@@ -1514,7 +1514,7 @@ GameObject:
   m_Component:
   - component: {fileID: 231735413}
   - component: {fileID: 231735414}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: room_item_17
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1681,7 +1681,7 @@ GameObject:
   - component: {fileID: 242729214}
   - component: {fileID: 242729213}
   - component: {fileID: 242729212}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: room_item_0
   m_TagString: Wall
   m_Icon: {fileID: 0}
@@ -3569,7 +3569,7 @@ GameObject:
   m_Component:
   - component: {fileID: 590021184}
   - component: {fileID: 590021183}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Light 2D
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4259,7 +4259,7 @@ GameObject:
   m_Component:
   - component: {fileID: 664305641}
   - component: {fileID: 664305640}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Light 2D (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4798,7 +4798,7 @@ GameObject:
   - component: {fileID: 785243177}
   - component: {fileID: 785243176}
   - component: {fileID: 785243178}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: common_room_item_1
   m_TagString: Wall
   m_Icon: {fileID: 0}
@@ -5652,7 +5652,7 @@ GameObject:
   - component: {fileID: 886031857}
   - component: {fileID: 886031856}
   - component: {fileID: 886031858}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: room_item_16
   m_TagString: Wall
   m_Icon: {fileID: 0}
@@ -5776,9 +5776,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 897237887}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Room
-  m_TagString: Untagged
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7282,7 +7282,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1136761670}
   - component: {fileID: 1136761669}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Light 2D (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7424,7 +7424,7 @@ GameObject:
   - component: {fileID: 1155368049}
   - component: {fileID: 1155368048}
   - component: {fileID: 1155368047}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: common_room_item_23
   m_TagString: Wall
   m_Icon: {fileID: 0}
@@ -8054,7 +8054,7 @@ GameObject:
   - component: {fileID: 1224994596}
   - component: {fileID: 1224994595}
   - component: {fileID: 1224994594}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: DeskItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8310,6 +8310,10 @@ PrefabInstance:
       propertyPath: sceneViewId
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: -8110605585914802539, guid: cfdc862546ae14f498ce8c65932f112d, type: 3}
+      propertyPath: visability
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: -1757087367991038952, guid: cfdc862546ae14f498ce8c65932f112d, type: 3}
       propertyPath: bumpMapMode.spriteRenderer
       value: 
@@ -8374,7 +8378,7 @@ GameObject:
   - component: {fileID: 1273976657}
   - component: {fileID: 1273976656}
   - component: {fileID: 1273976655}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: objects5_0
   m_TagString: Wall
   m_Icon: {fileID: 0}
@@ -8640,7 +8644,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1288843363}
   - component: {fileID: 1288843362}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Light 2D (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9071,7 +9075,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1320882508}
   - component: {fileID: 1320882507}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Lighting Manager 2D
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9877,7 +9881,7 @@ GameObject:
   - component: {fileID: 1352487499}
   - component: {fileID: 1352487498}
   - component: {fileID: 1352487500}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: common_room_item_0
   m_TagString: Wall
   m_Icon: {fileID: 0}
@@ -12732,8 +12736,8 @@ Transform:
   m_GameObject: {fileID: 1615996136}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 172.93657, y: 199.60173, z: -523.09717}
-  m_LocalScale: {x: 729.5212, y: 262.60202, z: 1}
+  m_LocalPosition: {x: -0.94300115, y: 0.37494755, z: -4.7485423}
+  m_LocalScale: {x: 3.842795, y: 1.3832712, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1320882508}
@@ -13568,7 +13572,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1712619384}
   - component: {fileID: 1712619383}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Light 2D (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13748,7 +13752,7 @@ GameObject:
   - component: {fileID: 1770363660}
   - component: {fileID: 1770363664}
   - component: {fileID: 1770363663}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Desk
   m_TagString: Wall
   m_Icon: {fileID: 0}
@@ -15250,6 +15254,14 @@ PrefabInstance:
       value: 1.3125
       objectReference: {fileID: 0}
     - target: {fileID: 4416780641913605256, guid: be89e15fe7579b34cbc06220d435e625, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.8204687
+      objectReference: {fileID: 0}
+    - target: {fileID: 4416780641913605256, guid: be89e15fe7579b34cbc06220d435e625, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.7614142
+      objectReference: {fileID: 0}
+    - target: {fileID: 4416780641913605256, guid: be89e15fe7579b34cbc06220d435e625, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -15318,10 +15330,6 @@ PrefabInstance:
       propertyPath: sceneViewId
       value: 3
       objectReference: {fileID: 0}
-    - target: {fileID: 516080864783647721, guid: 234fd219b82d681429ebe88d79f889f6, type: 3}
-      propertyPath: ObservedComponents.Array.size
-      value: 3
-      objectReference: {fileID: 0}
     - target: {fileID: 2502901824867839796, guid: 234fd219b82d681429ebe88d79f889f6, type: 3}
       propertyPath: m_Name
       value: Storekeeper
@@ -15357,6 +15365,14 @@ PrefabInstance:
     - target: {fileID: 4863569937705823633, guid: 234fd219b82d681429ebe88d79f889f6, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0.13
+      objectReference: {fileID: 0}
+    - target: {fileID: 4863569937705823633, guid: 234fd219b82d681429ebe88d79f889f6, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 6.2125
+      objectReference: {fileID: 0}
+    - target: {fileID: 4863569937705823633, guid: 234fd219b82d681429ebe88d79f889f6, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 6.0375
       objectReference: {fileID: 0}
     - target: {fileID: 4863569937705823633, guid: 234fd219b82d681429ebe88d79f889f6, type: 3}
       propertyPath: m_LocalPosition.x
@@ -15407,21 +15423,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7346226613539960141, guid: 234fd219b82d681429ebe88d79f889f6, type: 3}
-      propertyPath: isShopOpen
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7346226613539960141, guid: 234fd219b82d681429ebe88d79f889f6, type: 3}
       propertyPath: interactPrompt
       value: 
       objectReference: {fileID: 1489864417}
-    - target: {fileID: 7346226613539960141, guid: 234fd219b82d681429ebe88d79f889f6, type: 3}
-      propertyPath: isDialogueActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7346226613539960141, guid: 234fd219b82d681429ebe88d79f889f6, type: 3}
-      propertyPath: masterOnlyInteraction
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

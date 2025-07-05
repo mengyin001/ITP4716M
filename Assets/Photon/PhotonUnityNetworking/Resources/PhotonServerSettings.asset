@@ -71,6 +71,9 @@ MonoBehaviour:
   - StopFiring
   - RPC_ActivateWeapon
   - RPC_SwitchWeapon
+  - NetworkDestroyBullet
+  - RPC_DestroyBullet
+  - RPC_CreateBulletForOthers
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

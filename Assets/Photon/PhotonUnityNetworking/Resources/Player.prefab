@@ -2049,7 +2049,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interval: 0.5
   bulletPrefab: {fileID: 6454504464724897897, guid: 040c5f6922da13e428d761be173d82ef, type: 3}
-  shellPrefab: {fileID: 1160869977807578281}
+  shellPrefab: {fileID: 9063206440116887886}
   energyCostPerShot: 5
   shootSound: {fileID: 8300000, guid: 3ba3ce2e7bf8c1a45b7c2586ee951aa3, type: 3}
   damage: 10
