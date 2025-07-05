@@ -20,7 +20,7 @@ public class DialogueSystem : MonoBehaviour
         public Sprite characterIcon;
     }
 
-    public event System.Action<string> OnDialogueCompleted;
+    public event System.Action<string> OnDialogueEnd;
     private string currentNPCID;
 
     [System.Serializable]
@@ -48,22 +48,31 @@ public class DialogueSystem : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private bool startOnAwake = true;
     [SerializeField] private float startDelay = 1f;
-    [SerializeField] private bool freezeTimeDuringDialogue = true;
+    [SerializeField] private bool maintainPositionOnResize = true;
 
     private List<DialogueEntry> dialogues = new List<DialogueEntry>();
     private int currentDialogueIndex = 0;
     private Coroutine typingCoroutine;
     private bool isTyping = false;
-    private float originalTimeScale;
     public bool isDialogueActive { get; private set; }
+
+
+    // 添加玩家控制相关字段
+    private PlayerMovement playerMovement;
+    private bool wasPlayerMovementEnabled;
 
     void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            ParseDialogueFile();
-            originalTimeScale = Time.timeScale;
+            DontDestroyOnLoad(gameObject);
+
+            if (dialogueFile != null)
+            {
+                ParseDialogueFile();
+            }
+
             if (iconAnimator != null)
             {
                 iconAnimator.updateMode = AnimatorUpdateMode.UnscaledTime;
@@ -75,13 +84,31 @@ public class DialogueSystem : MonoBehaviour
         }
     }
 
-    IEnumerator Start()
+    void Start()
     {
+        // 查找玩家移动组件
+        FindPlayerMovement();
+
         if (startOnAwake)
         {
-            yield return new WaitForSeconds(startDelay);
-            StartDialogue();
+            StartCoroutine(DelayedStart());
         }
+    }
+
+    private void FindPlayerMovement()
+    {
+        // 尝试查找玩家移动组件
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            playerMovement = player.GetComponent<PlayerMovement>();
+        }
+    }
+
+    IEnumerator DelayedStart()
+    {
+        yield return new WaitForSeconds(startDelay);
+        StartDialogue();
     }
 
     void Update()
@@ -165,21 +192,47 @@ public class DialogueSystem : MonoBehaviour
             return;
         }
 
+        // 禁用玩家移动
+        DisablePlayerMovement();
+
         dialoguePanel.SetActive(true);
+        if (maintainPositionOnResize && dialoguePanel != null)
+        {
+            RectTransform rt = dialoguePanel.GetComponent<RectTransform>();
+        }
         currentDialogueIndex = 0;
         isDialogueActive = true;
         ShowSentence(currentDialogueIndex);
-
-        if (freezeTimeDuringDialogue)
-        {
-            originalTimeScale = Time.timeScale;
-            Time.timeScale = 0f;
-        }
 
         if (iconAnimator != null)
         {
             iconAnimator.enabled = true;
             iconAnimator.Play("IconPulse", 0, 0f);
+        }
+    }
+
+    // 添加玩家移动控制方法
+    private void DisablePlayerMovement()
+    {
+        // 确保找到玩家移动组件
+        if (playerMovement == null)
+        {
+            FindPlayerMovement();
+        }
+
+        if (playerMovement != null)
+        {
+            // 保存当前状态并禁用移动
+            wasPlayerMovementEnabled = playerMovement.enabled;
+            playerMovement.enabled = false;
+        }
+    }
+
+    private void EnablePlayerMovement()
+    {
+        if (playerMovement != null && wasPlayerMovementEnabled)
+        {
+            playerMovement.enabled = true;
         }
     }
 
@@ -203,6 +256,10 @@ public class DialogueSystem : MonoBehaviour
             characterImage.gameObject.SetActive(false);
         }
 
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+        }
         typingCoroutine = StartCoroutine(TypeText(entry));
     }
 
@@ -255,15 +312,16 @@ public class DialogueSystem : MonoBehaviour
     public void LoadNewDialogue(TextAsset newDialogueFile, string npcID)
     {
         currentNPCID = npcID;
-
+        dialogueFile = newDialogueFile;
+        ParseDialogueFile();
+        currentDialogueIndex = 0;
     }
 
     public void EndDialogue()
     {
-        if (freezeTimeDuringDialogue)
-        {
-            Time.timeScale = originalTimeScale;
-        }
+        // 启用玩家移动
+        EnablePlayerMovement();
+
         if (iconAnimator != null)
         {
             iconAnimator.StopPlayback();
@@ -275,7 +333,7 @@ public class DialogueSystem : MonoBehaviour
         characterImage.gameObject.SetActive(false);
         isDialogueActive = false;
         currentDialogueIndex = 0;
-        OnDialogueCompleted?.Invoke(currentNPCID);
+        OnDialogueEnd?.Invoke(currentNPCID);
     }
 
     public void LoadNewDialogue(TextAsset newDialogueFile)
@@ -284,16 +342,6 @@ public class DialogueSystem : MonoBehaviour
         ParseDialogueFile();
         currentDialogueIndex = 0;
     }
-
-    void OnDestroy()
-    {
-        if (freezeTimeDuringDialogue && Time.timeScale == 0f)
-        {
-            Time.timeScale = originalTimeScale;
-        }
-    }
-
-
 
     private void UpdateIconAnimation(string characterID)
     {
@@ -312,8 +360,6 @@ public class DialogueSystem : MonoBehaviour
                 iconAnimator.Play("DefaultIcon");
                 break;
         }
-
-
     }
 
     // Editor helper

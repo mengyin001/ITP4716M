@@ -434,7 +434,6 @@ GameObject:
   - component: {fileID: 4465302769913081206}
   - component: {fileID: 8786287489346416177}
   - component: {fileID: 4410002484035466281}
-  - component: {fileID: 5610537488665135989}
   - component: {fileID: 1571607846234698523}
   - component: {fileID: 4978569306038514465}
   - component: {fileID: -3938189721013784715}
@@ -616,19 +615,6 @@ MonoBehaviour:
   restartPrompt: {fileID: 0}
   restartDelay: 1
   restartSceneName: SafeHouse
---- !u!114 &5610537488665135989
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3321186253624061001}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 669a737755b3405449d98e86c48bb180, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  movement: {fileID: 4465302769913081206}
 --- !u!70 &1571607846234698523
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -705,7 +691,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 871e985b88be781489c26b1bfa3521ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moneyData: {fileID: 11400000, guid: da814a2b32a64eb44a68bb70750a0002, type: 2}
 --- !u!114 &8133166774097446088
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -344,14 +344,14 @@ public class TutorialTaskSystem : MonoBehaviour
 
     void OnEnable()
     {
-        DialogueSystem.Instance.OnDialogueCompleted += HandleDialogueComplete;
+        DialogueSystem.Instance.OnDialogueEnd += HandleDialogueComplete;
         Character.OnEnemyDeath += HandleEnemyKilled;
     }
 
     void OnDisable()
     {
         if (DialogueSystem.Instance != null)
-            DialogueSystem.Instance.OnDialogueCompleted -= HandleDialogueComplete;
+            DialogueSystem.Instance.OnDialogueEnd -= HandleDialogueComplete;
         Character.OnEnemyDeath -= HandleEnemyKilled;
         if (currentSubscribedChest != null)
         {

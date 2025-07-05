@@ -56,6 +56,9 @@ MonoBehaviour:
   - UpdateLaserVisuals
   - SyncMoneyRPC
   - DestroyPickupRPC
+  - RPC_StartDialogue
+  - UpdateNetworkPosition
+  - RequestDestroyPickup
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
