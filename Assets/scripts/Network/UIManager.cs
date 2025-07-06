@@ -16,12 +16,17 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private TextMeshProUGUI playerEnergyText;
     [SerializeField] private GameObject deathOverlay;
     [SerializeField] private TextMeshProUGUI restartPrompt;
+
     [Header("背包UI")]
-    [SerializeField] private GameObject bagUI; // 添加背包UI引用
+    [SerializeField] private GameObject bagUI; // 背包UI引用
+
     [Header("货币UI")]
     [SerializeField] private TextMeshProUGUI moneyText;
-    public bool IsBagOpen { get; private set; } // 背包状态属性
 
+    [Header("背包UI引用")]
+    public InventoryManager inventoryManager; // 添加InventoryManager引用
+
+    public bool IsBagOpen { get; private set; } // 背包状态属性
 
     private HealthSystem playerHealthSystem;
     private bool isPlayerRegistered = false;
@@ -53,30 +58,50 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         InitializeUI();
         TryFindLocalPlayer();
+        FindInventoryManager();
+    }
+
+    // 查找InventoryManager
+    private void FindInventoryManager()
+    {
+        if (inventoryManager == null)
+        {
+            inventoryManager = FindObjectOfType<InventoryManager>();
+            if (inventoryManager == null)
+            {
+                Debug.LogError("InventoryManager not found in scene!");
+            }
+            else
+            {
+                Debug.Log("Found InventoryManager");
+            }
+        }
     }
 
     // 场景加载完成时调用
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 重新初始化UI并尝试查找本地玩家
-        InitializeUI();
-        TryFindLocalPlayer();
+        Debug.Log($"Scene loaded: {scene.name}");
         ReinitializeUI();
+        TryFindLocalPlayer();
+        FindInventoryManager();
     }
+
     private void ReinitializeUI()
-{
-    // 重新查找关键UI组件
-    playerHealthSlider = GameObject.Find("HealthSlider")?.GetComponent<Slider>();
-    // ...其他UI组件查找
-    
-    InitializeUI();
-    TryFindLocalPlayer();
-}
+    {
+        // 重新查找UI组件
+        playerHealthSlider = GameObject.Find("HealthSlider")?.GetComponent<Slider>();
+        // 其他UI组件查找...
+
+        InitializeUI();
+    }
 
     // 尝试查找本地玩家并注册
     private void TryFindLocalPlayer()
     {
         if (isPlayerRegistered) return;
+
+        Debug.Log("Trying to find local player...");
 
         // 查找所有玩家对象
         HealthSystem[] allPlayers = FindObjectsOfType<HealthSystem>();
@@ -88,6 +113,18 @@ public class UIManager : MonoBehaviourPunCallbacks
                 break;
             }
         }
+
+        if (!isPlayerRegistered)
+        {
+            Debug.LogWarning("Local player not found on scene load. Will try again.");
+            StartCoroutine(RetryFindPlayer());
+        }
+    }
+
+    private IEnumerator RetryFindPlayer()
+    {
+        yield return new WaitForSeconds(1f);
+        TryFindLocalPlayer();
     }
 
     // 注册本地玩家的HealthSystem
@@ -124,6 +161,8 @@ public class UIManager : MonoBehaviourPunCallbacks
     // 初始化UI元素状态
     private void InitializeUI()
     {
+        Debug.Log("Initializing UI");
+
         // 初始隐藏死亡UI
         if (deathOverlay != null)
         {
@@ -142,7 +181,11 @@ public class UIManager : MonoBehaviourPunCallbacks
             bagUI.SetActive(false);
             IsBagOpen = false;
         }
-        UpdateMoneyUI(MoneyManager.Instance.GetCurrentMoney());
+
+        if (MoneyManager.Instance != null)
+        {
+            UpdateMoneyUI(MoneyManager.Instance.GetCurrentMoney());
+        }
     }
 
     // 初始化玩家UI
@@ -253,15 +296,38 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     public void ToggleBag()
     {
-        if (bagUI == null) return;
-        
+        if (bagUI == null)
+        {
+            Debug.LogWarning("BagUI reference is null");
+            return;
+        }
+
         IsBagOpen = !bagUI.activeSelf;
         bagUI.SetActive(IsBagOpen);
+
+        // 通知InventoryManager背包状态变化
+        if (inventoryManager != null)
+        {
+            inventoryManager.OnBagStateChanged(IsBagOpen);
+        }
+        else
+        {
+            Debug.LogWarning("InventoryManager reference is null");
+        }
     }
+
     public void UpdateMoneyUI(int amount)
     {
         if (moneyText != null)
             moneyText.text = amount.ToString();
     }
 
+    // 调试方法
+    public void ForceRefreshInventory()
+    {
+        if (inventoryManager != null)
+        {
+            inventoryManager.ForceRefresh();
+        }
+    }
 }

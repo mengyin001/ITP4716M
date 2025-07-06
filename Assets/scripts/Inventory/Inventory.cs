@@ -17,6 +17,15 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
         {
             return database?.GetItem(itemID);
         }
+
+        // 修复：添加无参构造函数
+        public InventorySlot() { }
+
+        public InventorySlot(string id, int qty)
+        {
+            itemID = id;
+            quantity = qty;
+        }
     }
 
     [Header("Database Reference")]
@@ -25,12 +34,18 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
     [Header("Inventory Data")]
     public List<InventorySlot> items = new List<InventorySlot>(); // 背包物品列表
 
+    // 背包变化事件
     public event System.Action OnInventoryChanged;
 
-    // 添加物品到背包（仅本地玩家可调用）
+    void Start()
+    {
+        // 注册背包变化事件
+        OnInventoryChanged += () => Debug.Log("Inventory changed");
+    }
+
+    // 修复后的添加物品方法
     public void AddItem(string itemID, int amount = 1)
     {
-
         // 只有背包所属玩家可以修改
         if (!photonView.IsMine)
         {
@@ -46,27 +61,21 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         // 查找现有物品堆叠
-        foreach (InventorySlot slot in items)
+        for (int i = 0; i < items.Count; i++)
         {
-            if (slot.itemID == itemID)
+            if (items[i].itemID == itemID)
             {
-                // 增加数量
-                slot.quantity += amount;
-                Debug.Log($"Added {amount} to existing stack of {itemID}. New quantity: {slot.quantity}");
+                items[i].quantity += amount;
+                OnInventoryChanged?.Invoke();
+                Debug.Log($"Added to stack: {itemID} (+{amount}) Total: {items[i].quantity}");
                 return;
             }
         }
 
         // 添加新物品堆叠
-        items.Add(new InventorySlot
-        {
-            itemID = itemID,
-            quantity = amount
-        });
-
-        Debug.Log($"Added new item stack: {itemID} x{amount}");
+        items.Add(new InventorySlot(itemID, amount));
         OnInventoryChanged?.Invoke();
-        Debug.Log($"Inventory changed after adding {itemID}");
+        Debug.Log($"[Inventory]Added new item: {itemID} x{amount}");
     }
 
     // 添加物品到背包（重载使用ItemData）
@@ -75,6 +84,10 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
         if (itemData != null)
         {
             AddItem(itemData.itemID, amount);
+        }
+        if (InventoryManager.instance != null)
+        {
+            InventoryManager.instance.ForceRefresh();
         }
     }
 
@@ -105,6 +118,9 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
                     {
                         Debug.Log($"Removed {amount} from stack of {itemID}. Remaining: {items[i].quantity}");
                     }
+
+                    // 触发变化事件
+                    OnInventoryChanged?.Invoke();
                     return true;
                 }
                 Debug.LogWarning($"Not enough {itemID} to remove ({items[i].quantity} < {amount})");
@@ -172,7 +188,6 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
     private void ApplyItemEffects(ItemData item)
     {
         // 这里实现物品效果应用逻辑
-        // 在实际游戏中，这会影响玩家属性（生命值、能量等）
         Debug.Log($"Using item: {item.itemName}");
 
         foreach (var effect in item.effects)
@@ -208,31 +223,19 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
         }
         else
         {
-            // 接收网络数据
-            int oldCount = items.Count;
-            items.Clear();
             int count = (int)stream.ReceiveNext();
+            List<InventorySlot> newItems = new List<InventorySlot>();
 
             for (int i = 0; i < count; i++)
             {
                 string id = (string)stream.ReceiveNext();
-                int quantity = (int)stream.ReceiveNext();
-
-                items.Add(new InventorySlot
-                {
-                    itemID = id,
-                    quantity = quantity
-                });
+                int qty = (int)stream.ReceiveNext();
+                newItems.Add(new InventorySlot(id, qty));
             }
 
+            items = newItems;
             OnInventoryChanged?.Invoke();
-            Debug.Log("Inventory changed from network sync");
-
-            // 调试信息
-            if (items.Count != oldCount)
-            {
-                Debug.Log($"Inventory updated. Now has {items.Count} items");
-            }
+            Debug.Log($"Received inventory update: {count} items");
         }
     }
 
@@ -242,19 +245,11 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
     {
         StringBuilder sb = new StringBuilder();
         sb.AppendLine("===== Inventory Contents =====");
-        sb.AppendLine($"Owner: {photonView.Owner?.NickName} (IsMine: {photonView.IsMine})");
+        sb.AppendLine($"Items: {items.Count}");
 
-        if (items.Count == 0)
+        foreach (InventorySlot slot in items)
         {
-            sb.AppendLine("Empty");
-        }
-        else
-        {
-            foreach (InventorySlot slot in items)
-            {
-                ItemData data = itemDatabase.GetItem(slot.itemID);
-                sb.AppendLine($"- {data?.itemName ?? "Unknown"} ({slot.itemID}) x{slot.quantity}");
-            }
+            sb.AppendLine($"- {slot.itemID} x{slot.quantity}");
         }
 
         Debug.Log(sb.ToString());
