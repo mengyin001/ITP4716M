@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef6dc9844261cb84887b2d70d22c27ae, type: 3}
   m_Name: item004
   m_EditorClassIdentifier: 
-  itemID: 003
+  itemID: 004
   itemName: Recovery medicine plus
-  icon: {fileID: 4902729985760503732, guid: 368f625759658cb48893fcaad6b9eddb, type: 3}
+  icon: {fileID: -1965184042450674564, guid: 368f625759658cb48893fcaad6b9eddb, type: 3}
   isStackable: 1
   maxStack: 99
   price: 100
   effects:
-  - {fileID: 11400000, guid: bc3e6fed3bc416a45abd5cc5ad7b7d3a, type: 2}
+  - {fileID: 11400000, guid: 4ac3ddefefd767b4793fa08605e81fbe, type: 2}

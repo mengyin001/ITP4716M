@@ -59,20 +59,18 @@ public class WordItem : MonoBehaviourPun, IPunObservable
         float progress = pickupTimer / PICKUP_DURATION;
         transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, progress);
 
-        if (!hasPlayedParticle && pickupParticlePrefab != null)
-        {
-            PlayParticleEffect();
-            hasPlayedParticle = true;
-        }
-
+        // 已移除粒子播放代码
         if (pickupTimer >= PICKUP_DURATION && photonView.IsMine)
         {
             PhotonNetwork.Destroy(gameObject);
         }
     }
 
+
     private void PlayParticleEffect()
     {
+        if (pickupParticlePrefab == null) return;
+
         if (PhotonNetwork.IsConnected)
         {
             photonView.RPC("RPC_PlayParticleEffect", RpcTarget.All);
@@ -102,11 +100,7 @@ public class WordItem : MonoBehaviourPun, IPunObservable
             PhotonView playerView = other.GetComponentInParent<PhotonView>();
             if (playerView != null && playerView.IsMine)
             {
-                // 获取本地玩家的PhotonView ID
-                int playerPhotonViewID = playerView.ViewID;
-
-                // 调用RPC传递玩家PhotonView ID
-                photonView.RPC("RPC_PickupItem", RpcTarget.All, playerPhotonViewID);
+                photonView.RPC("RPC_PickupItem", RpcTarget.All, playerView.ViewID);
             }
         }
     }
@@ -114,26 +108,27 @@ public class WordItem : MonoBehaviourPun, IPunObservable
     [PunRPC]
     private void RPC_PickupItem(int playerPhotonViewID)
     {
-        PhotonView targetPlayerView = PhotonView.Find(playerPhotonViewID);
-        if (targetPlayerView == null || !targetPlayerView.IsMine) return;
-
+        // 所有客户端都更新物品状态
         isPickedUp = true;
         if (itemCollider != null) itemCollider.enabled = false;
 
-        // 确保正确添加物品
-        NetworkInventory playerInventory = targetPlayerView.GetComponent<NetworkInventory>();
-        if (playerInventory != null)
+        // 所有客户端播放粒子
+        if (!hasPlayedParticle)
         {
-            // 添加调试信息
-            Debug.Log($"Adding item to inventory: {itemID} x{quantity}");
-            playerInventory.AddItem(itemID, quantity);
-        }
-        else
-        {
-            Debug.LogError("Player inventory not found!");
+            PlayParticleEffect();
+            hasPlayedParticle = true;
         }
 
-        PlayParticleEffect();
+        // 仅触发拾取的玩家添加物品
+        PhotonView targetPlayerView = PhotonView.Find(playerPhotonViewID);
+        if (targetPlayerView != null && targetPlayerView.IsMine)
+        {
+            NetworkInventory playerInventory = targetPlayerView.GetComponent<NetworkInventory>();
+            if (playerInventory != null)
+            {
+                playerInventory.AddItem(itemID, quantity);
+            }
+        }
     }
 
     private void PickupItem(Player player)

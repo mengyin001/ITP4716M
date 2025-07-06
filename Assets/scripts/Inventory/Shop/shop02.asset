@@ -15,3 +15,4 @@ MonoBehaviour:
   currencyType: {fileID: 11400000, guid: da814a2b32a64eb44a68bb70750a0002, type: 2}
   itemsForSale:
   - {fileID: 11400000, guid: e8066b81eae60684783c72a6935fdf9b, type: 2}
+  - {fileID: 11400000, guid: 58059a4c72d4a024a9eb9f21787ace18, type: 2}

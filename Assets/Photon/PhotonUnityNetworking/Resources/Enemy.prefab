@@ -324,11 +324,41 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   propPrefabs:
   - prefab: {fileID: 782630537697650885, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
-    dropPercentage: 53.2
+    dropPercentage: 50
   - prefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
-    dropPercentage: 24.4
+    dropPercentage: 30
   - prefab: {fileID: 7153547426953709824, guid: 61c6ca7f6d9d4da49a62a1c77c01d372, type: 3}
-    dropPercentage: 24.4
+    dropPercentage: 20
+  - prefab: {fileID: 8654074269076141900, guid: bf353173b0163f44482289070ba67044, type: 3}
+    dropPercentage: 5
+  - prefab: {fileID: 8654074269076141900, guid: a6f4214ef9eb7584390abc900b89ca87, type: 3}
+    dropPercentage: 5
+  dropRadius: 1.1
+  dropCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spawnAnimationDuration: 0.2
 --- !u!82 &6852898319873289168
 AudioSource:
   m_ObjectHideFlags: 0

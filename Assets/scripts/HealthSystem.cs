@@ -142,37 +142,6 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
             photonView.RPC("RPC_TakeDamage", RpcTarget.All, 10f);
         }
 
-        // 测试按键：按J消耗能量
-        if (Input.GetKeyDown(KeyCode.J) && !isDead)
-        {
-            photonView.RPC("RPC_ConsumeEnergy", RpcTarget.All, 5f);
-        }
-
-        // 测试按键：按K回血
-        if (Input.GetKeyDown(KeyCode.K) && !isDead)
-        {
-            Heal(20f);
-        }
-
-        // 测试按键：按L回蓝
-        if (Input.GetKeyDown(KeyCode.L) && !isDead)
-        {
-            RestoreEnergy(20f);
-        }
-
-        // 测试按键：按U增加最大血量上限
-        if (Input.GetKeyDown(KeyCode.U) && !isDead)
-        {
-            ApplyMaxHealthBuff(30f, 10f); // 增加30血量上限，持續10秒
-        }
-
-        // 测试按键：按I增加最大蓝量上限
-        if (Input.GetKeyDown(KeyCode.I) && !isDead)
-        {
-            ApplyMaxEnergyBuff(30f, 10f); // 增加30藍量上限，持續10秒
-        }
-
-
         // 检测重启输入
         if (canRestart && Input.GetMouseButtonDown(0))
         {
@@ -254,7 +223,7 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     // 治疗角色 (本地客户端呼叫)
     public void Heal(float amount)
     {
-        if (!photonView.IsMine || isDead) return;
+        if (isDead) return;
 
         currentHealth = Mathf.Clamp(currentHealth + amount, 0, maxHealth);
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
@@ -264,7 +233,7 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     // 回复蓝量 (本地客户端呼叫)
     public void RestoreEnergy(float amount)
     {
-        if (!photonView.IsMine || isDead) return;
+        if (isDead) return;
 
         currentEnergy = Mathf.Clamp(currentEnergy + amount, 0, maxEnergy);
         OnEnergyChanged?.Invoke(currentEnergy, maxEnergy);
@@ -280,7 +249,7 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     // 應用最大血量上限增加效果 (本地客户端呼叫)
     public void ApplyMaxHealthBuff(float amount, float duration)
     {
-        if (!photonView.IsMine || isDead) return;
+        if (isDead) return;
 
         // 停止所有現有的血量上限 Buff 協程，避免重複疊加或計時錯誤
         StopAllBuffCoroutinesOfType(EffectType.MaxHealth);
@@ -294,7 +263,7 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     // 應用最大藍量上限增加效果 (本地客户端呼叫)
     public void ApplyMaxEnergyBuff(float amount, float duration)
     {
-        if (!photonView.IsMine || isDead) return;
+        if (isDead) return;
 
         // 停止所有現有的藍量上限 Buff 協程
         StopAllBuffCoroutinesOfType(EffectType.MaxEnergy);
