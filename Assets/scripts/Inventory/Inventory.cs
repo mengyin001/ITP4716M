@@ -88,6 +88,7 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
 
     public bool RemoveItem(string itemID, int amount = 1)
     {
+        Debug.Log($"[NetworkInventory] RemoveItem called for {itemID} x{amount}. IsMine: {photonView.IsMine}");
         if (!photonView.IsMine)
         {
             Debug.LogWarning("[NetworkInventory] RemoveItem: Only the owner can modify this inventory.");
@@ -159,6 +160,7 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
     // 物品使用方法：現在只在擁有者上執行消耗和效果應用，並通過 RPC 通知其他客戶端
     public void UseItem(string itemID)
     {
+        Debug.Log($"[NetworkInventory] UseItem called for {itemID}. IsMine: {photonView.IsMine}");
         // 確保只有擁有這個 NetworkInventory 的玩家才能發起使用物品的請求
         if (!photonView.IsMine)
         {
@@ -176,10 +178,7 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
         // 嘗試移除物品。如果成功，則應用效果並同步
         if (RemoveItem(itemID, 1)) // RemoveItem 內部會檢查 photonView.IsMine
         {
-            // 物品已經在擁有者本地的背包中被移除了。
-            // 現在，我們需要通知所有客戶端（包括擁有者自己）應用這個物品的效果。
-            // 使用 RPC_ApplyItemEffects，並將目標設置為 RpcTarget.All。
-            // 這樣，所有客戶端都會在各自的 HealthSystem 上應用效果。
+            Debug.Log($"[NetworkInventory] Item {itemID} successfully removed. Sending RPC_ApplyItemEffects to RpcTarget.All.");
             photonView.RPC("RPC_ApplyItemEffects", RpcTarget.All, itemID);
             Debug.Log($"[NetworkInventory] UseItem: Item {itemID} used by owner. RPC sent to all.");
         }

@@ -12,7 +12,6 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
     private Color originalColor;
     public static GameObject selectedItem;
     private Slot itemSlot;
-    private NetworkInventory networkInventory;
 
     void Awake()
     {
@@ -20,8 +19,6 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
         originalColor = itemImage.color;
         itemSlot = GetComponent<Slot>();
 
-        // 获取网络背包引用
-        networkInventory = FindObjectOfType<NetworkInventory>();
         
         // 初始状态更新
         UpdateVisualState();
@@ -31,9 +28,6 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
     {
         if (eventData.button != PointerEventData.InputButton.Left)
             return;
-
-        // 只有本地玩家可以使用物品
-        if (!PhotonNetwork.LocalPlayer.IsLocal) return;
 
         // 检查是否有有效物品
         if (itemSlot == null || string.IsNullOrEmpty(itemSlot.itemID)) return;
@@ -74,14 +68,48 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
 
     void UseItem()
     {
-        if (networkInventory != null && !string.IsNullOrEmpty(itemSlot.itemID))
-        {
-            // 使用物品
-            networkInventory.UseItem(itemSlot.itemID);
-            
-            // 取消选择
-            DeselectPrevious();
+        NetworkInventory localNetworkInventory = GetLocalPlayerNetworkInventory();
+            if (localNetworkInventory != null && !string.IsNullOrEmpty(itemSlot.itemID))
+            {
+                // 使用本地玩家的 NetworkInventory 中的物品
+                localNetworkInventory.UseItem(itemSlot.itemID);
+
+                // 更新UI
+                UpdateVisualState();
+                DeselectPrevious();
+            }
+            else
+            {
+                Debug.LogWarning("[ConsumableItemUI] Cannot use item: Local player's NetworkInventory not found or itemID is empty.");
+            }
         }
+
+    private NetworkInventory GetLocalPlayerNetworkInventory()
+    {
+        // 最佳方式是通過 InventoryManager.instance.networkInventory 來獲取
+        // 因為 InventoryManager 已經負責查找和管理本地玩家的 NetworkInventory
+        if (InventoryManager.instance != null && InventoryManager.instance.networkInventory != null)
+        {
+            return InventoryManager.instance.networkInventory;
+        }
+
+        // 如果 InventoryManager 還沒有初始化好，或者沒有找到，則嘗試查找
+        // 遍歷所有 PhotonView，找到屬於本地玩家的那個
+        foreach (PhotonView pv in FindObjectsOfType<PhotonView>())
+        {
+            // 檢查這個 PhotonView 的擁有者是否是本地玩家
+            if (pv.Owner == PhotonNetwork.LocalPlayer)
+            {
+                NetworkInventory ni = pv.GetComponent<NetworkInventory>();
+                if (ni != null)
+                {
+                    return ni;
+                }
+            }
+        }
+
+        Debug.LogError("[ConsumableItemUI] GetLocalPlayerNetworkInventory: Could not find local player's NetworkInventory!");
+        return null;
     }
 
     void OnDisable()
