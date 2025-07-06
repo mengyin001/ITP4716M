@@ -637,6 +637,7 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: 4804202040862071960}
+  - {fileID: 7540725338838754358}
   - {fileID: 854003320672797503}
   - {fileID: -2598019678609312982}
   - {fileID: -2213404376437740072}

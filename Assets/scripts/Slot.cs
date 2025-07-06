@@ -9,27 +9,16 @@ public class Slot : MonoBehaviour, IPointerClickHandler
     public Image slotImage;
     public TextMeshProUGUI slotNum;
 
-    [Header("Item Data")]
-    private string _itemID;
-    private int _quantity;
+    [Header("Debug Info")]
+    [SerializeField] private string _itemID = "";
+    [SerializeField] private int _quantity = 0;
 
-    // 使用属性确保数据一致性
-    public string itemID
-    {
-        get => _itemID;
-        private set => _itemID = value;
-    }
-
-    public int quantity
-    {
-        get => _quantity;
-        private set => _quantity = value;
-    }
+    public string itemID => _itemID;
+    public int quantity => _quantity;
+    public bool IsEmpty => string.IsNullOrEmpty(_itemID);
 
     private InventoryManager inventoryManager;
     private int slotIndex;
-
-    public bool IsEmpty => string.IsNullOrEmpty(itemID);
 
     public void Initialize(int index, InventoryManager manager)
     {
@@ -40,40 +29,60 @@ public class Slot : MonoBehaviour, IPointerClickHandler
 
     public void SetItem(string id, int qty, ItemData itemData)
     {
-        // 确保更新所有相关数据
-        itemID = id;
-        quantity = qty;
+        // 确保数据正确设置
+        _itemID = id;
+        _quantity = qty;
 
-        // 设置物品图标
-        if (itemData != null && itemData.icon != null)
+        // 更新UI
+        if (itemData != null)
         {
-            slotImage.sprite = itemData.icon;
-            slotImage.enabled = true;
+            if (itemData.icon != null)
+            {
+                slotImage.sprite = itemData.icon;
+                slotImage.enabled = true;
+            }
+            else
+            {
+                Debug.LogWarning($"No icon for {id}");
+                slotImage.enabled = false;
+            }
         }
         else
         {
+            Debug.LogError($"ItemData is null for {id}");
             slotImage.enabled = false;
         }
 
         // 更新数量显示
-        slotNum.text = qty > 1 ? qty.ToString() : "";
-        slotNum.enabled = qty > 1;
+        if (slotNum != null)
+        {
+            slotNum.text = qty > 1 ? qty.ToString() : "";
+            slotNum.enabled = qty > 1;
+        }
+
+        Debug.Log($"Slot {slotIndex} set: {id} x{qty}");
     }
 
     public void ClearSlot()
     {
-        itemID = "";
-        quantity = 0;
+        _itemID = "";
+        _quantity = 0;
 
         slotImage.sprite = null;
         slotImage.enabled = false;
 
-        slotNum.text = "";
-        slotNum.enabled = false;
+        if (slotNum != null)
+        {
+            slotNum.text = "";
+            slotNum.enabled = false;
+        }
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        inventoryManager.OnSlotClicked(slotIndex);
+        if (inventoryManager != null && !IsEmpty)
+        {
+            inventoryManager.OnSlotClicked(slotIndex);
+        }
     }
 }

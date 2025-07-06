@@ -27,7 +27,7 @@ GameObject:
   - component: {fileID: -4826331426182480650}
   - component: {fileID: -4976807757380648098}
   - component: {fileID: 3550967297750824931}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Boss_monster15
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -314,7 +314,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  player: {fileID: 0}
   chaseDistance: 15
   attackDistance: 4
   shouldPatrol: 0
@@ -329,6 +328,7 @@ MonoBehaviour:
   forceChaseMode: 0
   publicMode: 1
   pickupSpawner: {fileID: 4650037836069216572}
+  player: {fileID: 0}
 --- !u!114 &4650037836069216572
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -655,8 +655,10 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: 9007861010781360817}
+  - {fileID: 7788763494465873999}
   - {fileID: -4826331426182480650}
   - {fileID: -4976807757380648098}
+  - {fileID: 3550967297750824931}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -706,8 +708,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowLayerWeightsInspector: 1
   ShowParameterInspector: 1
-  m_SynchronizeParameters: []
-  m_SynchronizeLayers: []
+  m_SynchronizeParameters:
+  - Type: 4
+    SynchronizeType: 0
+    Name: isWalk
+  - Type: 9
+    SynchronizeType: 0
+    Name: isAttack
+  - Type: 9
+    SynchronizeType: 0
+    Name: isHurt
+  - Type: 4
+    SynchronizeType: 0
+    Name: isDie
+  m_SynchronizeLayers:
+  - SynchronizeType: 0
+    LayerIndex: 0
 --- !u!1001 &1052052616716282217
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -719,6 +735,18 @@ PrefabInstance:
     - target: {fileID: 374571721932168230, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
       propertyPath: m_Name
       value: HUD
+      objectReference: {fileID: 0}
+    - target: {fileID: 374571721932168230, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 654642259473402756, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1425209826608032642, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 1522562753755697399, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
       propertyPath: m_AnchorMax.x
@@ -812,17 +840,37 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -31.49997
       objectReference: {fileID: 0}
+    - target: {fileID: 2722669849773452740, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 2793666190585672749, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -9
+      objectReference: {fileID: 0}
+    - target: {fileID: 3099246743769781676, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 3644802304952161348, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
       propertyPath: m_SizeDelta.x
       value: 700
       objectReference: {fileID: 0}
+    - target: {fileID: 4540028516129910905, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5035872257883234841, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 5463414319269770987, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
       propertyPath: m_SizeDelta.x
       value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6149870063540917161, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 6423979742632559906, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
       propertyPath: enemy
@@ -888,6 +936,14 @@ PrefabInstance:
       propertyPath: summonCooldownFillImage
       value: 
       objectReference: {fileID: 1206960554571400399}
+    - target: {fileID: 6477245610131232105, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8342842173508426774, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8482186775570144184, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -895,6 +951,10 @@ PrefabInstance:
     - target: {fileID: 8482186775570144184, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9048973112952833429, guid: 2ab24c4673b7f3e46bab2a06390ece90, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
