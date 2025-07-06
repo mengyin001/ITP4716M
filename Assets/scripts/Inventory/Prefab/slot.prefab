@@ -65,7 +65,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 000
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 61d64a673b23df144b2443e92e0f8ddb, type: 2}
   m_sharedMaterial: {fileID: 3314678394377907166, guid: 61d64a673b23df144b2443e92e0f8ddb, type: 2}
@@ -148,6 +150,7 @@ GameObject:
   - component: {fileID: 4973180081527559359}
   - component: {fileID: 7114947703303503293}
   - component: {fileID: -6477599316832343847}
+  - component: {fileID: 2601722077759167558}
   m_Layer: 5
   m_Name: slot
   m_TagString: Untagged
@@ -203,7 +206,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 5494964437342709293, guid: 60371ab4f5fc0a445947c5e07917a38c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -225,7 +228,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f7cfdbfb94411c419b7b8d654aa5900, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slotItem: {fileID: 0}
   slotImage: {fileID: 7114947703303503293}
   slotNum: {fileID: 681883897496683062}
-  itemInformation: {fileID: 0}
+  cooldownOverlay: {fileID: 0}
+  itemID: 
+  quantity: 0
+  isInCooldown: 0
+--- !u!114 &2601722077759167558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5414652351683383785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a1a6de40b5011441aa8f1a3cc5ce1a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectedColor: {r: 0.8, g: 0.8, b: 0.1, a: 1}
+  zeroQuantityColor: {r: 0.6226415, g: 0.6226415, b: 0.6226415, a: 0.1764706}

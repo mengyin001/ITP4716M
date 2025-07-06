@@ -1,36 +1,262 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using System.Text;
+using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Inventory", menuName = "Inventory/Inventory")]
-public class Inventory : ScriptableObject
+public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
 {
-    public List<ItemData> itemList = new List<ItemData>();
-
-    // 创建背包实例的深拷贝
-    public Inventory Clone()
+    [System.Serializable]
+    public class InventorySlot
     {
-        Inventory clone = CreateInstance<Inventory>();
-        clone.itemList = new List<ItemData>();
+        public string itemID;     // 物品唯一标识符
+        public int quantity;      // 物品数量
 
-        foreach (ItemData originalItem in itemList)
+        // 从数据库获取物品数据
+        public ItemData GetItemData(ItemDatabase database)
         {
-            // 使用ItemData的Clone方法创建副本
-            clone.itemList.Add(originalItem.Clone());
+            return database?.GetItem(itemID);
+        }
+    }
+
+    [Header("Database Reference")]
+    public ItemDatabase itemDatabase;  // 物品数据库引用
+
+    [Header("Inventory Data")]
+    public List<InventorySlot> items = new List<InventorySlot>(); // 背包物品列表
+
+    public event System.Action OnInventoryChanged;
+
+    // 添加物品到背包（仅本地玩家可调用）
+    public void AddItem(string itemID, int amount = 1)
+    {
+
+        // 只有背包所属玩家可以修改
+        if (!photonView.IsMine)
+        {
+            Debug.LogWarning("Only the owner can modify this inventory");
+            return;
         }
 
-        return clone;
-    }
-}
+        // 验证物品存在性
+        if (itemDatabase.GetItem(itemID) == null)
+        {
+            Debug.LogError($"Item with ID {itemID} does not exist in database");
+            return;
+        }
 
-// 扩展ItemData支持深拷贝
-public partial class ItemData
-{
-    public ItemData(ItemData source)
+        // 查找现有物品堆叠
+        foreach (InventorySlot slot in items)
+        {
+            if (slot.itemID == itemID)
+            {
+                // 增加数量
+                slot.quantity += amount;
+                Debug.Log($"Added {amount} to existing stack of {itemID}. New quantity: {slot.quantity}");
+                return;
+            }
+        }
+
+        // 添加新物品堆叠
+        items.Add(new InventorySlot
+        {
+            itemID = itemID,
+            quantity = amount
+        });
+
+        Debug.Log($"Added new item stack: {itemID} x{amount}");
+        OnInventoryChanged?.Invoke();
+        Debug.Log($"Inventory changed after adding {itemID}");
+    }
+
+    // 添加物品到背包（重载使用ItemData）
+    public void AddItem(ItemData itemData, int amount = 1)
     {
-        this.itemID = source.itemID;
-        this.itemName = source.itemName;
-        this.icon = source.icon;
-        this.itemHeld = source.itemHeld;
+        if (itemData != null)
+        {
+            AddItem(itemData.itemID, amount);
+        }
+    }
+
+    // 从背包移除物品
+    public bool RemoveItem(string itemID, int amount = 1)
+    {
+        if (!photonView.IsMine)
+        {
+            Debug.LogWarning("Only the owner can modify this inventory");
+            return false;
+        }
+
+        for (int i = 0; i < items.Count; i++)
+        {
+            if (items[i].itemID == itemID)
+            {
+                if (items[i].quantity >= amount)
+                {
+                    items[i].quantity -= amount;
+
+                    // 如果数量为0，移除物品槽
+                    if (items[i].quantity <= 0)
+                    {
+                        items.RemoveAt(i);
+                        Debug.Log($"Removed entire stack of {itemID}");
+                    }
+                    else
+                    {
+                        Debug.Log($"Removed {amount} from stack of {itemID}. Remaining: {items[i].quantity}");
+                    }
+                    return true;
+                }
+                Debug.LogWarning($"Not enough {itemID} to remove ({items[i].quantity} < {amount})");
+                return false; // 数量不足
+            }
+        }
+
+        Debug.LogWarning($"Item {itemID} not found in inventory");
+        return false; // 物品不存在
+    }
+
+    // 移除物品（重载使用ItemData）
+    public bool RemoveItem(ItemData itemData, int amount = 1)
+    {
+        return itemData != null && RemoveItem(itemData.itemID, amount);
+    }
+
+    // 获取物品数量
+    public int GetItemCount(string itemID)
+    {
+        foreach (InventorySlot slot in items)
+        {
+            if (slot.itemID == itemID)
+            {
+                return slot.quantity;
+            }
+        }
+        return 0;
+    }
+
+    // 获取物品数量（重载使用ItemData）
+    public int GetItemCount(ItemData itemData)
+    {
+        return itemData != null ? GetItemCount(itemData.itemID) : 0;
+    }
+
+    // 检查是否有足够数量的物品
+    public bool HasItem(string itemID, int amount = 1)
+    {
+        return GetItemCount(itemID) >= amount;
+    }
+
+    // 检查物品是否存在（重载使用ItemData）
+    public bool HasItem(ItemData itemData, int amount = 1)
+    {
+        return itemData != null && HasItem(itemData.itemID, amount);
+    }
+
+    // 使用物品（消耗品）
+    public void UseItem(string itemID)
+    {
+        if (!photonView.IsMine) return;
+
+        ItemData item = itemDatabase.GetItem(itemID);
+        if (item == null) return;
+
+        if (RemoveItem(itemID, 1))
+        {
+            // 应用物品效果
+            ApplyItemEffects(item);
+        }
+    }
+
+    // 应用物品效果
+    private void ApplyItemEffects(ItemData item)
+    {
+        // 这里实现物品效果应用逻辑
+        // 在实际游戏中，这会影响玩家属性（生命值、能量等）
+        Debug.Log($"Using item: {item.itemName}");
+
+        foreach (var effect in item.effects)
+        {
+            switch (effect.effectType)
+            {
+                case ItemData.EffectType.Health:
+                    Debug.Log($"Restored {effect.effectAmount} health");
+                    break;
+                case ItemData.EffectType.Energy:
+                    Debug.Log($"Restored {effect.effectAmount} energy");
+                    break;
+                case ItemData.EffectType.Attack:
+                    Debug.Log($"Increased attack by {effect.effectAmount}");
+                    break;
+            }
+        }
+    }
+
+    // PUN2 网络同步
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            // 发送数据到网络
+            stream.SendNext(items.Count);
+
+            foreach (InventorySlot slot in items)
+            {
+                stream.SendNext(slot.itemID);
+                stream.SendNext(slot.quantity);
+            }
+        }
+        else
+        {
+            // 接收网络数据
+            int oldCount = items.Count;
+            items.Clear();
+            int count = (int)stream.ReceiveNext();
+
+            for (int i = 0; i < count; i++)
+            {
+                string id = (string)stream.ReceiveNext();
+                int quantity = (int)stream.ReceiveNext();
+
+                items.Add(new InventorySlot
+                {
+                    itemID = id,
+                    quantity = quantity
+                });
+            }
+
+            OnInventoryChanged?.Invoke();
+            Debug.Log("Inventory changed from network sync");
+
+            // 调试信息
+            if (items.Count != oldCount)
+            {
+                Debug.Log($"Inventory updated. Now has {items.Count} items");
+            }
+        }
+    }
+
+    // 调试用：在控制台打印背包内容
+    [ContextMenu("Print Inventory")]
+    public void DebugPrintInventory()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("===== Inventory Contents =====");
+        sb.AppendLine($"Owner: {photonView.Owner?.NickName} (IsMine: {photonView.IsMine})");
+
+        if (items.Count == 0)
+        {
+            sb.AppendLine("Empty");
+        }
+        else
+        {
+            foreach (InventorySlot slot in items)
+            {
+                ItemData data = itemDatabase.GetItem(slot.itemID);
+                sb.AppendLine($"- {data?.itemName ?? "Unknown"} ({slot.itemID}) x{slot.quantity}");
+            }
+        }
+
+        Debug.Log(sb.ToString());
     }
 }

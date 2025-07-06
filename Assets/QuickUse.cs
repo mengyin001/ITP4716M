@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class QuickUse : MonoBehaviour
 {
-    [Header("Inventory Settings")]
+    /*[Header("Inventory Settings")]
     public Inventory bag01;
     public ItemData[] quickSlots = new ItemData[3]; // Slot 1-3
 
@@ -104,5 +104,5 @@ public class QuickUse : MonoBehaviour
         // АэИзЈє
         // playerStats.attackPower += amount;
         // StartCoroutine(RemoveAttackBoostAfterTime(amount, duration));
-    }
+    }*/
 }

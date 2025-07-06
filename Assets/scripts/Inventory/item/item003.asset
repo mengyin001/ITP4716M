@@ -13,13 +13,9 @@ MonoBehaviour:
   m_Name: item003
   m_EditorClassIdentifier: 
   itemID: 003
-  itemName: 
+  itemName: Recovery medicine plus
   icon: {fileID: 4902729985760503732, guid: 368f625759658cb48893fcaad6b9eddb, type: 3}
   itemType: 0
-  effectType: 0
-  effectAmount: 20
-  usePrefab: {fileID: 0}
-  weight: 0.1
-  isUnique: 0
+  effects: []
   price: 100
-  description: 
+  maxStack: 99
