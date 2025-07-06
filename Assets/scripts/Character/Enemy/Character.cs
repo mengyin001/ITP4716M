@@ -29,9 +29,19 @@ public class Character : MonoBehaviourPun
     }
 
     [PunRPC]
-    public virtual void TakeDamage(float damage, bool bypassInvulnerable = false)
+    public virtual void TakeDamage(float damage)
     {
-        // 新增参数：bypassInvulnerable 用于跳过无敌时间检查
+        TakeDamageInternal(damage, false);
+    }
+
+    [PunRPC]
+    public virtual void TakeLaserDamage(float damage) // 新增镭射枪专用RPC
+    {
+        TakeDamageInternal(damage, true);
+    }
+
+    private void TakeDamageInternal(float damage, bool bypassInvulnerable)
+    {
         if (!bypassInvulnerable && invulnerable) return;
 
         if (photonView.IsMine || (isEnemy && PhotonNetwork.IsMasterClient))
@@ -40,7 +50,6 @@ public class Character : MonoBehaviourPun
             {
                 currentHealth -= damage;
 
-                // 只有非镭射枪攻击才触发无敌时间
                 if (!bypassInvulnerable)
                 {
                     photonView.RPC("RPC_Invulnerable", RpcTarget.All);

@@ -323,7 +323,7 @@ public class LaserGun : gun
             float damagePerFrame = DamagePerSecond * Time.deltaTime;
 
             // ´«µÝbypassInvulnerable=true²ÎÊý
-            character.photonView.RPC("TakeDamage", RpcTarget.All, damagePerFrame, true);
+            character.photonView.RPC("TakeLaserDamage", RpcTarget.All, damagePerFrame);
         }
     }
 
