@@ -1,3 +1,4 @@
+// gun.cs (modified with fixes for derived classes)
 using UnityEngine;
 
 public abstract class gun : MonoBehaviour
@@ -21,6 +22,7 @@ public abstract class gun : MonoBehaviour
     protected PlayerMovement playerMovement;
     protected HealthSystem healthSystem;
 
+    // Fixed virtual method signatures
     protected virtual void Awake()
     {
         // 确保关键组件在Awake中初始化
@@ -73,6 +75,7 @@ public abstract class gun : MonoBehaviour
         }
     }
 
+<<<<<<< Updated upstream
     protected virtual void Update()
     {
         if (Camera.main == null) return;
@@ -104,12 +107,57 @@ public abstract class gun : MonoBehaviour
     {
         transform.localScale = new Vector3(-flipY, flipY, 1); // 保持原有右侧翻转
         transform.rotation = Quaternion.Euler(0, 0, angle); // 直接使用计算角度
+=======
+    // Fixed virtual method signature
+    protected virtual void Update()
+    {
+        // 只让本地玩家控制自己的武器
+        if (parentPhotonView == null || !parentPhotonView.IsMine) return;
+
+        if (Camera.main == null) return;
+        mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        UpdateWeaponRotation();
+
+        // 修复这里的访问方式
+        if (playerMovement != null &&
+            (UIManager.Instance == null || !UIManager.Instance.IsBagOpen))
+        {
+            HandleShootingInput();
+        }
+>>>>>>> Stashed changes
     }
-}
 
     protected virtual void Shoot()
     {
+<<<<<<< Updated upstream
         if ((healthSystem != null && healthSystem.IsDead) || 
+=======
+        if (parentPhotonView == null || !parentPhotonView.IsMine)
+        {
+            // 对于远程玩家，PhotonTransformView 会自动同步其 Transform
+            return;
+        }
+
+        direction = (mousePos - (Vector2)transform.position).normalized;
+        transform.right = direction;
+
+        if (mousePos.x < transform.position.x)
+        {
+            // 鼠标在左边，翻转Y轴
+            transform.localScale = new Vector3(Mathf.Abs(flipX), -Mathf.Abs(flipY), transform.localScale.z);
+        }
+        else
+        {
+            // 鼠标在右边，保持Y轴正向
+            transform.localScale = new Vector3(-Mathf.Abs(flipX), Mathf.Abs(flipY), transform.localScale.z);
+        }
+    }
+
+    // Fixed virtual method signature
+    protected virtual void HandleShootingInput()
+    {
+        if ((healthSystem != null && healthSystem.IsDead) ||
+>>>>>>> Stashed changes
             (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive))
             return;
             
@@ -178,4 +226,18 @@ public abstract class gun : MonoBehaviour
             Debug.LogWarning($"武器 {name} 缺少射击音效", this);
         }
     }
+<<<<<<< Updated upstream
+=======
+
+    [PunRPC]
+    protected void RPC_FireSingle(Vector3 position, Quaternion rotation, float damage)
+    {
+        GameObject bullet = Instantiate(bulletPrefab, position, rotation);
+        Bullet bulletComponent = bullet.GetComponent<Bullet>();
+        if (bulletComponent != null)
+        {
+            bulletComponent.Initialize(damage, parentPhotonView);
+        }
+    }
+>>>>>>> Stashed changes
 }
