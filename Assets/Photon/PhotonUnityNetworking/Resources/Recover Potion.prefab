@@ -15,8 +15,11 @@ GameObject:
   - component: {fileID: -1603610669130907361}
   - component: {fileID: 6676419529980887642}
   - component: {fileID: 1798554272667703513}
+  - component: {fileID: -2157342886550220205}
+  - component: {fileID: 1420634383890325824}
+  - component: {fileID: -1526701029650451460}
   m_Layer: 10
-  m_Name: huifuyao
+  m_Name: Recover Potion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -104,8 +107,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 157bc515f595fd84b925d38b6de153d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  thisItem: {fileID: 11400000, guid: 70d14a1117c24aa4da461858c33a6e69, type: 2}
-  playerInventory: {fileID: 11400000, guid: 2fdd3c53a6aaf44478016b72fa4b1ab8, type: 2}
+  itemID: 001
+  quantity: 1
+  rotationSpeed: 30
+  floatAmplitude: 0.2
+  floatFrequency: 1
+  pickupParticlePrefab: {fileID: 5710048660336796493, guid: 949d5dba69b08fa45a2cb24846e6060d, type: 3}
 --- !u!61 &6496240334839726921
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -230,3 +237,60 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   useDistance: 0
   visability: 0
+--- !u!114 &-2157342886550220205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8654074269076141900}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents:
+  - {fileID: 1363469159177885051}
+  - {fileID: 1420634383890325824}
+  - {fileID: -1526701029650451460}
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
+--- !u!114 &1420634383890325824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8654074269076141900}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 1
+  m_SynchronizeScale: 1
+  m_UseLocal: 1
+--- !u!114 &-1526701029650451460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8654074269076141900}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e7cb724808c322458aa4d15f5035fa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizeVelocity: 0
+  m_SynchronizeAngularVelocity: 0
+  m_TeleportEnabled: 1
+  m_TeleportIfDistanceGreaterThan: 3
