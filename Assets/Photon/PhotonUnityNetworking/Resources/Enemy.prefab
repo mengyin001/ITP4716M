@@ -293,7 +293,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  player: {fileID: 0}
   chaseDistance: 6
   attackDistance: 1
   shouldPatrol: 1
@@ -310,6 +309,7 @@ MonoBehaviour:
   forceChaseMode: 0
   publicMode: 1
   pickupSpawner: {fileID: 8203703573622415227}
+  player: {fileID: 0}
 --- !u!114 &8203703573622415227
 MonoBehaviour:
   m_ObjectHideFlags: 0
