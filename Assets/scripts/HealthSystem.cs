@@ -5,6 +5,7 @@ using UnityEngine.Events;
 using System.Collections;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
+using Photon.Realtime;
 
 public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -15,7 +16,6 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     [Header("血量控制")]
     public float maxHealth = 100f;
     public float currentHealth;
-
 
     [Header("蓝量控制")]
     public float maxEnergy = 100f;
@@ -59,7 +59,8 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     private float networkCurrentHealth;
     private float networkCurrentEnergy;
 
-    void Start() { 
+    void Start()
+    {
 
         // 只在本地客户端初始化玩家状态
         if (photonView.IsMine)
@@ -84,7 +85,6 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
             audioSource = GetComponent<AudioSource>();
 
     }
-
 
     void Update()
     {
@@ -297,5 +297,4 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
         OnEnergyChanged?.Invoke(currentEnergy, maxEnergy);
     }
-
 }

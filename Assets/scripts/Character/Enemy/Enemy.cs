@@ -4,14 +4,14 @@ using UnityEngine;
 using UnityEngine.Events;
 using Pathfinding;
 using Photon.Pun;
+using Photon.Realtime;
 
-public class Enemy : Character
+public class Enemy : Character, IPunObservable
 {
     public UnityEvent<Vector2> OnMovementInput;
     public UnityEvent OnAttack;
 
     [Header("Chase Settings")]
-    [SerializeField] public Transform player;
     [SerializeField] private float chaseDistance = 3f; // 追击距离
     [SerializeField] private float attackDistance = 0.8f; // 攻击距离
 
@@ -29,7 +29,6 @@ public class Enemy : Character
     [Header("Behavior Override")]
     public bool forceChaseMode = false;
     public bool publicMode = true;
-
 
     private Seeker seeker;
     private List<Vector3> pathPointList; // 路径点列表
@@ -55,71 +54,146 @@ public class Enemy : Character
     // 新增：引用道具生成器
     public PickupSpawner pickupSpawner;
 
+    // 玩家引用相关
+    public Transform player;
+    private float playerUpdateInterval = 2f; // 每2秒更新一次玩家引用
+    private float playerUpdateTimer = 0f;
+
+    // 网络同步相关
+    private Vector2 networkMovementDirection;
+    private bool networkIsAttacking;
+
     private void Awake()
     {
         seeker = GetComponent<Seeker>();
         sr = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
+
+        // 初始化时查找玩家
+        UpdatePlayerReference();
+    }
+
+    private void Start()
+    {
+        // 如果是主机，初始化巡逻路径
+        if (PhotonNetwork.IsMasterClient)
         {
-            player = playerObj.transform;
-        }
-        else
-        {
-            Debug.LogError("找不到带有 'Player' 标签的游戏对象！");
+            if (shouldPatrol && patrolPoints.Count > 0)
+            {
+                GeneratePath(transform.position, patrolPoints[currentPatrolPointIndex].position);
+            }
         }
     }
 
     private void Update()
     {
-        if (!isAlive || player == null)
+        if (!isAlive)
             return;
 
-        if (forceChaseMode)
+        // 定期更新玩家引用
+        playerUpdateTimer += Time.deltaTime;
+        if (playerUpdateTimer >= playerUpdateInterval)
         {
-            // 强制追击模式下，始终追击玩家
-            HandleForceChaseBehavior();
-            return;
+            UpdatePlayerReference();
+            playerUpdateTimer = 0f;
         }
 
-        if (publicMode)
+        // 只有主机执行AI逻辑
+        if (PhotonNetwork.IsMasterClient)
         {
-            float distanceToPlayer = Vector2.Distance(GetPlayerCenterPosition(), transform.position);
-
-            // 检查玩家是否在追击范围内
-            if (distanceToPlayer < chaseDistance)
+            if (player == null)
             {
-                isChasing = true;
-                isPatrolling = false; // 停止巡逻
-                HandleChaseBehavior(distanceToPlayer);
+                OnMovementInput?.Invoke(Vector2.zero);
+                return;
             }
-            else
+
+            if (forceChaseMode)
             {
-                // 如果之前在追击，但现在玩家超出范围
-                if (isChasing)
-                {
-                    isChasing = false; // 停止追击
-                    pathPointList = null; // 清除当前路径
+                // 强制追击模式下，始终追击玩家
+                HandleForceChaseBehavior();
+                return;
+            }
 
-                    // 恢复巡逻状态
-                    isPatrolling = shouldPatrol;
-                    if (isPatrolling && patrolPoints.Count > 0)
-                    {
-                        currentPatrolPointIndex = 0; // 重置巡逻点索引
-                        GeneratePath(transform.position, patrolPoints[currentPatrolPointIndex].position); // 生成巡逻路径
-                    }
-                }
+            if (publicMode)
+            {
+                float distanceToPlayer = Vector2.Distance(GetPlayerCenterPosition(), transform.position);
 
-                // 进行巡逻
-                if (isPatrolling && patrolPoints.Count > 0)
+                // 检查玩家是否在追击范围内
+                if (distanceToPlayer < chaseDistance)
                 {
-                    Patrol();
+                    isChasing = true;
+                    isPatrolling = false; // 停止巡逻
+                    HandleChaseBehavior(distanceToPlayer);
                 }
                 else
                 {
-                    OnMovementInput?.Invoke(Vector2.zero); // 停止移动
+                    // 如果之前在追击，但现在玩家超出范围
+                    if (isChasing)
+                    {
+                        isChasing = false; // 停止追击
+                        pathPointList = null; // 清除当前路径
+
+                        // 恢复巡逻状态
+                        isPatrolling = shouldPatrol;
+                        if (isPatrolling && patrolPoints.Count > 0)
+                        {
+                            currentPatrolPointIndex = 0; // 重置巡逻点索引
+                            GeneratePath(transform.position, patrolPoints[currentPatrolPointIndex].position); // 生成巡逻路径
+                        }
+                    }
+
+                    // 进行巡逻
+                    if (isPatrolling && patrolPoints.Count > 0)
+                    {
+                        Patrol();
+                    }
+                    else
+                    {
+                        OnMovementInput?.Invoke(Vector2.zero); // 停止移动
+                    }
                 }
+            }
+        }
+        else
+        {
+            // 客户端只执行表现逻辑
+            ApplyNetworkState();
+        }
+    }
+
+    private void UpdatePlayerReference()
+    {
+        // 查找本地玩家
+        GameObject localPlayerObj = null;
+        foreach (var player in PhotonNetwork.PlayerList)
+        {
+            if (player.IsLocal)
+            {
+                GameObject playerObj = PhotonView.Find(player.ActorNumber)?.gameObject;
+                if (playerObj != null && playerObj.CompareTag("Player"))
+                {
+                    localPlayerObj = playerObj;
+                    break;
+                }
+            }
+        }
+
+        if (localPlayerObj != null)
+        {
+            player = localPlayerObj.transform;
+        }
+        else
+        {
+            // 如果找不到本地玩家，尝试查找任意玩家
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                player = playerObj.transform;
+            }
+            else
+            {
+                player = null;
+                Debug.LogWarning("找不到玩家对象！");
             }
         }
     }
@@ -332,11 +406,15 @@ public class Enemy : Character
 
     private void MeleeAttackEvent()
     {
+        // 只有主机执行攻击判定
+        if (!PhotonNetwork.IsMasterClient)
+            return;
+
         // 检测碰撞
         Collider2D[] hitColliders = Physics2D.OverlapCircleAll(GetPlayerCenterPosition(), attackDistance, playerLayer);
         foreach (Collider2D hitCollider in hitColliders)
         {
-            hitCollider.GetComponent<HealthSystem>().RPC_TakeDamage(meleetAttackDamage);
+            hitCollider.GetComponent<HealthSystem>()?.RPC_TakeDamage(meleetAttackDamage);
         }
     }
 
@@ -396,15 +474,55 @@ public class Enemy : Character
         }
     }
 
-
     // 获取玩家的中心位置
     private Vector3 GetPlayerCenterPosition()
     {
+        if (player == null)
+            return transform.position;
+
         Collider2D playerCollider = player.GetComponent<Collider2D>();
         if (playerCollider != null)
         {
             return playerCollider.bounds.center;
         }
         return player.position;
+    }
+
+    // 网络同步实现
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            // 主机发送移动和攻击状态
+            stream.SendNext(OnMovementInput.GetPersistentEventCount() > 0 ? OnMovementInput.GetPersistentTarget(0) : Vector2.zero);
+            stream.SendNext(isAttack);
+        }
+        else
+        {
+            // 客户端接收状态
+            networkMovementDirection = (Vector2)stream.ReceiveNext();
+            networkIsAttacking = (bool)stream.ReceiveNext();
+        }
+    }
+
+    private void ApplyNetworkState()
+    {
+        // 应用网络同步的移动和攻击状态
+        if (OnMovementInput.GetPersistentEventCount() > 0)
+        {
+            OnMovementInput?.Invoke(networkMovementDirection);
+        }
+
+        // 根据移动方向翻转精灵
+        if (networkMovementDirection.x != 0)
+        {
+            sr.flipX = networkMovementDirection.x > 0;
+        }
+
+        // 同步攻击动画
+        if (animator != null)
+        {
+            animator.SetBool("IsAttacking", !networkIsAttacking);
+        }
     }
 }

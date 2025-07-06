@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Photon.Pun;
 
 public class EnemyManager : MonoBehaviour
 {
@@ -84,12 +85,17 @@ public class EnemyManager : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(StartNextWaveCoroutine());
+        // 只有主机启动敌人波次
+        if (PhotonNetwork.IsMasterClient)
+        {
+            StartCoroutine(StartNextWaveCoroutine());
+        }
     }
 
     private void Update()
     {
-        if (AliveEnemyCount <= 0 && !IsWaveInProgress && !IsLastWave && !AllWavesCompleted)
+        // 只有主机更新敌人波次逻辑
+        if (PhotonNetwork.IsMasterClient && AliveEnemyCount <= 0 && !IsWaveInProgress && !IsLastWave && !AllWavesCompleted)
         {
             StartCoroutine(StartNextWaveCoroutine());
         }
@@ -143,7 +149,14 @@ public class EnemyManager : MonoBehaviour
             }
 
             Vector3 spawnPos = GetRandomSpawnPoint();
-            GameObject enemy = Instantiate(enemyData.enemyPrefab, spawnPos, Quaternion.identity);
+
+            // 使用PhotonNetwork.Instantiate生成网络对象
+            GameObject enemy = PhotonNetwork.Instantiate(
+                enemyData.enemyPrefab.name,
+                spawnPos,
+                Quaternion.identity
+            );
+
             activeEnemies.Add(enemy);
 
             if (SetupEnemyBehavior(enemy))
@@ -185,7 +198,10 @@ public class EnemyManager : MonoBehaviour
             {
                 meleeEnemy.patrolPoints = new List<Transform>(patrolPoints);
             }
-            meleeEnemy.player = playerTarget;
+
+            // 不再直接设置玩家引用，由Enemy脚本自己定期更新
+            // meleeEnemy.player = playerTarget;
+
             meleeEnemy.OnDie.AddListener(() => OnEnemyDied(meleeEnemy.gameObject));
             return true;
         }
@@ -195,7 +211,10 @@ public class EnemyManager : MonoBehaviour
             {
                 rangedEnemy.patrolPoints = new List<Transform>(patrolPoints);
             }
-            rangedEnemy.player = playerTarget;
+
+            // 不再直接设置玩家引用，由Enemy脚本自己定期更新
+            // rangedEnemy.player = playerTarget;
+
             rangedEnemy.OnDie.AddListener(() => OnEnemyDied(rangedEnemy.gameObject));
             return true;
         }
@@ -249,7 +268,12 @@ public class EnemyManager : MonoBehaviour
     {
         if (teleportationCirclePrefab != null && teleportationSpawnPoint != null)
         {
-            Instantiate(teleportationCirclePrefab, teleportationSpawnPoint.position, Quaternion.identity);
+            // 使用PhotonNetwork.Instantiate生成网络对象
+            PhotonNetwork.Instantiate(
+                teleportationCirclePrefab.name,
+                teleportationSpawnPoint.position,
+                Quaternion.identity
+            );
         }
     }
 
