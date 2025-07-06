@@ -75,6 +75,8 @@ MonoBehaviour:
   - RPC_DestroyBullet
   - RPC_CreateBulletForOthers
   - TakeLaserDamage
+  - RPC_PickupItem
+  - RPC_PlayParticleEffect
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

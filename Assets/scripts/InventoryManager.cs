@@ -2,14 +2,23 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class InventoryManager : MonoBehaviour
+public class InventoryManager : MonoBehaviourPunCallbacks
 {
-    static InventoryManager instance;
-    public Inventory myBag;
+    public static InventoryManager instance;
+
+    [Header("References")]
+    public NetworkInventory networkInventory;
+    public ItemDatabase itemDatabase;
     public GameObject slotGrid;
+
+    [Header("UI Settings")]
+    public GameObject slotPrefab;
+    public int maxSlots = 12;
+
     private List<Slot> slots = new List<Slot>();
-    private const int MAX_SLOTS = 12;
 
     private void Awake()
     {
@@ -20,76 +29,158 @@ public class InventoryManager : MonoBehaviour
         else
         {
             instance = this;
+            DontDestroyOnLoad(gameObject); // 如果需要跨场景保留
         }
+    }
+    private void OnEnable()
+    {
+        if (networkInventory != null)
+        {
+            // 注册背包变化事件
+            networkInventory.OnInventoryChanged += HandleInventoryChanged;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (networkInventory != null)
+        {
+            networkInventory.OnInventoryChanged -= HandleInventoryChanged;
+        }
+    }
+
+    private void HandleInventoryChanged()
+    {
+        RefreshInventory();
+        Debug.Log("Inventory changed - refreshing UI");
+    }
+
+    private void Start()
+    {
+        FindLocalPlayerInventory();
         InitializeSlots();
+        RefreshInventory();
     }
 
     void InitializeSlots()
     {
-        // Get existing slots from the scene
-        slots.Clear();
+        // 清空现有槽位
         foreach (Transform child in slotGrid.transform)
         {
-            Slot slot = child.GetComponent<Slot>();
-            if (slot != null)
-            {
-                slot.slotItem = null;
-                slot.slotNum.text = "";
-                slot.slotImage.enabled = false;
-                slots.Add(slot);
-            }
+            Destroy(child.gameObject);
+        }
+        slots.Clear();
+
+        // 创建新槽位
+        for (int i = 0; i < maxSlots; i++)
+        {
+            GameObject slotObj = Instantiate(slotPrefab, slotGrid.transform);
+            Slot slot = slotObj.GetComponent<Slot>();
+            slot.Initialize(i, this);
+            slots.Add(slot);
         }
     }
 
-    public static void RefreshItem()
+    private void FindLocalPlayerInventory()
     {
-        // Clear existing slot contents
-        foreach (Slot slot in instance.slots)
-        {
-            slot.slotItem = null;
-            slot.slotNum.text = "";
-            slot.slotImage.enabled = false;
-        }
+        if (networkInventory != null) return;
 
-        // Populate slots with inventory items
-        for (int i = 0; i < instance.myBag.itemList.Count && i < MAX_SLOTS; i++)
+        // 查找本地玩家的NetworkInventory组件
+        PhotonView[] photonViews = FindObjectsOfType<PhotonView>();
+        foreach (PhotonView view in photonViews)
         {
-            ItemData item = instance.myBag.itemList[i];
-            instance.slots[i].slotItem = item;
-            instance.slots[i].slotNum.text = item.itemHeld.ToString();
-            instance.slots[i].slotImage.sprite = item.icon;
-            instance.slots[i].slotImage.enabled = true;
-        }
-    }
-
-    public static void AddItem(ItemData newItem, int quantity)
-    {
-        // Try to stack existing items
-        foreach (ItemData existingItem in instance.myBag.itemList)
-        {
-            if (existingItem == newItem)
+            if (view.IsMine)
             {
-                existingItem.itemHeld += quantity;
-                RefreshItem();
-                return;
+                networkInventory = view.GetComponent<NetworkInventory>();
+                if (networkInventory != null) break;
             }
         }
 
-        // Add to first empty slot
-        if (instance.myBag.itemList.Count < MAX_SLOTS)
+        if (networkInventory == null)
         {
-            newItem.itemHeld = quantity;
-            instance.myBag.itemList.Add(newItem);
-            RefreshItem();
-        }
-        else
-        {
-            Debug.Log("Inventory is full!");
+            Debug.LogError("NetworkInventory not found on local player!");
         }
     }
 
-    public void Start()
+    // 添加同步刷新
+    public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        RefreshItem();
+        if (PhotonNetwork.LocalPlayer.Equals(newPlayer))
+        {
+            FindLocalPlayerInventory();
+            RefreshInventory();
+        }
+    }
+
+    public void RefreshInventory()
+    {
+        // 重置所有槽位
+        foreach (Slot slot in slots)
+        {
+            slot.ClearSlot();
+        }
+
+        if (networkInventory == null || itemDatabase == null)
+        {
+            Debug.LogWarning("Inventory or database not set!");
+            return;
+        }
+
+        // 使用新索引确保正确填充
+        int slotIndex = 0;
+        foreach (NetworkInventory.InventorySlot invSlot in networkInventory.items)
+        {
+            if (slotIndex >= maxSlots)
+            {
+                Debug.LogWarning("Inventory overflow! Max slots reached.");
+                break;
+            }
+
+            ItemData itemData = itemDatabase.GetItem(invSlot.itemID);
+            if (itemData != null)
+            {
+                slots[slotIndex].SetItem(invSlot.itemID, invSlot.quantity, itemData);
+                slotIndex++;
+            }
+            else
+            {
+                Debug.LogWarning($"Item ID {invSlot.itemID} not found in database");
+            }
+        }
+
+        Debug.Log($"Refreshed inventory. {slotIndex} items displayed");
+    }
+
+    public void OnSlotClicked(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= slots.Count) return;
+
+        Slot slot = slots[slotIndex];
+        if (!slot.IsEmpty && photonView != null && photonView.IsMine) // 添加 null 检查
+        {
+            // 使用物品（本地玩家）
+            networkInventory.UseItem(slot.itemID);
+            RefreshInventory();
+        }
+    }
+
+    // 添加物品到背包
+    public void AddItemToInventory(string itemID, int amount = 1)
+    {
+        if (photonView != null && photonView.IsMine) // 添加 null 检查
+        {
+            networkInventory.AddItem(itemID, amount);
+            RefreshInventory();
+        }
+    }
+
+    // 网络同步回调
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        // 当背包数据更新时刷新UI
+        if (targetPlayer == PhotonNetwork.LocalPlayer)
+        {
+            RefreshInventory();
+        }
     }
 }

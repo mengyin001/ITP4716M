@@ -8,7 +8,7 @@ public class ShopManager : MonoBehaviour
     public static ShopManager Instance;
     [Header("配置")]
     public ShopData shopData;
-    public Inventory playerInventory;
+    //public Inventory playerInventory;
 
     [Header("UI组件")]
     [SerializeField] private Transform shopContent;
@@ -137,7 +137,7 @@ public class ShopManager : MonoBehaviour
     }
     private void AddToInventory(ItemData item, int quantity)
     {
-        ItemData existingItem = playerInventory.itemList.Find(i => i.itemID == item.itemID);
+        /*ItemData existingItem = playerInventory.itemList.Find(i => i.itemID == item.itemID);
 
         if (existingItem != null)
         {
@@ -148,7 +148,7 @@ public class ShopManager : MonoBehaviour
             ItemData newItem = Instantiate(item);
             newItem.itemHeld = quantity;
             playerInventory.itemList.Add(newItem);
-        }
+        }*/
     }
 
     private void ShowMessage(string text, Color color)
