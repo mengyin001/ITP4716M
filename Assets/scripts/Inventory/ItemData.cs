@@ -1,52 +1,19 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections.Generic; // 如果您使用 List<ItemEffect>
 
-[CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]
+[CreateAssetMenu(fileName = "NewItemData", menuName = "Inventory/Item Data")]
 public class ItemData : ScriptableObject
 {
-    public enum ItemType { Consumable, Equipment, Material, Quest }
-    public enum EffectType { Health, Energy, Attack }
-
-    [System.Serializable]
-    public class ItemEffect
-    {
-        public EffectType effectType;
-        public float effectAmount;
-    }
-
-    [Header("Basic Info")]
+    [Header("Item Information")]
     public string itemID;
     public string itemName;
     public Sprite icon;
-    public ItemType itemType;
+    public bool isStackable = true;
+    public int maxStack = 99;
+    public int price = 0;
 
-    [Header("Effects")]
-    public List<ItemEffect> effects = new List<ItemEffect>();
+    [Header("Item Effects")]
+    // 現在，effects 是一個 ItemEffect ScriptableObject 的陣列或列表
+    public ItemEffect[] effects; // 或者 public List<ItemEffect> effects;
 
-    [Header("Other Properties")]
-    public int price;
-    public int maxStack = 99; // 添加最大堆叠数量
-
-    public ItemData Clone()
-    {
-        ItemData clone = CreateInstance<ItemData>();
-        clone.itemID = this.itemID;
-        clone.itemName = this.itemName;
-        clone.icon = this.icon;
-        clone.itemType = this.itemType;
-        clone.price = this.price;
-        clone.maxStack = this.maxStack;
-
-        clone.effects = new List<ItemEffect>();
-        foreach (var effect in this.effects)
-        {
-            clone.effects.Add(new ItemEffect
-            {
-                effectType = effect.effectType,
-                effectAmount = effect.effectAmount
-            });
-        }
-
-        return clone;
-    }
 }

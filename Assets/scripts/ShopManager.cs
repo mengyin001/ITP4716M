@@ -188,7 +188,6 @@ public class ShopManager : MonoBehaviour
         {
             trigger.HidePrompt();
         }
-        Time.timeScale = 0;
     }
 
     public void CloseShop()
@@ -196,7 +195,6 @@ public class ShopManager : MonoBehaviour
         isOpen = false;
         shopContent.parent.gameObject.SetActive(false);
         ResetSelection();
-        Time.timeScale = 1;
     }
 
     private void Update()

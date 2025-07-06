@@ -36,11 +36,13 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
 
     // 背包变化事件
     public event System.Action OnInventoryChanged;
+    private HealthSystem playerHealthSystem;
 
     void Start()
     {
         // 注册背包变化事件
         OnInventoryChanged += () => Debug.Log("Inventory changed");
+        playerHealthSystem = GetComponent<HealthSystem>();
     }
 
     // 修复后的添加物品方法
@@ -187,25 +189,52 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
     // 应用物品效果
     private void ApplyItemEffects(ItemData item)
     {
-        // 这里实现物品效果应用逻辑
-        Debug.Log($"Using item: {item.itemName}");
+        Debug.Log($"[NetworkInventory] Applying effects for item: {item.itemName}");
 
-        foreach (var effect in item.effects)
+        if (item.effects == null || item.effects.Length == 0)
         {
+            Debug.LogWarning($"[NetworkInventory] Item {item.itemName} has no defined effects.");
+            return;
+        }
+
+        if (playerHealthSystem == null)
+        {
+            Debug.LogError("[NetworkInventory] playerHealthSystem is null. Cannot apply effects.");
+            return;
+        }
+
+        foreach (ItemEffect effect in item.effects) // 遍歷 ItemEffect 對象
+        {
+            if (effect == null) continue; // 防止空引用
+
             switch (effect.effectType)
             {
-                case ItemData.EffectType.Health:
-                    Debug.Log($"Restored {effect.effectAmount} health");
+                case EffectType.Health: // 使用新的 EffectType 枚舉
+                    playerHealthSystem.Heal(effect.effectAmount);
+                    Debug.Log($"[NetworkInventory] Restored {effect.effectAmount} health");
                     break;
-                case ItemData.EffectType.Energy:
-                    Debug.Log($"Restored {effect.effectAmount} energy");
+                case EffectType.Energy: // 使用新的 EffectType 枚舉
+                    playerHealthSystem.RestoreEnergy(effect.effectAmount);
+                    Debug.Log($"[NetworkInventory] Restored {effect.effectAmount} energy");
                     break;
-                case ItemData.EffectType.Attack:
-                    Debug.Log($"Increased attack by {effect.effectAmount}");
+                case EffectType.MaxHealth: // 使用新的 EffectType 枚舉
+                    playerHealthSystem.ApplyMaxHealthBuff(effect.effectAmount, effect.duration);
+                    Debug.Log($"[NetworkInventory] Increased Max Health by {effect.effectAmount} for {effect.duration} seconds.");
+                    break;
+                case EffectType.MaxEnergy: // 使用新的 EffectType 枚舉
+                    playerHealthSystem.ApplyMaxEnergyBuff(effect.effectAmount, effect.duration);
+                    Debug.Log($"[NetworkInventory] Increased Max Energy by {effect.effectAmount} for {effect.duration} seconds.");
+                    break;
+                case EffectType.Attack: // 使用新的 EffectType 枚舉
+                    Debug.Log($"[NetworkInventory] Increased attack by {effect.effectAmount} (Not implemented in HealthSystem)");
+                    break;
+                default:
+                    Debug.LogWarning($"[NetworkInventory] Unhandled effect type: {effect.effectType} for item {item.itemName}");
                     break;
             }
         }
     }
+
 
     // PUN2 网络同步
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

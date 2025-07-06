@@ -628,9 +628,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hurtSound: {fileID: 8300000, guid: 8e4df8e9240444a41aa073db51980fd6, type: 3}
   audioSource: {fileID: 2446138068358179150}
-  maxHealth: 100
+  baseMaxHealth: 100
   currentHealth: 0
-  maxEnergy: 20
+  baseMaxEnergy: 20
   currentEnergy: 0
   autoRegen: 1
   regenRate: 20

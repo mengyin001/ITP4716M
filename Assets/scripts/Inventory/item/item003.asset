@@ -15,7 +15,8 @@ MonoBehaviour:
   itemID: 003
   itemName: Recovery medicine plus
   icon: {fileID: 4902729985760503732, guid: 368f625759658cb48893fcaad6b9eddb, type: 3}
-  itemType: 0
-  effects: []
-  price: 100
+  isStackable: 1
   maxStack: 99
+  price: 100
+  effects:
+  - {fileID: 11400000, guid: bc3e6fed3bc416a45abd5cc5ad7b7d3a, type: 2}

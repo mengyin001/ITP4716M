@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using Photon.Pun;
 using System.Collections.Generic;
-using System.Linq;
 
 public class PlayerMovement : MonoBehaviourPun
 {
@@ -55,9 +54,6 @@ public class PlayerMovement : MonoBehaviourPun
             return;
 
         OpenMyBag();
-        bool isBagOpen = UIManager.Instance != null && UIManager.Instance.IsBagOpen;
-        if (isBagOpen)
-            return;
 
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
@@ -113,9 +109,7 @@ public class PlayerMovement : MonoBehaviourPun
         if (!photonView.IsMine && PhotonNetwork.IsConnected)
             return;
 
-        if (UIManager.Instance != null && UIManager.Instance.IsBagOpen)
-            return;
-
+        // 移除了背包打开时的移动限制
         // 应用移动（保留原有物理逻辑）
         rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
     }
@@ -129,8 +123,9 @@ public class PlayerMovement : MonoBehaviourPun
 
     void SwitchGun()
     {
-        if (UIManager.Instance != null && UIManager.Instance.IsBagOpen)
-            return;
+        // 背包打开时仍然允许切换武器（如果需要限制，请取消注释下面两行）
+        // if (UIManager.Instance != null && UIManager.Instance.IsBagOpen)
+        //     return;
 
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;

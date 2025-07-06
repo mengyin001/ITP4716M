@@ -6,15 +6,13 @@ using Photon.Pun;
 public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
 {
     [Header("Visual Feedback")]
-    [SerializeField] private Color selectedColor = new Color(0.8f, 0.8f, 0.1f, 1f);
-    [SerializeField] private Color zeroQuantityColor = new Color(0.5f, 0.5f, 0.5f, 0.5f); // 调整为灰色半透明
+    [SerializeField] private Color selectedColor = new Color(0.8f, 0.8f, 0.1f, 1f); // 选中状态的颜色
 
     private Image itemImage;
     private Color originalColor;
     public static GameObject selectedItem;
     private Slot itemSlot;
     private NetworkInventory networkInventory;
-    private ItemDatabase itemDatabase;
 
     void Awake()
     {
@@ -22,10 +20,10 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
         originalColor = itemImage.color;
         itemSlot = GetComponent<Slot>();
 
-        // 获取网络背包和数据库引用
+        // 获取网络背包引用
         networkInventory = FindObjectOfType<NetworkInventory>();
-        itemDatabase = FindObjectOfType<ItemDatabase>();
-
+        
+        // 初始状态更新
         UpdateVisualState();
     }
 
@@ -34,10 +32,11 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
         if (eventData.button != PointerEventData.InputButton.Left)
             return;
 
-        if (!HasValidItem()) return;
-
         // 只有本地玩家可以使用物品
         if (!PhotonNetwork.LocalPlayer.IsLocal) return;
+
+        // 检查是否有有效物品
+        if (itemSlot == null || string.IsNullOrEmpty(itemSlot.itemID)) return;
 
         if (selectedItem == null)
         {
@@ -55,13 +54,6 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
             DeselectPrevious();
             SelectItem();
         }
-    }
-
-    bool HasValidItem()
-    {
-        return itemSlot != null &&
-               !string.IsNullOrEmpty(itemSlot.itemID) &&
-               itemSlot.quantity > 0;
     }
 
     void SelectItem()
@@ -84,17 +76,17 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
     {
         if (networkInventory != null && !string.IsNullOrEmpty(itemSlot.itemID))
         {
-            // 使用网络背包中的物品
+            // 使用物品
             networkInventory.UseItem(itemSlot.itemID);
-
-            // 更新UI
-            UpdateVisualState();
+            
+            // 取消选择
             DeselectPrevious();
         }
     }
 
     void OnDisable()
     {
+        // 当UI被禁用时取消选择
         if (selectedItem == gameObject)
         {
             DeselectPrevious();
@@ -103,7 +95,10 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
 
     void OnEnable()
     {
+        // 当UI启用时更新状态
         UpdateVisualState();
+        
+        // 如果当前物品被选中但UI被重新启用，取消选择
         if (selectedItem == gameObject)
         {
             DeselectPrevious();
@@ -114,40 +109,8 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
     {
         if (itemSlot != null)
         {
-            bool hasItem = !string.IsNullOrEmpty(itemSlot.itemID) && itemSlot.quantity > 0;
-
-            // 设置物品图片
-            if (itemSlot.slotImage != null)
-            {
-                itemSlot.slotImage.enabled = hasItem;
-                if (hasItem && itemDatabase != null)
-                {
-                    ItemData itemData = itemDatabase.GetItem(itemSlot.itemID);
-                    if (itemData != null)
-                    {
-                        itemSlot.slotImage.sprite = itemData.icon;
-                    }
-                }
-            }
-
-            // 设置物品数量文本
-            if (itemSlot.slotNum != null)
-            {
-                itemSlot.slotNum.enabled = hasItem;
-                if (hasItem)
-                {
-                    itemSlot.slotNum.text = itemSlot.quantity > 1 ? itemSlot.quantity.ToString() : "";
-                }
-            }
-
-            // 设置射线检测和颜色
-            itemImage.raycastTarget = hasItem;
-
-            if (!hasItem)
-            {
-                itemImage.color = zeroQuantityColor;
-            }
-            else if (selectedItem == gameObject)
+            // 设置选中状态的颜色
+            if (selectedItem == gameObject)
             {
                 itemImage.color = selectedColor;
             }

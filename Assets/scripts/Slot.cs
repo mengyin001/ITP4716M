@@ -53,14 +53,21 @@ public class Slot : MonoBehaviour, IPointerClickHandler
             slotImage.enabled = false;
         }
 
-        // 更新数量显示
-        if (slotNum != null)
-        {
-            slotNum.text = qty > 1 ? qty.ToString() : "";
-            slotNum.enabled = qty > 1;
-        }
+        // 修复：更新数量显示 - 当数量为1时也显示文本
+        UpdateQuantityText();
 
         Debug.Log($"Slot {slotIndex} set: {id} x{qty}");
+    }
+
+    // 新增方法：更新数量显示
+    private void UpdateQuantityText()
+    {
+        if (slotNum != null)
+        {
+            // 当数量大于等于1时显示文本
+            slotNum.text = _quantity >= 1 ? _quantity.ToString() : "";
+            slotNum.enabled = _quantity >= 1;
+        }
     }
 
     public void ClearSlot()
@@ -84,5 +91,16 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         {
             inventoryManager.OnSlotClicked(slotIndex);
         }
+    }
+
+    // 新增：调试方法，用于检查文本状态
+    private void Update()
+    {
+#if UNITY_EDITOR
+        if (!IsEmpty && slotNum != null)
+        {
+            Debug.Log($"Slot {slotIndex}: Quantity={_quantity}, Text='{slotNum.text}', Enabled={slotNum.enabled}", this.gameObject);
+        }
+#endif
     }
 }
