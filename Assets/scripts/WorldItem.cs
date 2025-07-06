@@ -95,65 +95,46 @@ public class WordItem : MonoBehaviourPun, IPunObservable
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (isPickedUp)
-        {
-            Debug.Log("Item already picked up, ignoring trigger");
-            return;
-        }
-
-        if (string.IsNullOrEmpty(itemID))
-        {
-            Debug.LogError($"Item {name} has empty itemID, ignoring trigger");
-            return;
-        }
+        if (isPickedUp) return;
 
         if (other.CompareTag("Player"))
         {
-            Debug.Log($"Player entered trigger: {other.name}");
             PhotonView playerView = other.GetComponentInParent<PhotonView>();
-            if (playerView != null)
+            if (playerView != null && playerView.IsMine)
             {
-                Debug.Log($"Found player PhotonView: IsMine={playerView.IsMine}, ViewID={playerView.ViewID}");
-                if (playerView.IsMine)
-                {
-                    Debug.Log($"Local player picked up item: {itemID}");
-                    PickupItem(playerView.Owner);
-                }
-                else
-                {
-                    Debug.Log("Player is not local, ignoring pickup");
-                }
+                // 获取本地玩家的PhotonView ID
+                int playerPhotonViewID = playerView.ViewID;
+
+                // 调用RPC传递玩家PhotonView ID
+                photonView.RPC("RPC_PickupItem", RpcTarget.All, playerPhotonViewID);
             }
-            else
-            {
-                Debug.LogWarning("Player has no PhotonView component");
-            }
-        }
-        else
-        {
-            Debug.Log($"Non-player entered trigger: {other.name}");
         }
     }
 
     [PunRPC]
-    private void RPC_PickupItem(Player player)
+    private void RPC_PickupItem(int playerPhotonViewID)
     {
-        Debug.Log($"RPC_PickupItem called for player: {player?.UserId}");
+        PhotonView targetPlayerView = PhotonView.Find(playerPhotonViewID);
+        if (targetPlayerView == null || !targetPlayerView.IsMine) return;
 
         isPickedUp = true;
         if (itemCollider != null) itemCollider.enabled = false;
 
-        Debug.Log($"Calling InventoryManager.AddItem for item {itemID}");
-        //InventoryManager.AddItem(itemID, quantity, player);
-
-        if (!hasPlayedParticle && pickupParticlePrefab != null)
+        // 确保正确添加物品
+        NetworkInventory playerInventory = targetPlayerView.GetComponent<NetworkInventory>();
+        if (playerInventory != null)
         {
-            Debug.Log("Playing particle effect");
-            PlayParticleEffect();
-            hasPlayedParticle = true;
+            // 添加调试信息
+            Debug.Log($"Adding item to inventory: {itemID} x{quantity}");
+            playerInventory.AddItem(itemID, quantity);
         }
-    }
+        else
+        {
+            Debug.LogError("Player inventory not found!");
+        }
 
+        PlayParticleEffect();
+    }
 
     private void PickupItem(Player player)
     {

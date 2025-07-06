@@ -1,23 +1,31 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using Photon.Pun;
 
 public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
 {
     [Header("Visual Feedback")]
     [SerializeField] private Color selectedColor = new Color(0.8f, 0.8f, 0.1f, 1f);
-    [SerializeField] private Color zeroQuantityColor = new Color(0.8f, 0.8f, 0.1f, 1f);
+    [SerializeField] private Color zeroQuantityColor = new Color(0.5f, 0.5f, 0.5f, 0.5f); // 调整为灰色半透明
 
     private Image itemImage;
     private Color originalColor;
     public static GameObject selectedItem;
     private Slot itemSlot;
+    private NetworkInventory networkInventory;
+    private ItemDatabase itemDatabase;
 
     void Awake()
     {
         itemImage = GetComponent<Image>();
         originalColor = itemImage.color;
         itemSlot = GetComponent<Slot>();
+
+        // 获取网络背包和数据库引用
+        networkInventory = FindObjectOfType<NetworkInventory>();
+        itemDatabase = FindObjectOfType<ItemDatabase>();
+
         UpdateVisualState();
     }
 
@@ -27,6 +35,9 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
             return;
 
         if (!HasValidItem()) return;
+
+        // 只有本地玩家可以使用物品
+        if (!PhotonNetwork.LocalPlayer.IsLocal) return;
 
         if (selectedItem == null)
         {
@@ -49,8 +60,8 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
     bool HasValidItem()
     {
         return itemSlot != null &&
-               itemSlot.slotItem != null &&
-               itemSlot.slotItem.itemHeld > 0;
+               !string.IsNullOrEmpty(itemSlot.itemID) &&
+               itemSlot.quantity > 0;
     }
 
     void SelectItem()
@@ -63,69 +74,22 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
     {
         if (selectedItem != null)
         {
-            selectedItem.GetComponent<Image>().color = originalColor;
+            Image prevImage = selectedItem.GetComponent<Image>();
+            if (prevImage != null) prevImage.color = originalColor;
             selectedItem = null;
         }
     }
 
     void UseItem()
     {
-        if (ApplyEffect())
+        if (networkInventory != null && !string.IsNullOrEmpty(itemSlot.itemID))
         {
-            UpdateItemQuantity();
+            // 使用网络背包中的物品
+            networkInventory.UseItem(itemSlot.itemID);
+
+            // 更新UI
             UpdateVisualState();
-            UpdateLocalUI();
             DeselectPrevious();
-
-        }
-    }
-
-    bool ApplyEffect()
-    {
-        HealthSystem healthSystem = FindObjectOfType<HealthSystem>();
-        if (healthSystem == null)
-        {
-            Debug.LogWarning("HealthSystem not found!");
-            return false;
-        }
-
-        if (itemSlot.slotItem == null || itemSlot.slotItem.effects == null)
-            return false;
-
-        bool effectApplied = false;
-
-        // 应用所有效果
-        foreach (var effect in itemSlot.slotItem.effects)
-        {
-            switch (effect.effectType)
-            {
-                case ItemData.EffectType.Health:
-                    healthSystem.Heal(effect.effectAmount);
-                    Debug.Log($"Restored {effect.effectAmount} health!");
-                    effectApplied = true;
-                    break;
-                case ItemData.EffectType.Energy:
-                    healthSystem.RestoreEnergy(effect.effectAmount);
-                    Debug.Log($"Restored {effect.effectAmount} energy!");
-                    effectApplied = true;
-                    break;
-                case ItemData.EffectType.Attack:
-                    // 这里可以添加攻击效果实现
-                    Debug.Log($"Attack buff applied: +{effect.effectAmount} attack!");
-                    effectApplied = true;
-                    break;
-            }
-        }
-
-        return effectApplied;
-    }
-
-    void UpdateItemQuantity()
-    {
-        if (itemSlot.slotItem != null)
-        {
-            itemSlot.slotItem.itemHeld--;
-            itemSlot.slotItem.itemHeld = Mathf.Clamp(itemSlot.slotItem.itemHeld, 0, int.MaxValue);
         }
     }
 
@@ -148,12 +112,38 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
 
     public void UpdateVisualState()
     {
-        if (itemSlot.slotItem != null)
+        if (itemSlot != null)
         {
-            bool isValid = itemSlot.slotItem.itemHeld > 0;
-            itemImage.raycastTarget = isValid;
+            bool hasItem = !string.IsNullOrEmpty(itemSlot.itemID) && itemSlot.quantity > 0;
 
-            if (!isValid)
+            // 设置物品图片
+            if (itemSlot.slotImage != null)
+            {
+                itemSlot.slotImage.enabled = hasItem;
+                if (hasItem && itemDatabase != null)
+                {
+                    ItemData itemData = itemDatabase.GetItem(itemSlot.itemID);
+                    if (itemData != null)
+                    {
+                        itemSlot.slotImage.sprite = itemData.icon;
+                    }
+                }
+            }
+
+            // 设置物品数量文本
+            if (itemSlot.slotNum != null)
+            {
+                itemSlot.slotNum.enabled = hasItem;
+                if (hasItem)
+                {
+                    itemSlot.slotNum.text = itemSlot.quantity > 1 ? itemSlot.quantity.ToString() : "";
+                }
+            }
+
+            // 设置射线检测和颜色
+            itemImage.raycastTarget = hasItem;
+
+            if (!hasItem)
             {
                 itemImage.color = zeroQuantityColor;
             }
@@ -165,25 +155,6 @@ public class ConsumableItemUI : MonoBehaviour, IPointerClickHandler
             {
                 itemImage.color = originalColor;
             }
-
-            if (itemSlot.slotNum != null)
-            {
-                itemSlot.slotNum.text = itemSlot.slotItem.itemHeld.ToString();
-            }
         }
-    }
-
-    void UpdateLocalUI()
-    {
-        if (itemSlot != null)
-        {
-            itemSlot.slotNum.text = itemSlot.slotItem.itemHeld.ToString();
-            UpdateVisualState();
-        }
-    }
-
-    void Update()
-    {
-        UpdateVisualState();
     }
 }

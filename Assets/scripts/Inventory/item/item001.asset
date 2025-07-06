@@ -16,10 +16,8 @@ MonoBehaviour:
   itemName: Recovery medicine
   icon: {fileID: 1018383391595562092, guid: 368f625759658cb48893fcaad6b9eddb, type: 3}
   itemType: 0
-  effectType: 0
-  effectAmount: 10
-  usePrefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
-  weight: 0.1
-  isUnique: 0
+  effects:
+  - effectType: 0
+    effectAmount: 10
   price: 50
-  description: Restore blood volume
+  maxStack: 99

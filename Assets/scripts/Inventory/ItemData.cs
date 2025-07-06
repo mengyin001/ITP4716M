@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Item", menuName = "Inventory/Item")]
-public partial class ItemData : ScriptableObject
+public class ItemData : ScriptableObject
 {
     public enum ItemType { Consumable, Equipment, Material, Quest }
     public enum EffectType { Health, Energy, Attack }
@@ -18,7 +18,6 @@ public partial class ItemData : ScriptableObject
     public string itemID;
     public string itemName;
     public Sprite icon;
-    public int itemHeld;
     public ItemType itemType;
 
     [Header("Effects")]
@@ -26,22 +25,18 @@ public partial class ItemData : ScriptableObject
 
     [Header("Other Properties")]
     public int price;
+    public int maxStack = 99; // 添加最大堆叠数量
 
-    // 正确的克隆方法（替代构造函数）
     public ItemData Clone()
     {
-        // 创建新的ScriptableObject实例
         ItemData clone = CreateInstance<ItemData>();
-
-        // 复制基本属性
         clone.itemID = this.itemID;
         clone.itemName = this.itemName;
         clone.icon = this.icon;
-        clone.itemHeld = this.itemHeld;
         clone.itemType = this.itemType;
         clone.price = this.price;
+        clone.maxStack = this.maxStack;
 
-        // 深拷贝效果列表
         clone.effects = new List<ItemEffect>();
         foreach (var effect in this.effects)
         {
