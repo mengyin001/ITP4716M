@@ -21,4 +21,18 @@ public class TeleportationCircle : MonoBehaviour
             }
         }
     }
+
+    [PunRPC]
+    private void RPC_PlayerEnteredTeleport()
+    {
+        // 只有主机有权限加载场景
+        if (PhotonNetwork.IsMasterClient)
+        {
+            // 保存目标场景
+            SceneLoader.targetScene = targetSceneName;
+
+            // 主机调用加载场景，所有客户端会自动同步
+            PhotonNetwork.LoadLevel(loadingSceneName);
+        }
+    }
 }
