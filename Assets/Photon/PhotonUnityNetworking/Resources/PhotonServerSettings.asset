@@ -78,6 +78,8 @@ MonoBehaviour:
   - RPC_PickupItem
   - RPC_PlayParticleEffect
   - RPC_PlayerEnteredTeleport
+  - RPC_SyncScene
+  - RPC_LoadSceneForAll
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

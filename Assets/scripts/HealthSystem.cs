@@ -55,13 +55,15 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
         private set { isDead = value; }
     }
 
+    // 添加IsAlive属性（解决编译错误）
+    public bool IsAlive => !isDead;
+
     // 用于网络同步的变量
     private float networkCurrentHealth;
     private float networkCurrentEnergy;
 
     void Start()
     {
-
         // 只在本地客户端初始化玩家状态
         if (photonView.IsMine)
         {
@@ -83,7 +85,6 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
 
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
-
     }
 
     void Update()

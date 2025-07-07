@@ -328,7 +328,6 @@ MonoBehaviour:
   forceChaseMode: 0
   publicMode: 1
   pickupSpawner: {fileID: 4650037836069216572}
-  player: {fileID: 0}
 --- !u!114 &4650037836069216572
 MonoBehaviour:
   m_ObjectHideFlags: 0

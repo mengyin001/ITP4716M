@@ -172,6 +172,7 @@ public class UnlimitedEnemyManager : MonoBehaviour
         IsWaveInProgress = false;
     }
 
+    // 修正SetupEnemyBehavior方法中对Enemy组件的设置
     private bool SetupEnemyBehavior(GameObject enemy)
     {
         if (enemy == null) return false;
@@ -188,24 +189,25 @@ public class UnlimitedEnemyManager : MonoBehaviour
             {
                 meleeEnemy.patrolPoints = new List<Transform>(patrolPoints);
             }
-            meleeEnemy.player = playerTarget;
+            // 移除对player字段的直接赋值（已在Enemy中重构为自动检测最近玩家）
             meleeEnemy.OnDie.AddListener(() => OnEnemyDied(meleeEnemy.gameObject));
             return true;
         }
         else if (rangedEnemy != null)
+        {
             rangedEnemy.forceChaseMode = true;
             rangedEnemy.publicMode = false;
             rangedEnemy.shouldPatrol = false;
-        {
             if (patrolPoints != null && patrolPoints.Length > 0)
             {
                 rangedEnemy.patrolPoints = new List<Transform>(patrolPoints);
             }
-            rangedEnemy.player = playerTarget;
+            // 同理移除对rangedEnemy.player的赋值
             rangedEnemy.OnDie.AddListener(() => OnEnemyDied(rangedEnemy.gameObject));
             return true;
         }
 
+        return false; // 补充默认返回值
     }
 
     private void IgnoreEnemyCollisions(List<Collider2D> enemyColliders)
