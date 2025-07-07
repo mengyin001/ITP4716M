@@ -19,15 +19,33 @@ public class PlayerMovement : MonoBehaviourPun
     // 网络同步的武器索引
     [SerializeField] private int currentWeaponIndex = 0;
 
+    [Header("复活系统")]
+    public float reviveRange = 1.5f; // 复活范围
+    public float reviveTime = 3f; // 复活所需时间
+    public KeyCode reviveKey = KeyCode.R; // 复活按键
+    private HealthSystem targetToRevive; // 要复活的目标
+    private float reviveProgress; // 复活进度
+    private bool isReviving; // 是否正在复活
+    private HealthSystem healthSystem;
+    
+    /*[Header("UI")]
+    public GameObject revivePrompt; // 复活提示UI
+    public Image reviveProgressBar; // 复活进度条*/
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
 
+        healthSystem = GetComponent<HealthSystem>();
+
         // 初始化武器状态
         InitializeWeapons();
 
         mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        /*if (revivePrompt != null) revivePrompt.SetActive(false);
+        if (reviveProgressBar != null) reviveProgressBar.fillAmount = 0;*/
     }
 
     // 初始化武器状态（本地和网络）
@@ -86,6 +104,13 @@ public class PlayerMovement : MonoBehaviourPun
             // Face right
             transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
+
+        {
+        if (healthSystem != null && healthSystem.IsDead) return;
+        
+        // 复活系统逻辑
+        HandleReviveSystem();
+    }
     }
 
     void OpenMyBag()
@@ -215,5 +240,124 @@ public class PlayerMovement : MonoBehaviourPun
         {
             PhotonNetwork.Destroy(gameObject);
         }
+    }
+
+    void HandleReviveSystem()
+    {
+        // 检测附近是否有可复活的玩家
+        if (!isReviving)
+        {
+            FindReviveTarget();
+        }
+
+        // 显示/隐藏复活提示
+        /*if (revivePrompt != null)
+        {
+            revivePrompt.SetActive(targetToRevive != null);
+        }*/
+
+        // 复活逻辑
+        if (targetToRevive != null)
+        {
+            if (Input.GetKey(reviveKey))
+            {
+                isReviving = true;
+                reviveProgress += Time.deltaTime;
+                
+                // 更新进度条
+                /*if (reviveProgressBar != null)
+                {
+                    reviveProgressBar.fillAmount = reviveProgress / reviveTime;
+                }*/
+                
+                // 完成复活
+                if (reviveProgress >= reviveTime)
+                {
+                    RevivePlayer();
+                }
+            }
+            else
+            {
+                ResetRevive();
+            }
+        }
+    }
+
+    void FindReviveTarget()
+    {
+        // 重置目标
+        targetToRevive = null;
+        
+        // 检测周围的死亡玩家
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(
+            transform.position, 
+            reviveRange
+        );
+
+        foreach (var collider in colliders)
+        {
+            if (!collider.isTrigger) 
+        {
+            Debug.Log($"Skipping non-trigger collider: {collider.gameObject.name}");
+            continue;
+        }
+
+            HealthSystem healthSystem = collider.GetComponent<HealthSystem>();
+             if (healthSystem == null)
+            {
+                Debug.Log($"Skipping collider without HealthSystem: {collider.gameObject.name}");
+                continue;
+            }
+            
+            if (healthSystem == this.healthSystem) 
+            {
+                Debug.Log("Skipping self");
+                continue;
+            }
+            
+            if (!healthSystem.IsDead) 
+            {
+                Debug.Log($"Skipping living player: {healthSystem.photonView.Owner.NickName}");
+                continue;
+            }
+            
+            if (!healthSystem.canBeRevived) 
+            {
+                Debug.Log($"Skipping non-revivable player: {healthSystem.photonView.Owner.NickName}");
+                continue;
+            }
+            
+            targetToRevive = healthSystem;
+            Debug.Log($"Found revive target: {healthSystem.photonView.Owner.NickName}");
+            break;
+        }
+    }
+
+    void RevivePlayer()
+    {
+        if (targetToRevive != null)
+        {
+            // 通过网络调用复活
+            targetToRevive.photonView.RPC("RPC_Revive", RpcTarget.All);
+            Debug.Log($"[PlayerMovement] Revived player: {targetToRevive.photonView.Owner.NickName}");
+        }
+        ResetRevive();
+    }
+
+    void ResetRevive()
+    {
+        isReviving = false;
+        reviveProgress = 0;
+        /*if (reviveProgressBar != null)
+        {
+            reviveProgressBar.fillAmount = 0;
+        }*/
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        // 绘制复活范围
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, reviveRange);
     }
 }

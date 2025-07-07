@@ -9,7 +9,7 @@ public class UIManager : MonoBehaviourPunCallbacks
 {
     public static UIManager Instance { get; private set; }
 
-    [Header("±¾µØÍæ¼Ò×¨ÊôUI")]
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¨ï¿½ï¿½UI")]
     [SerializeField] private Slider playerHealthSlider;
     [SerializeField] private TextMeshProUGUI playerHealthText;
     [SerializeField] private Slider playerEnergySlider;
@@ -17,23 +17,23 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject deathOverlay;
     [SerializeField] private TextMeshProUGUI restartPrompt;
 
-    [Header("±³°üUI")]
-    [SerializeField] private GameObject bagUI; // ±³°üUIÒýÓÃ
+    [Header("ï¿½ï¿½ï¿½ï¿½UI")]
+    [SerializeField] private GameObject bagUI; // ï¿½ï¿½ï¿½ï¿½UIï¿½ï¿½ï¿½ï¿½
 
-    [Header("»õ±ÒUI")]
+    [Header("ï¿½ï¿½ï¿½ï¿½UI")]
     [SerializeField] private TextMeshProUGUI moneyText;
 
-    [Header("±³°üUIÒýÓÃ")]
-    public InventoryManager inventoryManager; // Ìí¼ÓInventoryManagerÒýÓÃ
+    [Header("ï¿½ï¿½ï¿½ï¿½UIï¿½ï¿½ï¿½ï¿½")]
+    public InventoryManager inventoryManager; // ï¿½ï¿½ï¿½ï¿½InventoryManagerï¿½ï¿½ï¿½ï¿½
 
-    public bool IsBagOpen { get; private set; } // ±³°ü×´Ì¬ÊôÐÔ
+    public bool IsBagOpen { get; private set; } // ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½
 
     private HealthSystem playerHealthSystem;
     private bool isPlayerRegistered = false;
 
     void Awake()
     {
-        // È·±£Ö»ÓÐÒ»¸öÊµÀý
+        // È·ï¿½ï¿½Ö»ï¿½ï¿½Ò»ï¿½ï¿½Êµï¿½ï¿½
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -43,13 +43,13 @@ public class UIManager : MonoBehaviourPunCallbacks
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // Ìí¼Ó³¡¾°¼ÓÔØ¼àÌý
+        // ï¿½ï¿½ï¿½Ó³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½ï¿½ï¿½
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     void OnDestroy()
     {
-        // ÇåÀíÊÂ¼þ¼àÌý
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½
         SceneManager.sceneLoaded -= OnSceneLoaded;
         UnregisterPlayer();
     }
@@ -61,7 +61,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         FindInventoryManager();
     }
 
-    // ²éÕÒInventoryManager
+    // ï¿½ï¿½ï¿½ï¿½InventoryManager
     private void FindInventoryManager()
     {
         if (inventoryManager == null)
@@ -78,7 +78,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // ³¡¾°¼ÓÔØÍê³ÉÊ±µ÷ÓÃ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"Scene loaded: {scene.name}");
@@ -89,21 +89,21 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void ReinitializeUI()
     {
-        // ÖØÐÂ²éÕÒUI×é¼þ
+        // ï¿½ï¿½ï¿½Â²ï¿½ï¿½ï¿½UIï¿½ï¿½ï¿½
         playerHealthSlider = GameObject.Find("HealthSlider")?.GetComponent<Slider>();
-        // ÆäËûUI×é¼þ²éÕÒ...
+        // ï¿½ï¿½ï¿½ï¿½UIï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...
 
         InitializeUI();
     }
 
-    // ³¢ÊÔ²éÕÒ±¾µØÍæ¼Ò²¢×¢²á
+    // ï¿½ï¿½ï¿½Ô²ï¿½ï¿½Ò±ï¿½ï¿½ï¿½ï¿½ï¿½Ò²ï¿½×¢ï¿½ï¿½
     private void TryFindLocalPlayer()
     {
         if (isPlayerRegistered) return;
 
         Debug.Log("Trying to find local player...");
 
-        // ²éÕÒËùÓÐÍæ¼Ò¶ÔÏó
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò¶ï¿½ï¿½ï¿½
         HealthSystem[] allPlayers = FindObjectsOfType<HealthSystem>();
         foreach (HealthSystem player in allPlayers)
         {
@@ -127,13 +127,13 @@ public class UIManager : MonoBehaviourPunCallbacks
         TryFindLocalPlayer();
     }
 
-    // ×¢²á±¾µØÍæ¼ÒµÄHealthSystem
+    // ×¢ï¿½á±¾ï¿½ï¿½ï¿½ï¿½Òµï¿½HealthSystem
     public void RegisterLocalPlayer(HealthSystem healthSystem)
     {
         if (isPlayerRegistered && playerHealthSystem == healthSystem)
             return;
 
-        // ÇåÀí¾É×¢²á
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½
         UnregisterPlayer();
 
         playerHealthSystem = healthSystem;
@@ -141,10 +141,10 @@ public class UIManager : MonoBehaviourPunCallbacks
 
         Debug.Log($"Registering local player: {healthSystem.gameObject.name}");
 
-        // ³õÊ¼»¯UI
+        // ï¿½ï¿½Ê¼ï¿½ï¿½UI
         InitializePlayerUI();
 
-        // ×¢²áÊÂ¼þ
+        // ×¢ï¿½ï¿½ï¿½Â¼ï¿½
         if (playerHealthSystem != null)
         {
             playerHealthSystem.OnHealthChanged += UpdateHealthUI;
@@ -152,18 +152,18 @@ public class UIManager : MonoBehaviourPunCallbacks
             playerHealthSystem.OnPlayerDeath += ShowDeathUI;
             playerHealthSystem.OnRestartAvailable += ShowRestartPrompt;
 
-            // Á¢¼´¸üÐÂÒ»´ÎUI
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½UI
             UpdateHealthUI(playerHealthSystem.currentHealth, playerHealthSystem.maxHealth);
             UpdateEnergyUI(playerHealthSystem.currentEnergy, playerHealthSystem.maxEnergy);
         }
     }
 
-    // ³õÊ¼»¯UIÔªËØ×´Ì¬
+    // ï¿½ï¿½Ê¼ï¿½ï¿½UIÔªï¿½ï¿½×´Ì¬
     private void InitializeUI()
     {
         Debug.Log("Initializing UI");
 
-        // ³õÊ¼Òþ²ØËÀÍöUI
+        // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½UI
         if (deathOverlay != null)
         {
             deathOverlay.SetActive(false);
@@ -188,7 +188,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // ³õÊ¼»¯Íæ¼ÒUI
+    // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½UI
     private void InitializePlayerUI()
     {
         if (playerHealthSystem == null) return;
@@ -209,10 +209,10 @@ public class UIManager : MonoBehaviourPunCallbacks
         UpdateEnergyUI(playerHealthSystem.currentEnergy, playerHealthSystem.maxEnergy);
     }
 
-    // ¸üÐÂÑªÁ¿UI
+    // ï¿½ï¿½ï¿½ï¿½Ñªï¿½ï¿½UI
     private void UpdateHealthUI(float currentHealth, float maxHealth)
     {
-        // È·±£ÔÚUIÏß³ÌÖ´ÐÐ
+        // È·ï¿½ï¿½ï¿½ï¿½UIï¿½ß³ï¿½Ö´ï¿½ï¿½
         if (this == null) return;
 
         if (playerHealthSlider != null)
@@ -226,10 +226,10 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // ¸üÐÂÄÜÁ¿UI
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½UI
     private void UpdateEnergyUI(float currentEnergy, float maxEnergy)
     {
-        // È·±£ÔÚUIÏß³ÌÖ´ÐÐ
+        // È·ï¿½ï¿½ï¿½ï¿½UIï¿½ß³ï¿½Ö´ï¿½ï¿½
         if (this == null) return;
 
         if (playerEnergySlider != null)
@@ -243,7 +243,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // ÏÔÊ¾ËÀÍöUI
+    // ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½UI
     private void ShowDeathUI()
     {
         if (deathOverlay != null && !deathOverlay.activeSelf)
@@ -270,7 +270,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // ÏÔÊ¾ÖØÆôÌáÊ¾
+    // ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾
     private void ShowRestartPrompt()
     {
         if (restartPrompt != null && !restartPrompt.gameObject.activeSelf)
@@ -279,7 +279,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // ÇåÀí×¢²á
+    // ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½
     public void UnregisterPlayer()
     {
         if (playerHealthSystem != null)
@@ -305,7 +305,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         IsBagOpen = !bagUI.activeSelf;
         bagUI.SetActive(IsBagOpen);
 
-        // Í¨ÖªInventoryManager±³°ü×´Ì¬±ä»¯
+        // Í¨ÖªInventoryManagerï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ä»¯
         if (inventoryManager != null)
         {
             inventoryManager.OnBagStateChanged(IsBagOpen);
@@ -322,7 +322,7 @@ public class UIManager : MonoBehaviourPunCallbacks
             moneyText.text = amount.ToString();
     }
 
-    // µ÷ÊÔ·½·¨
+    // ï¿½ï¿½ï¿½Ô·ï¿½ï¿½ï¿½
     public void ForceRefreshInventory()
     {
         if (inventoryManager != null)

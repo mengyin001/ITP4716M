@@ -61,6 +61,12 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     public event System.Action OnPlayerDeath;
     public event System.Action OnRestartAvailable;
 
+    [Header("复活系统")]
+    public bool canBeRevived = true; // 是否可以被复活
+    public float reviveHealthPercent = 0.3f; 
+    private Collider2D playerCollider;
+    public event System.Action OnRevive;
+
     private bool isDead = false;
     public bool IsDead
     {
@@ -82,6 +88,7 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
         // 初始化實際最大值為基礎值
         _maxHealth = baseMaxHealth;
         _maxEnergy = baseMaxEnergy;
+        playerCollider = GetComponent<Collider2D>();
     }
 
     void Start()
@@ -161,6 +168,7 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
             stream.SendNext(isDead);
             stream.SendNext(maxHealth); // 新增：同步實際最大血量
             stream.SendNext(maxEnergy); // 新增：同步實際最大藍量
+            stream.SendNext(playerCollider.isTrigger); 
         }
         else
         {
@@ -170,6 +178,7 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
             isDead = (bool)stream.ReceiveNext();
             networkMaxHealth = (float)stream.ReceiveNext(); // 新增：接收實際最大血量
             networkMaxEnergy = (float)stream.ReceiveNext(); // 新增：接收實際最大藍量
+            bool isTrigger = (bool)stream.ReceiveNext();
 
             if (!photonView.IsMine)
             {
@@ -178,6 +187,12 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
                 currentEnergy = networkCurrentEnergy;
                 _maxHealth = networkMaxHealth; // 更新非本地客戶端的最大血量
                 _maxEnergy = networkMaxEnergy; // 更新非本地客戶端的最大藍量
+
+                if (playerCollider != null)
+                {
+                    playerCollider.isTrigger = isTrigger;
+                }
+
                 ForceUpdateUI();
             }
         }
@@ -357,10 +372,16 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     {
         isDead = true;
         OnPlayerDeath?.Invoke();
+
         if (disableControlOnDeath)
         {
             var controller = GetComponent<PlayerMovement>(); // 假設 PlayerMovement 是您的玩家控制器
             if (controller != null) controller.enabled = false;
+        }
+
+        if (playerCollider != null)
+        {
+            playerCollider.isTrigger = true;
         }
         StartCoroutine(PlayDeathAnimation());
     }
@@ -393,14 +414,14 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
 
         characterBody.rotation = targetRotation;
 
-        if (destroyOnDeath)
+       /* if (destroyOnDeath)
         {
             yield return new WaitForSeconds(destroyDelay);
             if (photonView.IsMine)
             {
                 PhotonNetwork.Destroy(gameObject);
             }
-        }
+        }*/
 
         ShowRestartPrompt();
     }
@@ -429,5 +450,42 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
     {
         OnHealthChanged?.Invoke(currentHealth, maxHealth);
         OnEnergyChanged?.Invoke(currentEnergy, maxEnergy);
+    }
+
+    [PunRPC]
+    public void RPC_Revive()
+    {
+        if (!isDead || !canBeRevived) return;
+
+        // 恢复生命值
+        currentHealth = maxHealth * reviveHealthPercent;
+        isDead = false;
+        
+        // 恢复碰撞体
+        if (playerCollider != null)
+        {
+            playerCollider.isTrigger = false;
+        }
+        
+        // 恢复玩家控制
+        if (disableControlOnDeath)
+        {
+            var controller = GetComponent<PlayerMovement>();
+            if (controller != null) controller.enabled = true;
+        }
+        
+        // 重置角色旋转
+        if (characterBody != null)
+        {
+            characterBody.rotation = Quaternion.identity;
+        }
+
+        
+
+        ForceUpdateUI();
+        
+        // 触发复活事件
+        OnRevive?.Invoke();
+        Debug.Log($"[HealthSystem] Player revived! Health: {currentHealth}/{maxHealth}");
     }
 }
