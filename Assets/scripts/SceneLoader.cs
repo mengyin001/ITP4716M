@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,142 +8,165 @@ using Photon.Realtime;
 
 public class SceneLoader : MonoBehaviourPunCallbacks
 {
-    public static string targetScene; // 静态变量传递目标场景名
+    public static string targetScene;
     public Slider progressBar;
     public TextMeshProUGUI progressText;
     private bool hasNotifiedMaster = false;
-    private AsyncOperation targetSceneLoadOperation; // 存储目标场景加载操作的引用
+    private AsyncOperation targetSceneLoadOperation;
+    private float loadStartTime;
+    private const float MAX_LOAD_WAIT_TIME = 30f; // 最大等待时间，防止无限等待
 
     void Start()
     {
-        // 确保加载场景时已经设置了目标场景
+        loadStartTime = Time.time;
+
+        // 确保Photon连接正常
+        if (!PhotonNetwork.IsConnected)
+        {
+            Debug.LogError("Photon is not connected!");
+            return;
+        }
+
+        // 确保目标场景已设置
         if (string.IsNullOrEmpty(targetScene))
         {
             Debug.LogError("Target scene is not set!");
             return;
         }
 
-        // 如果是房主，直接开始等待所有玩家
-        if (PhotonNetwork.IsMasterClient)
-        {
-            StartCoroutine(WaitForAllPlayersThenLoad());
-        }
-        else
-        {
-            // 非房主通知房主自己已准备好
-            StartCoroutine(LoadSceneAsync());
-        }
+        // 无论是否为主机，都先加载目标场景资源
+        StartCoroutine(LoadSceneResources());
     }
 
-    // 非房主加载场景并通知房主
-    IEnumerator LoadSceneAsync()
+    // 加载目标场景资源（所有玩家都执行）
+    IEnumerator LoadSceneResources()
     {
-        // 存储加载操作的引用
+        // 加载目标场景但不激活
         targetSceneLoadOperation = SceneManager.LoadSceneAsync(targetScene, LoadSceneMode.Single);
         targetSceneLoadOperation.allowSceneActivation = false;
 
-        while (!targetSceneLoadOperation.isDone)
+        while (targetSceneLoadOperation.progress < 0.9f)
         {
-            float progress = Mathf.Clamp01(targetSceneLoadOperation.progress / 0.9f);
-            progressBar.value = progress;
-            progressText.text = (progress * 100).ToString("F0") + "%";
-
-            // 当场景加载到90%且尚未通知房主时
-            if (targetSceneLoadOperation.progress >= 0.9f && !hasNotifiedMaster)
+            // 检查是否超时
+            if (Time.time - loadStartTime > MAX_LOAD_WAIT_TIME)
             {
-                hasNotifiedMaster = true;
-                // 通知房主当前客户端已准备好
-                photonView.RPC("RPC_NotifyPlayerReady", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer);
+                Debug.LogError("Loading timed out!");
+                break;
             }
 
+            float progress = Mathf.Clamp01(targetSceneLoadOperation.progress / 0.9f);
+            UpdateProgressUI(progress);
             yield return null;
         }
+
+        // 加载完成，更新UI为100%
+        UpdateProgressUI(1f);
+
+        // 通知主机已准备好
+        if (!PhotonNetwork.IsMasterClient && !hasNotifiedMaster)
+        {
+            hasNotifiedMaster = true;
+            photonView.RPC("RPC_NotifyPlayerReady", RpcTarget.MasterClient, PhotonNetwork.LocalPlayer.ActorNumber);
+        }
+        // 如果是主机，开始等待所有玩家
+        else if (PhotonNetwork.IsMasterClient)
+        {
+            StartCoroutine(WaitForAllPlayers());
+        }
     }
 
-    // 房主等待所有玩家准备就绪
-    IEnumerator WaitForAllPlayersThenLoad()
+    // 主机等待所有玩家准备就绪
+    IEnumerator WaitForAllPlayers()
     {
-        int readyPlayersCount = 1; // 房主自己算一个
         int totalPlayers = PhotonNetwork.CurrentRoom.PlayerCount;
+        int readyPlayers = 1; // 主机自己
 
-        Debug.Log($"Waiting for {totalPlayers - readyPlayersCount} more players...");
+        // 初始化房间属性
+        UpdateReadyPlayersCount(readyPlayers);
 
-        // 加载目标场景但不激活，并存储引用
-        targetSceneLoadOperation = SceneManager.LoadSceneAsync(targetScene, LoadSceneMode.Single);
-        targetSceneLoadOperation.allowSceneActivation = false;
+        Debug.Log($"Waiting for {totalPlayers - readyPlayers} players...");
 
-        while (readyPlayersCount < totalPlayers)
+        while (readyPlayers < totalPlayers)
         {
-            // 同时更新房主自己的加载进度
-            float progress = Mathf.Clamp01(targetSceneLoadOperation.progress / 0.9f);
-            progressBar.value = progress;
-            progressText.text = (progress * 100).ToString("F0") + "%";
-
-            // 从房间属性获取最新的准备玩家数量
-            if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("ReadyPlayersCount"))
+            // 检查是否超时
+            if (Time.time - loadStartTime > MAX_LOAD_WAIT_TIME)
             {
-                readyPlayersCount = (int)PhotonNetwork.CurrentRoom.CustomProperties["ReadyPlayersCount"];
+                Debug.LogWarning("Timeout waiting for players, proceeding anyway");
+                break;
             }
 
+            // 从房间属性获取最新的准备玩家数量
+            if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("ReadyPlayers", out var count))
+            {
+                readyPlayers = (int)count;
+            }
+
+            progressText.text = $"Waiting for {totalPlayers - readyPlayers} players...";
             yield return new WaitForSeconds(0.5f);
         }
 
-        Debug.Log("All players ready! Loading target scene...");
         // 通知所有玩家激活场景
+        Debug.Log("All players ready! Loading target scene...");
         photonView.RPC("RPC_ActivateScene", RpcTarget.All);
-        targetSceneLoadOperation.allowSceneActivation = true;
     }
 
     [PunRPC]
-    private void RPC_NotifyPlayerReady(Player player)
+    private void RPC_NotifyPlayerReady(int playerActorNumber)
     {
-        // 只有房主会收到这个RPC
         if (PhotonNetwork.IsMasterClient)
         {
-            int readyPlayersCount = 1; // 默认至少房主自己
-            if (PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey("ReadyPlayersCount"))
+            int readyPlayers = 1;
+            if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("ReadyPlayers", out var count))
             {
-                readyPlayersCount = (int)PhotonNetwork.CurrentRoom.CustomProperties["ReadyPlayersCount"];
+                readyPlayers = (int)count;
             }
-            readyPlayersCount++;
 
-            // 更新房间属性中的准备玩家数量
-            ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable();
-            props["ReadyPlayersCount"] = readyPlayersCount;
-            PhotonNetwork.CurrentRoom.SetCustomProperties(props);
+            readyPlayers++;
+            UpdateReadyPlayersCount(readyPlayers);
+            Debug.Log($"Player {playerActorNumber} is ready. Total: {readyPlayers}");
         }
     }
 
     [PunRPC]
     private void RPC_ActivateScene()
     {
-        // 使用存储的加载操作引用激活场景，兼容所有Unity版本
-        if (targetSceneLoadOperation != null && !targetSceneLoadOperation.isDone && targetSceneLoadOperation.progress >= 0.9f)
+        if (targetSceneLoadOperation != null && !targetSceneLoadOperation.isDone)
         {
+            Debug.Log("Activating target scene");
             targetSceneLoadOperation.allowSceneActivation = true;
         }
+        else
+        {
+            // 容错处理：如果加载操作已完成，直接跳转
+            Debug.Log("Directly loading target scene");
+            SceneManager.LoadScene(targetScene);
+        }
+    }
+
+    // 更新准备玩家数量到房间属性
+    private void UpdateReadyPlayersCount(int count)
+    {
+        var props = new ExitGames.Client.Photon.Hashtable();
+        props["ReadyPlayers"] = count;
+        PhotonNetwork.CurrentRoom.SetCustomProperties(props);
+    }
+
+    // 更新进度UI
+    private void UpdateProgressUI(float progress)
+    {
+        if (progressBar != null)
+            progressBar.value = progress;
+
+        if (progressText != null)
+            progressText.text = $"{(int)(progress * 100)}%";
     }
 
     public override void OnRoomPropertiesUpdate(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
     {
-        // 房主监听准备玩家数量变化
-        if (PhotonNetwork.IsMasterClient && propertiesThatChanged.ContainsKey("ReadyPlayersCount"))
+        // 调试用：显示房间属性变化
+        if (propertiesThatChanged.ContainsKey("ReadyPlayers"))
         {
-            int readyCount = (int)propertiesThatChanged["ReadyPlayersCount"];
-            int totalPlayers = PhotonNetwork.CurrentRoom.PlayerCount;
-
-            Debug.Log($"Ready players: {readyCount}/{totalPlayers}");
-        }
-    }
-
-    private void OnEnable()
-    {
-        // 初始化房间属性
-        if (PhotonNetwork.IsMasterClient && PhotonNetwork.InRoom)
-        {
-            ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable();
-            props["ReadyPlayersCount"] = 1; // 房主自己已准备
-            PhotonNetwork.CurrentRoom.SetCustomProperties(props);
+            Debug.Log($"Ready players updated: {propertiesThatChanged["ReadyPlayers"]}");
         }
     }
 }
