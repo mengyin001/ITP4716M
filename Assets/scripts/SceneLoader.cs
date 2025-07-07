@@ -19,7 +19,7 @@ public class SceneLoader : MonoBehaviourPunCallbacks
     void Start()
     {
         loadStartTime = Time.time;
-
+        
         // 确保Photon连接正常
         if (!PhotonNetwork.IsConnected)
         {
@@ -61,7 +61,7 @@ public class SceneLoader : MonoBehaviourPunCallbacks
 
         // 加载完成，更新UI为100%
         UpdateProgressUI(1f);
-
+        
         // 通知主机已准备好
         if (!PhotonNetwork.IsMasterClient && !hasNotifiedMaster)
         {
@@ -120,7 +120,7 @@ public class SceneLoader : MonoBehaviourPunCallbacks
             {
                 readyPlayers = (int)count;
             }
-
+            
             readyPlayers++;
             UpdateReadyPlayersCount(readyPlayers);
             Debug.Log($"Player {playerActorNumber} is ready. Total: {readyPlayers}");
@@ -156,7 +156,7 @@ public class SceneLoader : MonoBehaviourPunCallbacks
     {
         if (progressBar != null)
             progressBar.value = progress;
-
+            
         if (progressText != null)
             progressText.text = $"{(int)(progress * 100)}%";
     }
