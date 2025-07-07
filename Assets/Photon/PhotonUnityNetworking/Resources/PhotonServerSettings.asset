@@ -80,6 +80,8 @@ MonoBehaviour:
   - RPC_PlayerEnteredTeleport
   - RPC_SyncScene
   - RPC_LoadSceneForAll
+  - RPC_ActivateScene
+  - RPC_NotifyPlayerReady
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
