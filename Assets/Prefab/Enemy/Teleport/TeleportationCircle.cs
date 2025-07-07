@@ -26,6 +26,7 @@ public class TeleportationCircle : MonoBehaviourPunCallbacks
     private void RPC_LoadSceneForAll(string sceneName)
     {
         Debug.Log($"Loading target scene: {sceneName}");
+        PhotonNetwork.AutomaticallySyncScene = true; // 确保启用自动同步
         PhotonNetwork.LoadLevel(sceneName);
     }
 }
