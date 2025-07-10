@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using TMPro;
 
-public class PlayerMovement : MonoBehaviourPun
+public class PlayerMovement : MonoBehaviourPun, IPunObservable
 {
     [Header("移动参数")]
     public float moveSpeed = 5f;
@@ -19,6 +19,9 @@ public class PlayerMovement : MonoBehaviourPun
     public TextMeshProUGUI playerName;
     private RectTransform playerNameRectTransform;
     private Vector3 originalNameScale;
+
+    // 新增：存储当前朝向状态
+    private bool isFacingRight = false;
 
     // 用于存储每个武器的状态
     private Dictionary<int, bool> weaponStates = new Dictionary<int, bool>();
@@ -39,6 +42,15 @@ public class PlayerMovement : MonoBehaviourPun
         {
             playerNameRectTransform = playerName.GetComponent<RectTransform>();
             originalNameScale = playerNameRectTransform.localScale;
+
+            // 初始化名字标签
+            if (photonView.IsMine)
+                playerName.text = PhotonNetwork.NickName;
+            else
+                playerName.text = photonView.Owner.NickName;
+
+            // 初始更新名字标签
+            UpdateNameTagOrientation();
         }
     }
 
@@ -58,18 +70,16 @@ public class PlayerMovement : MonoBehaviourPun
             // 使用 RPC 同步武器状态
             photonView.RPC("RPC_ActivateWeapon", RpcTarget.AllBuffered, 0);
         }
-
-        if (photonView.IsMine)
-        
-            playerName.text = PhotonNetwork.NickName;
-        else
-            playerName.text =  photonView.Owner.NickName;
     }
 
     void Update()
     {
         if (!photonView.IsMine && PhotonNetwork.IsConnected)
+        {
+            // 远程玩家也需要更新名字标签
+            UpdateNameTagOrientation();
             return;
+        }
 
         OpenMyBag();
 
@@ -98,20 +108,38 @@ public class PlayerMovement : MonoBehaviourPun
         {
             // Face left
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-            if (playerNameRectTransform != null)
-            {
-                playerNameRectTransform.localScale = originalNameScale;
-            }
+            isFacingRight = false;
         }
         else
         {
             // Face right
             transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
-            if (playerNameRectTransform != null)
-            {
-                // 因為父物件的 scale.x 是 -1，子物件的 scale.x 設為 -1 才能抵消
-                playerNameRectTransform.localScale = new Vector3(-originalNameScale.x, originalNameScale.y, originalNameScale.z);
-            }
+            isFacingRight = true;
+        }
+
+        // 本地玩家更新名字标签
+        UpdateNameTagOrientation();
+    }
+
+    // 新增：统一更新名字标签方向的方法
+    private void UpdateNameTagOrientation()
+    {
+        if (playerNameRectTransform == null) return;
+
+        // 根据当前朝向设置名字标签缩放
+        if (isFacingRight)
+        {
+            // 朝右时：X轴取反抵消父物体翻转
+            playerNameRectTransform.localScale = new Vector3(
+                -Mathf.Abs(originalNameScale.x),
+                originalNameScale.y,
+                originalNameScale.z
+            );
+        }
+        else
+        {
+            // 朝左时：使用原始缩放
+            playerNameRectTransform.localScale = originalNameScale;
         }
     }
 
@@ -150,10 +178,6 @@ public class PlayerMovement : MonoBehaviourPun
 
     void SwitchGun()
     {
-        // 背包打开时仍然允许切换武器（如果需要限制，请取消注释下面两行）
-        // if (UIManager.Instance != null && UIManager.Instance.IsBagOpen)
-        //     return;
-
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
 
@@ -214,23 +238,41 @@ public class PlayerMovement : MonoBehaviourPun
         weaponStates[weaponIndex] = true;
     }
 
-    // 在 Photon 同步数据时调用
+    // 在 Photon 同步数据时调用 - 修复了同步问题
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
         {
-            // 发送当前武器索引
+            // 发送当前武器索引和朝向状态
             stream.SendNext(currentWeaponIndex);
+            stream.SendNext(isFacingRight);
         }
         else
         {
             // 接收武器索引并更新
-            int receivedIndex = (int)stream.ReceiveNext();
+            currentWeaponIndex = (int)stream.ReceiveNext();
 
-            // 避免重复更新
-            if (receivedIndex != currentWeaponIndex)
+            // 接收朝向状态并更新
+            isFacingRight = (bool)stream.ReceiveNext();
+
+            // 更新名字标签方向
+            UpdateNameTagOrientation();
+
+            // 应用武器切换
+            if (currentWeaponIndex != gunNum)
             {
-                RPC_SwitchWeapon(receivedIndex);
+                // 禁用当前武器
+                if (gunNum >= 0 && gunNum < guns.Length)
+                {
+                    guns[gunNum].SetActive(false);
+                }
+
+                // 启用新武器
+                gunNum = currentWeaponIndex;
+                if (gunNum >= 0 && gunNum < guns.Length)
+                {
+                    guns[gunNum].SetActive(true);
+                }
             }
         }
     }
