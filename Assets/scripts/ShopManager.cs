@@ -1,31 +1,29 @@
 ﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
-using Photon.Pun; // 確保有這個 using
+using Photon.Pun;
 
 public class ShopManager : MonoBehaviour
 {
-    public static ShopManager Instance;
+    public static ShopManager Instance { get; private set; }
 
-    [Header("配置")]
+    [Header("Configuration")]
     public ShopData shopData;
 
-    [Header("UI组件")]
+    [Header("UI References")]
     [SerializeField] private Transform shopContent;
     [SerializeField] private GameObject shopItemPrefab;
     [SerializeField] private TMP_InputField quantityInput;
     [SerializeField] private TMP_Text totalPriceText;
-    [SerializeField] private TMP_Text messageText; // 用於顯示購買成功/失敗的短暫訊息
+    [SerializeField] private TMP_Text messageText;
     [SerializeField] private Button buyButton;
 
     private ItemData _selectedItem;
     private int _currentQuantity = 1;
     private ShopItemUI _selectedUI;
-    public bool isOpen = false;
+    public bool IsOpen { get; private set; }
 
-    // 對本地玩家 NetworkInventory 的引用
-    private NetworkInventory _localPlayerNetworkInventory;
+    private NetworkInventory _localPlayerInventory;
 
     private void Awake()
     {
@@ -41,59 +39,29 @@ public class ShopManager : MonoBehaviour
 
     private void Start()
     {
-        // 在 Start 中嘗試獲取本地玩家的 NetworkInventory
-        // 如果玩家是動態實例化的，這裡可能還找不到，需要在 OpenShop 或玩家實例化後再次嘗試
-        FindLocalPlayerNetworkInventory();
-
         InitializeShop();
-        CloseShop(); // 初始關閉商店 UI
+        CloseShop();
 
-        buyButton.onClick.AddListener(ProcessPurchase); // 點擊購買按鈕時直接處理購買
-        quantityInput.onValueChanged.AddListener(UpdateQuantity);
+        buyButton.onClick.AddListener(ProcessPurchase);
+        quantityInput.onValueChanged.AddListener(OnQuantityChanged);
     }
 
-    // 查找本地玩家的 NetworkInventory
-    private void FindLocalPlayerNetworkInventory()
+    public void SetLocalPlayerInventory(NetworkInventory inventory)
     {
-        if (_localPlayerNetworkInventory != null) return; // 如果已經找到了，就返回
-
-        PhotonView[] allPhotonViews = FindObjectsOfType<PhotonView>();
-        foreach (PhotonView pv in allPhotonViews)
-        {
-            if (pv.IsMine) // 找到屬於本地玩家的 PhotonView
-            {
-                _localPlayerNetworkInventory = pv.GetComponent<NetworkInventory>();
-                if (_localPlayerNetworkInventory != null)
-                {
-                    Debug.Log("[ShopManager] Found local player's NetworkInventory.");
-                    return;
-                }
-            }
-        }
-        Debug.LogError("[ShopManager] Failed to find local player's NetworkInventory in the scene!");
-        // 如果玩家是延遲實例化的，這裡可能需要一個協程來等待
-        // 或者在玩家實例化後，由玩家腳本通知 ShopManager (推薦做法)
+        _localPlayerInventory = inventory;
     }
-
-    // 推薦：由玩家腳本在實例化後呼叫此方法來設置 NetworkInventory
-    public void SetLocalPlayerNetworkInventory(NetworkInventory ni)
-    {
-        _localPlayerNetworkInventory = ni;
-        Debug.Log("[ShopManager] Local player's NetworkInventory set by player script.");
-    }
-
 
     private void InitializeShop()
     {
         ClearShopContent();
+
         if (shopData == null)
         {
-            Debug.LogError("[ShopManager] shopData is null! Please assign a ShopData ScriptableObject in the Inspector.");
+            Debug.LogError("ShopData is not assigned!");
             return;
         }
-        Debug.Log($"[ShopManager] ShopData assigned. Items for sale count: {shopData.itemsForSale.Count}");
 
-        foreach (ItemData item in shopData.itemsForSale)
+        foreach (var item in shopData.itemsForSale)
         {
             CreateShopItem(item);
         }
@@ -103,26 +71,24 @@ public class ShopManager : MonoBehaviour
     {
         if (shopItemPrefab == null)
         {
-            Debug.LogError("[ShopManager] 未设置商品预制体! Please assign shopItemPrefab in the Inspector.");
+            Debug.LogError("Shop item prefab is not assigned!");
             return;
         }
 
-        GameObject newItem = Instantiate(shopItemPrefab, shopContent);
-        ShopItemUI itemUI = newItem.GetComponent<ShopItemUI>();
-
+        var itemUI = Instantiate(shopItemPrefab, shopContent).GetComponent<ShopItemUI>();
         if (itemUI != null)
         {
             itemUI.Initialize(itemData, this);
         }
         else
         {
-            Debug.LogError("[ShopManager] 预制体缺少 ShopItemUI 组件!");
+            Debug.LogError("Shop item prefab is missing ShopItemUI component!");
         }
     }
 
     public void SelectItem(ItemData item, ShopItemUI ui)
     {
-        if (_selectedUI != null) _selectedUI.Deselect();
+        _selectedUI?.Deselect();
 
         _selectedItem = item;
         _selectedUI = ui;
@@ -131,7 +97,7 @@ public class ShopManager : MonoBehaviour
         UpdateTotalPrice();
     }
 
-    private void UpdateQuantity(string input)
+    private void OnQuantityChanged(string input)
     {
         if (int.TryParse(input, out int quantity))
         {
@@ -142,32 +108,17 @@ public class ShopManager : MonoBehaviour
 
     private void UpdateTotalPrice()
     {
-        if (_selectedItem == null)
-        {
-            totalPriceText.text = "Total price: 0"; // 如果沒有選擇物品，顯示 0
-            return;
-        }
-        totalPriceText.text = $"Total price: {_selectedItem.price * _currentQuantity}";
+        totalPriceText.text = _selectedItem == null
+            ? "Total price: 0"
+            : $"Total price: {_selectedItem.price * _currentQuantity}";
     }
 
     private void ProcessPurchase()
     {
-        if (_selectedItem == null)
-        {
-            ShowMessage("Please select the product first!", Color.red);
-            return;
-        }
-
-        if (_localPlayerNetworkInventory == null)
-        {
-            ShowMessage("Player inventory not found! Cannot process purchase.", Color.red);
-            Debug.LogError("[ShopManager] _localPlayerNetworkInventory is null. Cannot process purchase.");
-            return;
-        }
+        if (!ValidatePurchase()) return;
 
         int totalCost = _selectedItem.price * _currentQuantity;
 
-        // 使用MoneyManager进行金钱验证
         if (!MoneyManager.Instance.CanAfford(totalCost))
         {
             ShowMessage($"{MoneyManager.Instance.GetCurrencyName()} insufficient!", Color.red);
@@ -177,21 +128,35 @@ public class ShopManager : MonoBehaviour
         CompletePurchase(totalCost);
     }
 
+    private bool ValidatePurchase()
+    {
+        if (_selectedItem == null)
+        {
+            ShowMessage("Please select an item first!", Color.red);
+            return false;
+        }
+
+        if (_localPlayerInventory == null)
+        {
+            ShowMessage("Inventory not found!", Color.red);
+            Debug.LogError("Local player inventory reference is null!");
+            return false;
+        }
+
+        return true;
+    }
+
     private void CompletePurchase(int totalCost)
     {
-        bool success = MoneyManager.Instance.RemoveMoney(totalCost);
+        if (!MoneyManager.Instance.RemoveMoney(totalCost))
+        {
+            ShowMessage("Failed to complete purchase!", Color.red);
+            return;
+        }
 
-        if (success)
-        {
-            // 直接呼叫 NetworkInventory 的 AddItem 方法
-            _localPlayerNetworkInventory.AddItem(_selectedItem, _currentQuantity);
-            ShowMessage($"Successful purchase {_currentQuantity} {_selectedItem.itemName}!", Color.green);
-            ResetSelection();
-        }
-        else
-        {
-            ShowMessage("Failed to deduct money! (Unexpected error)", Color.red); // 理論上 CanAfford 已經檢查過，但以防萬一
-        }
+        _localPlayerInventory.AddItem(_selectedItem, _currentQuantity);
+        ShowMessage($"Purchased {_currentQuantity}x {_selectedItem.itemName}!", Color.green);
+        ResetSelection();
     }
 
     private void ShowMessage(string text, Color color)
@@ -200,18 +165,18 @@ public class ShopManager : MonoBehaviour
         messageText.color = color;
         messageText.gameObject.SetActive(true);
         CancelInvoke(nameof(HideMessage));
-        Invoke(nameof(HideMessage), 2f); // 默認顯示 2 秒
+        Invoke(nameof(HideMessage), 2f);
     }
 
     private void HideMessage() => messageText.gameObject.SetActive(false);
 
     private void ResetSelection()
     {
-        if (_selectedUI != null) _selectedUI.Deselect();
+        _selectedUI?.Deselect();
         _selectedItem = null;
         _selectedUI = null;
         quantityInput.text = "1";
-        totalPriceText.text = "Total price: 0";
+        UpdateTotalPrice();
     }
 
     private void ClearShopContent()
@@ -222,63 +187,32 @@ public class ShopManager : MonoBehaviour
         }
     }
 
+    // 添加回 SetCurrentShop 方法
+    public void SetCurrentShop(ShopData newShopData)
+    {
+        shopData = newShopData;
+        InitializeShop();
+    }
+
     public void OpenShop()
     {
-        isOpen = true;
-        // 假設 shopContent 的父物件就是整個商店 UI 面板
-        if (shopContent.parent != null)
-        {
-            shopContent.parent.gameObject.SetActive(true);
-        }
-        else
-        {
-            Debug.LogWarning("[ShopManager] shopContent has no parent. Cannot activate shop UI.");
-            gameObject.SetActive(true); // 如果沒有父物件，就激活 ShopManager 所在的 GameObject
-        }
+        IsOpen = true;
+        shopContent.parent.gameObject.SetActive(true);
         ResetSelection();
-        // 在打開商店時，再次嘗試查找本地玩家的 NetworkInventory
-        // 以防 Start 時玩家還未實例化
-        if (_localPlayerNetworkInventory == null)
-        {
-            FindLocalPlayerNetworkInventory();
-        }
-
-        // 隱藏 NPC 對話提示 (如果有的話)
-        NPCDialogueTrigger[] npcTriggers = FindObjectsOfType<NPCDialogueTrigger>();
-        foreach (NPCDialogueTrigger trigger in npcTriggers)
-        {
-            trigger.HidePrompt();
-        }
     }
 
     public void CloseShop()
     {
-        isOpen = false;
-        if (shopContent.parent != null)
-        {
-            shopContent.parent.gameObject.SetActive(false);
-        }
-        else
-        {
-            gameObject.SetActive(false);
-        }
+        IsOpen = false;
+        shopContent.parent.gameObject.SetActive(false);
         ResetSelection();
     }
 
     private void Update()
     {
-        if (isOpen)
+        if (IsOpen && Input.GetKeyDown(KeyCode.Escape))
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                CloseShop();
-            }
+            CloseShop();
         }
-    }
-
-    public void SetCurrentShop(ShopData newShopData)
-    {
-        shopData = newShopData;
-        InitializeShop();
     }
 }

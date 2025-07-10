@@ -9,7 +9,7 @@ public class MoneyManager : MonoBehaviourPun, IPunObservable
 
    private MoneyData moneyData; // 仅用于货币元数据
 
-    private int playerMoney = 0; // 本地存储的玩家金钱
+    public int playerMoney = 100; // 本地存储的玩家金钱
     private Dictionary<int, int> otherPlayersMoney = new Dictionary<int, int>(); // 其他玩家的金钱
 
     private void Awake()

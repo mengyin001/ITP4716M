@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using Photon.Pun;
 using System.Collections.Generic;
+using UnityEngine.UI;
+using TMPro;
 
 public class PlayerMovement : MonoBehaviourPun
 {
@@ -9,15 +11,20 @@ public class PlayerMovement : MonoBehaviourPun
     private Rigidbody2D rb;
     private Vector2 movement;
     private Animator animator;
+    [Header("枪械")]
     public GameObject[] guns;       // Gun list
     private int gunNum = 0;
     private Vector2 mousePos;
+    [Header("角色名字")]
+    public TextMeshProUGUI playerName;
+    private RectTransform playerNameRectTransform;
+    private Vector3 originalNameScale;
 
     // 用于存储每个武器的状态
     private Dictionary<int, bool> weaponStates = new Dictionary<int, bool>();
 
     // 网络同步的武器索引
-    [SerializeField] private int currentWeaponIndex = 0;
+    private int currentWeaponIndex = 0;
 
     void Start()
     {
@@ -28,6 +35,11 @@ public class PlayerMovement : MonoBehaviourPun
         InitializeWeapons();
 
         mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        if (playerName != null)
+        {
+            playerNameRectTransform = playerName.GetComponent<RectTransform>();
+            originalNameScale = playerNameRectTransform.localScale;
+        }
     }
 
     // 初始化武器状态（本地和网络）
@@ -46,6 +58,12 @@ public class PlayerMovement : MonoBehaviourPun
             // 使用 RPC 同步武器状态
             photonView.RPC("RPC_ActivateWeapon", RpcTarget.AllBuffered, 0);
         }
+
+        if (photonView.IsMine)
+        
+            playerName.text = PhotonNetwork.NickName;
+        else
+            playerName.text =  photonView.Owner.NickName;
     }
 
     void Update()
@@ -58,7 +76,7 @@ public class PlayerMovement : MonoBehaviourPun
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
 
-        if (ShopManager.Instance != null && ShopManager.Instance.isOpen)
+        if (ShopManager.Instance != null && ShopManager.Instance.IsOpen)
             return;
 
         SwitchGun();
@@ -80,11 +98,20 @@ public class PlayerMovement : MonoBehaviourPun
         {
             // Face left
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            if (playerNameRectTransform != null)
+            {
+                playerNameRectTransform.localScale = originalNameScale;
+            }
         }
         else
         {
             // Face right
             transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+            if (playerNameRectTransform != null)
+            {
+                // 因為父物件的 scale.x 是 -1，子物件的 scale.x 設為 -1 才能抵消
+                playerNameRectTransform.localScale = new Vector3(-originalNameScale.x, originalNameScale.y, originalNameScale.z);
+            }
         }
     }
 
@@ -95,7 +122,7 @@ public class PlayerMovement : MonoBehaviourPun
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             canToggle = false;
 
-        if (ShopManager.Instance != null && ShopManager.Instance.isOpen)
+        if (ShopManager.Instance != null && ShopManager.Instance.IsOpen)
             canToggle = false;
 
         if (Input.GetKeyDown(KeyCode.B) && canToggle)
@@ -130,7 +157,7 @@ public class PlayerMovement : MonoBehaviourPun
         if (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)
             return;
 
-        if (ShopManager.Instance != null && ShopManager.Instance.isOpen)
+        if (ShopManager.Instance != null && ShopManager.Instance.IsOpen)
             return;
 
         if (Input.GetKeyDown(KeyCode.Q))

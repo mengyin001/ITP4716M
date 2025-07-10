@@ -123,7 +123,7 @@ public class NPCDialogueTrigger : MonoBehaviourPun
 
     private bool IsAnyMenuOpen()
     {
-        bool shopOpen = ShopManager.Instance != null && ShopManager.Instance.isOpen;
+        bool shopOpen = ShopManager.Instance != null && ShopManager.Instance.IsOpen;
         bool dialogueOpen = DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive;
         return shopOpen || dialogueOpen;
     }
