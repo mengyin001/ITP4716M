@@ -89,7 +89,8 @@ public abstract class gun : MonoBehaviourPun // 改为继承 MonoBehaviourPun
     protected virtual void HandleShootingInput()
     {
         if ((healthSystem != null && healthSystem.IsDead) ||
-            (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive))
+            (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)||
+            (ShopManager.Instance.IsOpen))
             return;
 
         if (timer > 0)

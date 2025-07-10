@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: item003
   m_EditorClassIdentifier: 
   itemID: 003
-  itemName: Recovery medicine plus
+  itemName: Increase Healthy Potion
   icon: {fileID: 4902729985760503732, guid: 368f625759658cb48893fcaad6b9eddb, type: 3}
   isStackable: 1
   maxStack: 99

@@ -3,13 +3,14 @@ using UnityEngine;
 using UnityEngine.Events;
 using Photon.Pun;
 using System;
+using TMPro; // 添加TextMeshPro命名空间
 
 public class Character : MonoBehaviourPun
 {
     // 新增动画控制参数
     [Header("Animation Parameters")]
     [SerializeField] private Animator characterAnimator;
-    [SerializeField] private string dieAnimationTrigger = "isDie"; // 匹配您的动画控制器参数
+    [SerializeField] private string dieAnimationTrigger = "isDie";
 
     [Header("Attributes")]
     [SerializeField] public float MaxHealth;
@@ -35,7 +36,7 @@ public class Character : MonoBehaviourPun
     }
 
     [PunRPC]
-    public virtual void TakeLaserDamage(float damage) // 新增镭射枪专用RPC
+    public virtual void TakeLaserDamage(float damage)
     {
         TakeDamageInternal(damage, true);
     }
@@ -46,6 +47,8 @@ public class Character : MonoBehaviourPun
 
         if (photonView.IsMine || (isEnemy && PhotonNetwork.IsMasterClient))
         {
+            int damageInt = Mathf.RoundToInt(damage);
+
             if (currentHealth - damage > 0f)
             {
                 currentHealth -= damage;
@@ -76,7 +79,6 @@ public class Character : MonoBehaviourPun
         currentHealth = 0f;
         OnDie?.Invoke();
 
-        // 新增死亡动画播放逻辑
         if (characterAnimator != null)
         {
             characterAnimator.SetTrigger(dieAnimationTrigger);
@@ -89,16 +91,13 @@ public class Character : MonoBehaviourPun
 
             if (PhotonNetwork.IsMasterClient)
             {
-                // 延迟销毁以允许动画播放
                 StartCoroutine(DestroyAfterAnimation());
             }
         }
     }
 
-    // 新增协程：等待动画播放后销毁对象
     private IEnumerator DestroyAfterAnimation()
     {
-        // 等待动画长度（可调整时间或使用动画事件）
         yield return new WaitForSeconds(2f);
         PhotonNetwork.Destroy(gameObject);
     }
