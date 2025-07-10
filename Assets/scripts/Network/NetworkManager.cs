@@ -1,24 +1,48 @@
 ﻿using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
-using TMPro;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
-    [Header("Setting")]
-    public int roomNumber = 4;
+    [Header("Settings")]
+    public int maxPlayers = 4;
+    public string loadingSceneName = "LoadingScene";
+    public string roomSceneName = "SafeHouse";
+
     public static NetworkManager Instance;
-    public GameObject player;
-    [Header("Space")]
-    public Transform spacePoint;
+    private bool isSwitchingScene = false;
 
     void Awake()
     {
         if (Instance == null)
+        {
             Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
         else
+        {
             Destroy(gameObject);
+        }
+    }
+
+      public override void OnEnable()
+    {
+        // 首先，調用父類的 OnEnable 是個好習慣
+        base.OnEnable();
+        // 訂閱 SceneManager.sceneLoaded 事件
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    // 【核心修正 2】: 使用 OnDisable 取消訂閱，防止內存洩漏
+    public override void OnDisable()
+    {
+        // 同樣，調用父類的 OnDisable
+        base.OnDisable();
+        // 取消訂閱 SceneManager.sceneLoaded 事件
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     void Start()
@@ -28,35 +52,133 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        base.OnConnectedToMaster();
-        Debug.Log("Welcome to Photon Server");
-        PhotonNetwork.JoinOrCreateRoom("Room", new Photon.Realtime.RoomOptions() { MaxPlayers = 4 }, default);
+        Debug.Log("Connected to Photon Server");
+        PhotonNetwork.AutomaticallySyncScene = true;
+        PhotonNetwork.JoinLobby(TypedLobby.Default);
     }
 
+    // 提供给UI按钮调用的加入房间方法
+    public void JoinOrCreateRoom()
+    {
+        RoomOptions roomOptions = new RoomOptions
+        {
+            MaxPlayers = (byte)maxPlayers,
+            EmptyRoomTtl = 1000
+        };
+
+        PhotonNetwork.JoinOrCreateRoom("GameRoom", roomOptions, TypedLobby.Default);
+    }
     public override void OnJoinedRoom()
     {
-        base.OnJoinedRoom();
-        Debug.Log($"Joined room: {PhotonNetwork.CurrentRoom.Name}");
+        Debug.Log($"Successfully joined room: {PhotonNetwork.CurrentRoom.Name}.");
 
-        // 检查是否是第一个进入房间的玩家（即房主）
+        // 如果是 Master Client，他是在創建房間後第一個進入的
+        if (PhotonNetwork.IsMasterClient && !isSwitchingScene)
+        {
+            isSwitchingScene = true;
+            // Master Client 自己先走一遍加載流程
+            SceneLoader.targetScene = roomSceneName;
+            PhotonNetwork.LoadLevel(loadingSceneName); // 使用 Photon 的加載，為後續同步做準備
+        }
+    }
+
+    public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // 確保這個邏輯只在 Master Client 進入最終的 RoomScene 時執行一次
+        if (scene.name == roomSceneName && PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("Master Client has loaded the RoomScene. Opening the room to public.");
+
+            // 開門迎客！
+            PhotonNetwork.CurrentRoom.IsOpen = true;
+            PhotonNetwork.CurrentRoom.IsVisible = true;
+
+            // 重置標記
+            isSwitchingScene = false;
+        }
+        else if (scene.name != roomSceneName)
+        {
+            // 如果加載的不是最終場景（例如返回主菜單），也重置標記
+            isSwitchingScene = false;
+        }
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        Debug.Log($"{newPlayer.NickName} has joined the room.");
+        // 在這裡可以更新玩家列表等 UI
+    }
+
+    // 提供给加载场景的"准备完成"按钮
+    public void OnReadyButtonClicked()
+    {
         if (PhotonNetwork.IsMasterClient)
         {
-            Debug.Log("You are the Master Client (Host)");
-            // 可以在这里设置房主标识或特殊权限
+            PhotonNetwork.LoadLevel(roomSceneName);
+        }
+    }
+
+    public override void OnJoinedLobby()
+    {
+        Debug.Log("Joined Lobby");
+        // 可选：在这里触发UI更新
+    }
+
+    public override void OnLeftLobby()
+    {
+        Debug.Log("Left Lobby");
+    }
+
+    // 添加房间加入失败的处理
+    public override void OnJoinRoomFailed(short returnCode, string message)
+    {
+        Debug.LogError($"Join room failed: {message}");
+        isSwitchingScene = false; // 加入失敗，重置狀態
+        // 這裡可以加載回主菜單
+        // SceneManager.LoadScene("MainMenuScene");
+    }
+
+    // 确保连接断开时清理
+    public override void OnDisconnected(DisconnectCause cause)
+    {
+        Debug.Log($"Disconnected: {cause}");
+        // 重连逻辑可以加在这里
+    }
+
+    public void CreateRoom(string roomName, int playerCount)
+    {
+        if (!PhotonNetwork.IsConnected)
+        {
+            Debug.LogError("Not connected to Photon server");
+            return;
         }
 
-        SpawnPlayer();
+        RoomOptions roomOptions = new RoomOptions
+        {
+            MaxPlayers = (byte)playerCount,
+            IsVisible = false,
+            IsOpen = false,
+            EmptyRoomTtl = 1000
+        };
+
+        PhotonNetwork.CreateRoom(roomName, roomOptions, TypedLobby.Default);
     }
 
-    public void SpawnPlayer()
+    public override void OnCreateRoomFailed(short returnCode, string message)
     {
-        GameObject _player = PhotonNetwork.Instantiate(player.name, spacePoint.position, Quaternion.identity, 0);
+        Debug.LogError($"Create room failed: {message}");
+        // 可以在这里显示错误提示
+    }
+    public void JoinRoom(string roomName)
+    {
+        if (!PhotonNetwork.IsConnectedAndReady || isSwitchingScene) return;
+
+        isSwitchingScene = true;
+        SceneLoader.targetScene = roomSceneName; // 先設置好目標
+        SceneManager.LoadScene(loadingSceneName); // 手動加載 LoadingScene
+
+        // 在加載 LoadingScene 的同時，異步加入 Photon 房間
+        PhotonNetwork.JoinRoom(roomName);
     }
 
-    // 当房主变更时调用
-    public override void OnMasterClientSwitched(Player newMasterClient)
-    {
-        base.OnMasterClientSwitched(newMasterClient);
-        Debug.Log($"New Master Client: {newMasterClient.NickName}");
-    }
 }

@@ -2,16 +2,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
-using Photon.Realtime;
 using static NetworkInventory;
-using System.Collections;
 
 public class InventoryManager : MonoBehaviourPunCallbacks
 {
     public static InventoryManager instance;
 
     [Header("References")]
-    public NetworkInventory networkInventory;
+    public NetworkInventory networkInventory; // 背包數據的引用
     public ItemDatabase itemDatabase;
     public GameObject slotGrid;
     public GameObject slotPrefab;
@@ -22,70 +20,35 @@ public class InventoryManager : MonoBehaviourPunCallbacks
     public KeyCode toggleKey = KeyCode.Tab;
 
     private List<Slot> slots = new List<Slot>();
-    private bool isInitialized = false;
+    private bool isPlayerBound = false; // 用於標記是否已成功綁定玩家
+    private int currentlySelectedIndex = -1;
 
     private void Awake()
     {
         if (instance != null && instance != this)
         {
             Destroy(gameObject);
+            return;
         }
-        else
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        // 【核心】訂閱來自 PlayerSpawner 的靜態事件
+        PlayerSpawner.OnLocalPlayerSpawned += BindToLocalPlayer;
+    }
+
+    private void OnDestroy()
+    {
+        // 【核心】清理事件訂閱
+        PlayerSpawner.OnLocalPlayerSpawned -= BindToLocalPlayer;
+        UnbindFromLocalPlayer(); // 確保銷毀時也清理引用
     }
 
     private void Start()
     {
-        if (inventoryPanel) inventoryPanel.SetActive(false);
+        // 僅執行一次的UI初始化
         InitializeSlots();
-        Debug.Log("[InventoryManager] Start method finished.");
-    }
-
-    private IEnumerator InitializeAfterDelay()
-    {
-        yield return new WaitForSeconds(0.2f);
-        FindLocalPlayerInventory();
-        isInitialized = true;
-        Debug.Log($"[InventoryManager] InitializeAfterDelay finished. isInitialized: {isInitialized}. NetworkInventory is null? {networkInventory == null}");
-        if (inventoryPanel && inventoryPanel.activeSelf)
-        {
-            RefreshInventory();
-        }
-    }
-    public override void OnJoinedRoom()
-    {
-        base.OnJoinedRoom();
-        Debug.Log("[InventoryManager] OnJoinedRoom called. Attempting to find local player inventory.");
-        // 在這裡呼叫查找邏輯，因為此時本地玩家的角色應該已經被實例化了
-        StartCoroutine(FindLocalPlayerInventoryRoutine());
-    }
-
-    private IEnumerator FindLocalPlayerInventoryRoutine()
-    {
-        // 等待一小段時間，確保玩家角色完全實例化並準備好
-        yield return new WaitForSeconds(0.5f); // 可以根據需要調整這個延遲時間
-
-        FindLocalPlayerInventory(); // 呼叫實際的查找方法
-
-        if (networkInventory != null)
-        {
-            isInitialized = true;
-            Debug.Log("[InventoryManager] InventoryManager successfully initialized with NetworkInventory.");
-            if (inventoryPanel && inventoryPanel.activeSelf)
-            {
-                RefreshInventory();
-            }
-        }
-        else
-        {
-            Debug.LogError("[InventoryManager] Failed to find NetworkInventory after OnJoinedRoom. Retrying in 1 second...");
-            // 如果還是沒找到，可以考慮重試幾次，或者在更晚的時機再次嘗試
-            yield return new WaitForSeconds(1f);
-            StartCoroutine(FindLocalPlayerInventoryRoutine()); // 再次嘗試
-        }
+        if (inventoryPanel) inventoryPanel.SetActive(false);
     }
 
     private void Update()
@@ -96,162 +59,179 @@ public class InventoryManager : MonoBehaviourPunCallbacks
         }
     }
 
-    public void ToggleInventory()
+    // 這個方法是事件處理函數，由 PlayerSpawner 在生成本地玩家後調用
+    private void BindToLocalPlayer(HealthSystem playerHealthSystem)
     {
-        if (inventoryPanel == null) return;
+        // 獲取玩家物件上的 NetworkInventory 組件
+        NetworkInventory ni = playerHealthSystem.GetComponent<NetworkInventory>();
 
-        bool newState = !inventoryPanel.activeSelf;
-        inventoryPanel.SetActive(newState);
-
-        if (newState && isInitialized)
+        if (ni != null)
         {
-            RefreshInventory();
+            // 如果之前綁定過，先解綁
+            UnbindFromLocalPlayer();
+
+            networkInventory = ni;
+            networkInventory.OnInventoryChanged += HandleInventoryChanged;
+            isPlayerBound = true;
+            Debug.Log($"[InventoryManager] Successfully bound to local player's NetworkInventory on {playerHealthSystem.gameObject.name}.");
+
+            // 如果此時背包是打開的，立即刷新一次
+            if (inventoryPanel != null && inventoryPanel.activeSelf)
+            {
+                RefreshInventory();
+            }
+        }
+        else
+        {
+            Debug.LogError($"[InventoryManager] Player object {playerHealthSystem.gameObject.name} was spawned, but it's missing the NetworkInventory component!");
         }
     }
 
-    // InventoryManager.cs
-    private void FindLocalPlayerInventory()
+    // 解除與玩家的綁定
+    private void UnbindFromLocalPlayer()
     {
         if (networkInventory != null)
         {
-            Debug.Log("[InventoryManager] networkInventory already assigned (possibly from a previous retry), skipping FindLocalPlayerInventory.");
-            return;
+            networkInventory.OnInventoryChanged -= HandleInventoryChanged;
+            networkInventory = null;
         }
-
-        PhotonView[] allPhotonViews = FindObjectsOfType<PhotonView>();
-        Debug.Log($"[InventoryManager] Searching among {allPhotonViews.Length} PhotonViews in the scene.");
-
-        foreach (PhotonView pv in allPhotonViews)
-        {
-            if (pv.IsMine) // 找到屬於本地玩家的 PhotonView
-            {
-                NetworkInventory ni = pv.GetComponent<NetworkInventory>();
-                if (ni != null)
-                {
-                    networkInventory = ni;
-                    networkInventory.OnInventoryChanged += HandleInventoryChanged;
-                    Debug.Log($"[InventoryManager] Found local player's NetworkInventory on GameObject: {pv.gameObject.name} and subscribed to OnInventoryChanged.");
-                    return; // 找到後就返回
-                }
-                else
-                {
-                    Debug.LogWarning($"[InventoryManager] Found local player's PhotonView on GameObject: {pv.gameObject.name}, but no NetworkInventory component found on it.");
-                }
-            }
-        }
-
-        Debug.LogError("[InventoryManager] Failed to find local player's NetworkInventory in the current search attempt!");
+        isPlayerBound = false;
     }
 
+    // 初始化所有UI槽位
     void InitializeSlots()
     {
-        // 清空现有槽位
         foreach (Transform child in slotGrid.transform)
         {
             Destroy(child.gameObject);
         }
         slots.Clear();
 
-        // 创建新槽位
         for (int i = 0; i < maxSlots; i++)
         {
             GameObject slotObj = Instantiate(slotPrefab, slotGrid.transform);
             Slot slot = slotObj.GetComponent<Slot>();
             slot.Initialize(i, this);
             slots.Add(slot);
-            Debug.Log($"Created slot {i}");
         }
     }
 
-    private void HandleInventoryChanged()
+    // 切換背包UI
+    public void ToggleInventory()
     {
-        Debug.Log("[InventoryManager] HandleInventoryChanged called.");
-        if (inventoryPanel != null && inventoryPanel.activeSelf)
-        {
-            RefreshInventory();
-        }
-        else
-        {
-            Debug.Log("[InventoryManager] Inventory panel is not active, skipping immediate refresh.");
-        }
-    }
-
-    public void RefreshInventory()
-    {
-        if (!isInitialized || networkInventory == null || itemDatabase == null)
-        {
-            Debug.LogWarning("Refresh skipped - not initialized");
-            return;
-        }
-
-        Debug.Log($"Refreshing inventory with {networkInventory.items.Count} items");
-
-        // 先重置所有槽位
-        for (int i = 0; i < slots.Count; i++)
-        {
-            slots[i].ClearSlot();
-        }
-
-        // 填充槽位
-        for (int i = 0; i < networkInventory.items.Count && i < slots.Count; i++)
-        {
-            InventorySlot invSlot = networkInventory.items[i];
-            ItemData itemData = itemDatabase.GetItem(invSlot.itemID);
-
-            if (itemData != null)
-            {
-                slots[i].SetItem(invSlot.itemID, invSlot.quantity, itemData);
-                Debug.Log($"Slot {i} set: {invSlot.itemID} x{invSlot.quantity}");
-            }
-            else
-            {
-                Debug.LogWarning($"Item not found: {invSlot.itemID}");
-            }
-        }
-
-        // 强制UI更新
-        LayoutRebuilder.ForceRebuildLayoutImmediate(slotGrid.GetComponent<RectTransform>());
-        Canvas.ForceUpdateCanvases();
-    }
-
-    public void OnSlotClicked(int slotIndex)
-    {
-        if (slotIndex < 0 || slotIndex >= slots.Count) return;
-
-        Slot slot = slots[slotIndex];
-        if (!slot.IsEmpty && photonView != null && photonView.IsMine)
-        {
-            networkInventory.UseItem(slot.itemID);
-            RefreshInventory();
-        }
+        if (inventoryPanel == null) return;
+        bool newState = !inventoryPanel.activeSelf;
+        inventoryPanel.SetActive(newState);
+        OnBagStateChanged(newState);
     }
 
     public void OnBagStateChanged(bool isOpen)
     {
         if (isOpen)
         {
-            Debug.Log("Bag opened - forcing refresh");
-            ForceRefresh();
+            RefreshInventory();
         }
         else
         {
-            Debug.Log("Bag closed");
+            DeselectCurrentSlot(); // 關閉背包時取消選擇
         }
     }
 
-    // 在InventoryManager中添加强制刷新方法
-    public void ForceRefresh()
+    // 處理來自 NetworkInventory 的數據變更通知
+    private void HandleInventoryChanged()
     {
-        if (!isInitialized) return;
-
-        StopAllCoroutines();
-        StartCoroutine(DelayedForceRefresh());
+        // 只有當背包UI是打開的時候才刷新，避免不必要的計算
+        if (inventoryPanel != null && inventoryPanel.activeSelf)
+        {
+            RefreshInventory();
+        }
     }
 
-    private IEnumerator DelayedForceRefresh()
+    // 刷新整個背包的UI顯示
+    public void RefreshInventory()
     {
-        yield return null; // 等待一帧
-        RefreshInventory();
+        if (!isPlayerBound || networkInventory == null || itemDatabase == null)
+        {
+            Debug.LogWarning("[InventoryManager] Refresh skipped: Player is not bound or required references are missing.");
+            return;
+        }
+
+        for (int i = 0; i < slots.Count; i++)
+        {
+            if (i < networkInventory.items.Count)
+            {
+                InventorySlot invSlot = networkInventory.items[i];
+                ItemData itemData = itemDatabase.GetItem(invSlot.itemID);
+                if (itemData != null)
+                {
+                    slots[i].SetItem(invSlot.itemID, invSlot.quantity, itemData);
+                }
+                else
+                {
+                    slots[i].ClearSlot(); // 如果物品ID無效，則清空槽位
+                }
+            }
+            else
+            {
+                slots[i].ClearSlot(); // 超出庫存數量的槽位也清空
+            }
+        }
     }
+
+    public void OnSlotClicked(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= slots.Count) return;
+
+        // 獲取被點擊的槽位
+        Slot clickedSlot = slots[slotIndex];
+        if (clickedSlot.IsEmpty)
+        {
+            // 如果點擊的是空槽位，取消任何選擇
+            DeselectCurrentSlot();
+            return;
+        }
+
+        if (currentlySelectedIndex == slotIndex)
+        {
+            // 如果點擊的是已經被選中的槽位，則使用物品
+            Debug.Log($"[InventoryManager] Using item in slot {slotIndex}.");
+            if (networkInventory != null)
+            {
+                networkInventory.UseItem(clickedSlot.itemID);
+            }
+
+            // 使用後取消選擇
+            DeselectCurrentSlot();
+        }
+        else
+        {
+            // 如果點擊的是一個新的、未被選中的槽位
+            Debug.Log($"[InventoryManager] Selecting slot {slotIndex}.");
+            // 先取消上一個選擇
+            DeselectCurrentSlot();
+            // 再選擇新的槽位
+            SelectSlot(slotIndex);
+        }
+    }
+
+    // 添加兩個新的輔助方法到 InventoryManager.cs 中
+
+    private void SelectSlot(int slotIndex)
+    {
+        if (slotIndex < 0 || slotIndex >= slots.Count) return;
+
+        currentlySelectedIndex = slotIndex;
+        slots[slotIndex].SetSelected(true); // 通知 Slot UI 更新外觀
+    }
+
+    private void DeselectCurrentSlot()
+    {
+        if (currentlySelectedIndex != -1)
+        {
+            slots[currentlySelectedIndex].SetSelected(false); // 通知 Slot UI 更新外觀
+            currentlySelectedIndex = -1;
+        }
+    }
+
 
 }

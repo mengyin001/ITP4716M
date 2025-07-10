@@ -540,7 +540,7 @@ GameObject:
   - component: {fileID: 5263644637196122173}
   - component: {fileID: 9211718134574626845}
   - component: {fileID: 5060786244278860204}
-  - component: {fileID: 4353541904905443311}
+  - component: {fileID: 5890207794998407438}
   m_Layer: 5
   m_Name: Room
   m_TagString: Untagged
@@ -608,7 +608,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &4353541904905443311
+--- !u!114 &5890207794998407438
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -617,9 +617,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 8240261750660475025}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ab513778663b7f40abcaf2b5fe47657, type: 3}
+  m_Script: {fileID: 11500000, guid: d7b4dc2b71f498f48a1c2f9ddde29ef1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   roomNameText: {fileID: 5589653921608086973}
   playerCountText: {fileID: 5051327901608928609}
   joinButton: {fileID: 4426884635448783195}
+  backgroundImage: {fileID: 5060786244278860204}
+  normalColor: {r: 0.6117647, g: 0.6117647, b: 0.6117647, a: 0.7}
+  fullColor: {r: 0.4, g: 0.1, b: 0.1, a: 0.7}
+  hoverColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.9}

@@ -325,9 +325,27 @@ public class UIManager : MonoBehaviourPunCallbacks
     // 调试方法
     public void ForceRefreshInventory()
     {
+        if (bagUI == null)
+        {
+            Debug.LogWarning("BagUI reference is null in UIManager");
+            return;
+        }
+
+        // 切換背包UI的顯示狀態
+        IsBagOpen = !bagUI.activeSelf;
+        bagUI.SetActive(IsBagOpen);
+
+        // 【核心修正】
+        // 不再調用 ForceRefresh()，而是調用 OnBagStateChanged()
+        // 將新的背包狀態通知給 InventoryManager
         if (inventoryManager != null)
         {
-            inventoryManager.ForceRefresh();
+            inventoryManager.OnBagStateChanged(IsBagOpen);
+        }
+        else
+        {
+            // 這個警告現在更有用，因為我們依賴 InventoryManager
+            Debug.LogWarning("InventoryManager reference is null in UIManager, cannot notify bag state change.");
         }
     }
 }
