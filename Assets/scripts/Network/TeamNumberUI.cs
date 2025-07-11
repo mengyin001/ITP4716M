@@ -22,6 +22,8 @@ public class TeamMemberUI : MonoBehaviour
         this.healthSystem = healthSystem;
         playerNameText.text = player.NickName;
 
+        UpdateLeaderStatus();
+
         // 检查是否是队长
         object isLeaderObj;
         bool isLeader = false;
@@ -50,6 +52,32 @@ public class TeamMemberUI : MonoBehaviour
         {
             // 使用默认值
             UpdateStatus(100f, 100f, 100f, 100f);
+        }
+    }
+
+   private void UpdateLeaderStatus()
+    {
+        // 方法1：直接检查是否是Master Client
+        bool isLeader = player.IsMasterClient;
+        
+        // 方法2：检查自定义属性（更可靠）
+        if (player.CustomProperties.TryGetValue("IsTeamLeader", out object isLeaderObj))
+        {
+            isLeader = (bool)isLeaderObj;
+        }
+        
+        leaderIcon.gameObject.SetActive(isLeader);
+    }
+
+    private void OnPlayerPropertiesChanged(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        if (targetPlayer.Equals(player))
+        {
+            // 如果IsTeamLeader属性变化，更新UI
+            if (changedProps.ContainsKey("IsTeamLeader"))
+            {
+                UpdateLeaderStatus();
+            }
         }
     }
 
@@ -108,6 +136,7 @@ public class TeamMemberUI : MonoBehaviour
 
     private void OnDestroy()
     {
+
         // 取消订阅事件
         if (healthSystem != null)
         {

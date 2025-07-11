@@ -4,6 +4,7 @@ using Photon.Realtime;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using ExitGames.Client.Photon;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
@@ -72,15 +73,43 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         Debug.Log($"Successfully joined room: {PhotonNetwork.CurrentRoom.Name}.");
 
-        // 如果是 Master Client，他是在創建房間後第一個進入的
+        // 设置当前玩家的队长状态
+        UpdatePlayerLeaderStatus();
+
+        // 如果是 Master Client，加载场景
         if (PhotonNetwork.IsMasterClient && !isSwitchingScene)
         {
             isSwitchingScene = true;
-            // Master Client 自己先走一遍加載流程
             SceneLoader.targetScene = roomSceneName;
-            PhotonNetwork.LoadLevel(loadingSceneName); // 使用 Photon 的加載，為後續同步做準備
+            PhotonNetwork.LoadLevel(loadingSceneName);
         }
     }
+    private void UpdatePlayerLeaderStatus()
+    {
+        bool isLeader = PhotonNetwork.LocalPlayer.IsMasterClient;
+        ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable
+        {
+            { "IsTeamLeader", isLeader }
+        };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        Debug.Log($"Master Client switched to {newMasterClient.NickName}");
+
+        // 更新所有玩家的队长状态
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            bool isLeader = player.Equals(newMasterClient);
+            ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable
+            {
+                { "IsTeamLeader", isLeader }
+            };
+            player.SetCustomProperties(props);
+        }
+    }
+
 
     public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
@@ -181,4 +210,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRoom(roomName);
     }
 
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
+    {
+        // 当玩家属性更新时，通知所有UI更新
+        if (changedProps.ContainsKey("IsTeamLeader"))
+        {
+            // 在实际项目中，这里应该通知UI管理器更新对应玩家的UI
+            Debug.Log($"{targetPlayer.NickName} leader status changed to: {changedProps["IsTeamLeader"]}");
+        }
+    }
 }
