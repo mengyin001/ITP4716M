@@ -26,6 +26,10 @@ public class UIManager : MonoBehaviourPunCallbacks
     [Header("背包UI引用")]
     public InventoryManager inventoryManager; // 添加InventoryManager引用
 
+    [Header("队伍UI")]
+    [SerializeField] private GameObject teamPanel;
+
+
     public bool IsBagOpen { get; private set; } // 背包状态属性
 
     private HealthSystem playerHealthSystem;
@@ -59,6 +63,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         InitializeUI();
         TryFindLocalPlayer();
         FindInventoryManager();
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     // 查找InventoryManager
@@ -85,6 +90,22 @@ public class UIManager : MonoBehaviourPunCallbacks
         ReinitializeUI();
         TryFindLocalPlayer();
         FindInventoryManager();
+        if (TeamUIManager.Instance != null)
+        {
+            TeamUIManager.Instance.OnSceneLoaded();
+        }
+    }
+
+    public void ToggleTeamPanel()
+    {
+        if (teamPanel != null)
+        {
+            teamPanel.SetActive(!teamPanel.activeSelf);
+            if (teamPanel.activeSelf)
+            {
+                TeamUIManager.Instance.UpdateTeamUI();
+            }
+        }
     }
 
     private void ReinitializeUI()
@@ -155,6 +176,7 @@ public class UIManager : MonoBehaviourPunCallbacks
             // 立即更新一次UI
             UpdateHealthUI(playerHealthSystem.currentHealth, playerHealthSystem.maxHealth);
             UpdateEnergyUI(playerHealthSystem.currentEnergy, playerHealthSystem.maxEnergy);
+            TeamUIManager.Instance?.UpdateTeamUI();
         }
     }
 
@@ -224,6 +246,14 @@ public class UIManager : MonoBehaviourPunCallbacks
         {
             playerHealthText.text = $"{Mathf.CeilToInt(currentHealth)}/{Mathf.CeilToInt(maxHealth)}";
         }
+
+        TeamUIManager.Instance?.UpdatePlayerStatus(
+            PhotonNetwork.LocalPlayer.ActorNumber,
+            currentHealth,
+            maxHealth,
+            playerHealthSystem.currentEnergy,
+            playerHealthSystem.maxEnergy
+        );
     }
 
     // 更新能量UI
@@ -241,6 +271,14 @@ public class UIManager : MonoBehaviourPunCallbacks
         {
             playerEnergyText.text = $"{Mathf.CeilToInt(currentEnergy)}/{Mathf.CeilToInt(maxEnergy)}";
         }
+
+        TeamUIManager.Instance?.UpdatePlayerStatus(
+           PhotonNetwork.LocalPlayer.ActorNumber,
+           playerHealthSystem.currentHealth,
+           playerHealthSystem.maxHealth,
+           currentEnergy,
+           maxEnergy
+       );
     }
 
     // 显示死亡UI
