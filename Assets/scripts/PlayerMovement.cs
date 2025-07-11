@@ -52,6 +52,10 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
             // 初始更新名字标签
             UpdateNameTagOrientation();
         }
+        if (TeamUIManager.Instance != null)
+        {
+            TeamUIManager.Instance.HandlePlayerCreated(gameObject);
+        }
     }
 
     // 初始化武器状态（本地和网络）

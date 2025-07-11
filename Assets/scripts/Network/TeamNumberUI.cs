@@ -9,7 +9,7 @@ public class TeamMemberUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI playerNameText;
     [SerializeField] private Slider healthSlider;
     [SerializeField] private Slider energySlider;
-    [SerializeField] private Image leaderIcon;
+    [SerializeField] private GameObject leaderIcon;
     [SerializeField] private Image background;
 
     private Player player;
@@ -142,6 +142,39 @@ public class TeamMemberUI : MonoBehaviour
         {
             healthSystem.OnHealthChanged -= HandleHealthChanged;
             healthSystem.OnEnergyChanged -= HandleEnergyChanged;
+        }
+    }
+    public void RebindHealthSystem(HealthSystem newHealthSystem)
+    {
+        // 解除旧事件绑定
+        if (healthSystem != null)
+        {
+            healthSystem.OnHealthChanged -= HandleHealthChanged;
+            healthSystem.OnEnergyChanged -= HandleEnergyChanged;
+        }
+
+        // 绑定新系统
+        healthSystem = newHealthSystem;
+
+        if (healthSystem != null)
+        {
+            healthSystem.OnHealthChanged += HandleHealthChanged;
+            healthSystem.OnEnergyChanged += HandleEnergyChanged;
+
+            // 立即更新UI
+            UpdateStatus(
+                healthSystem.currentHealth,
+                healthSystem.maxHealth,
+                healthSystem.currentEnergy,
+                healthSystem.maxEnergy
+            );
+        }
+    }
+    public void SetLeaderStatus(bool isLeader)
+    {
+        if (leaderIcon != null) // 确保有队长图标引用
+        {
+            leaderIcon.SetActive(isLeader);
         }
     }
 }

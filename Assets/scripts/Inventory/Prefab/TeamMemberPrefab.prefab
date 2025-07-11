@@ -242,7 +242,7 @@ MonoBehaviour:
   playerNameText: {fileID: 6100225935091115760}
   healthSlider: {fileID: 2308960523178104702}
   energySlider: {fileID: 6165990832258083531}
-  leaderIcon: {fileID: 6256651858632643297}
+  leaderIcon: {fileID: 6033039660899233179}
   background: {fileID: 1709131153478291408}
 --- !u!1 &4930826662905315686
 GameObject:

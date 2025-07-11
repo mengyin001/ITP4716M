@@ -290,8 +290,6 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
         // if (maxHealthBuffCoroutine != null) StopCoroutine(maxHealthBuffCoroutine);
     }
 
-
-    // 最大血量上限 Buff 協程
     // 最大血量上限 Buff 協程
     private IEnumerator MaxHealthBuffRoutine(float amount, float duration)
     {
@@ -319,11 +317,6 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
         OnHealthChanged?.Invoke(currentHealth, maxHealth); // 更新 UI
         Debug.Log($"[HealthSystem] Max Health Buff expired. Max Health: {maxHealth}");
     }
-
-    // 最大藍量上限 Buff 協程
-    // HealthSystem.cs
-
-    // ... (其他代碼保持不變) ...
 
     // 最大藍量上限 Buff 協程
     private IEnumerator MaxEnergyBuffRoutine(float amount, float duration)

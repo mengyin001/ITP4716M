@@ -221,6 +221,40 @@ public class TeamUIManager : MonoBehaviourPunCallbacks
         playerHealthSystems.Clear();
         UpdateTeamUI();
     }
+
+    public void HandlePlayerCreated(GameObject playerObject)
+    {
+        PhotonView pv = playerObject.GetComponent<PhotonView>();
+        if (pv != null && pv.Owner != null)
+        {
+            int actorNumber = pv.Owner.ActorNumber;
+
+            // 更新健康系统缓存
+            HealthSystem healthSystem = playerObject.GetComponent<HealthSystem>();
+            if (healthSystem != null)
+            {
+                playerHealthSystems[actorNumber] = healthSystem;
+            }
+
+            // 更新UI绑定
+            if (memberUIs.ContainsKey(actorNumber))
+            {
+                memberUIs[actorNumber].RebindHealthSystem(healthSystem);
+            }
+        }
+    }
+
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        base.OnPlayerPropertiesUpdate(targetPlayer, changedProps);
+
+        // 检查是否是队长状态更新
+        if (changedProps.ContainsKey("IsTeamLeader") && memberUIs.ContainsKey(targetPlayer.ActorNumber))
+        {
+            bool isLeader = (bool)changedProps["IsTeamLeader"];
+            memberUIs[targetPlayer.ActorNumber].SetLeaderStatus(isLeader);
+        }
+    }
 }
 
 
