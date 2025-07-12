@@ -1,5 +1,7 @@
 using UnityEngine;
 using Photon.Pun;
+using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public abstract class gun : MonoBehaviourPun // 改为继承 MonoBehaviourPun
 {
@@ -88,8 +90,9 @@ public abstract class gun : MonoBehaviourPun // 改为继承 MonoBehaviourPun
 
     protected virtual void HandleShootingInput()
     {
+        // 原有的状态检查（死亡/对话/商店）
         if ((healthSystem != null && healthSystem.IsDead) ||
-            (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive)||
+            (DialogueSystem.Instance != null && DialogueSystem.Instance.isDialogueActive) ||
             (ShopManager.Instance.IsOpen))
             return;
 
@@ -101,16 +104,45 @@ public abstract class gun : MonoBehaviourPun // 改为继承 MonoBehaviourPun
 
         if (Input.GetButton("Fire1") && timer <= 0)
         {
-            if (healthSystem == null || healthSystem.HasEnoughEnergy(energyCostPerShot))
+            // 更精确的UI检测 - 只检测有Button组件的UI元素
+            bool canShoot = true;
+
+            if (EventSystem.current != null)
             {
-                Fire();
-                timer = interval;
-                if (healthSystem != null)
-                    healthSystem.RPC_ConsumeEnergy(energyCostPerShot);
+                // 创建指针事件数据
+                PointerEventData pointerData = new PointerEventData(EventSystem.current)
+                {
+                    position = Input.mousePosition
+                };
+
+                // 收集所有被射线击中的UI结果
+                List<RaycastResult> results = new List<RaycastResult>();
+                EventSystem.current.RaycastAll(pointerData, results);
+
+                // 检查是否有可交互的UI元素（如按钮）
+                foreach (var result in results)
+                {
+                    // 如果命中的UI有Button组件，则阻止射击
+                    if (result.gameObject.GetComponent<UnityEngine.UI.Button>() != null)
+                    {
+                        canShoot = false;
+                        break;
+                    }
+                }
+            }
+
+            if (canShoot)
+            {
+                if (healthSystem == null || healthSystem.HasEnoughEnergy(energyCostPerShot))
+                {
+                    Fire();
+                    timer = interval;
+                    if (healthSystem != null)
+                        healthSystem.RPC_ConsumeEnergy(energyCostPerShot);
+                }
             }
         }
     }
-
     /// <summary>
     /// 預設的開火行為，現在改為只在本地生成子彈
     /// </summary>

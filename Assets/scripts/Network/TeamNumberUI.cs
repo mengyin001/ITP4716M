@@ -10,6 +10,7 @@ public class TeamMemberUI : MonoBehaviour
     [SerializeField] private Slider healthSlider;
     [SerializeField] private Slider energySlider;
     [SerializeField] private GameObject leaderIcon;
+
     [SerializeField] private Image background;
 
     private Player player;
