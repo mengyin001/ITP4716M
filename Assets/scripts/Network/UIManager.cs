@@ -151,6 +151,8 @@ public class UIManager : MonoBehaviourPunCallbacks
         {
             // 房主开始游戏 - 改为启动倒计时
             photonView.RPC("RPC_StartCountdown", RpcTarget.All);
+            NetworkManager.Instance.CloseRoom();
+            readyStartButton.gameObject.SetActive(false);
         }
         else
         {
@@ -667,7 +669,6 @@ public class UIManager : MonoBehaviourPunCallbacks
     if (PhotonNetwork.IsMasterClient)
     {
         NetworkManager.Instance.StartGameForAll();
-        readyStartButton.gameObject.SetActive(false);
     }
 }
 

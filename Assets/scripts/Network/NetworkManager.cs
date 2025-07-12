@@ -261,12 +261,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient && AreAllPlayersReady())
         {
-            CloseRoom();
             PhotonNetwork.LoadLevel(gameSceneName); // 替换为实际游戏场景名
         }
     }
 
-    private void CloseRoom()
+    public void CloseRoom()
     {
         if (PhotonNetwork.IsMasterClient)
         {
