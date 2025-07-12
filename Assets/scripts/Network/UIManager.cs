@@ -34,6 +34,12 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private Button readyStartButton;
     [SerializeField] private TextMeshProUGUI readyStartButtonText;
 
+    [Header("按钮颜色设置")]
+    [SerializeField] private Image buttonImage;
+    public Color readyColor = new Color(0.2f, 0.8f, 0.2f); // 准备就绪的绿色
+    public Color cancelReadyColor = new Color(0.9f, 0.8f, 0.1f); // 取消准备的黄色
+    public Color startReadyColor = new Color(0.2f, 0.8f, 0.2f); // 可开始的绿色
+    public Color startDisabledColor = new Color(0.5f, 0.5f, 0.5f); // 不可开始的灰色
 
     private bool isPlayerReady = false;
     public bool IsBagOpen { get; private set; } // ����״̬����
@@ -79,19 +85,30 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     public void UpdateReadyButton()
     {
-        if (readyStartButton == null || readyStartButtonText == null) return;
+        if (readyStartButton == null || readyStartButtonText == null || buttonImage == null)
+            return;
 
-        // ������ʾ��ʼ��ť�����������ʾ׼����ť
+        // 房主逻辑
         if (PhotonNetwork.IsMasterClient)
         {
-            readyStartButtonText.text = "Start";
-            readyStartButton.interactable = NetworkManager.Instance.AreAllPlayersReady();
+            readyStartButtonText.text = "START";
+            bool allReady = NetworkManager.Instance.AreAllPlayersReady();
+
+            // 设置按钮状态
+            readyStartButton.interactable = allReady;
+
+            // 直接设置按钮图像颜色
+            buttonImage.color = allReady ? startReadyColor : startDisabledColor;
         }
+        // 成员逻辑
         else
         {
             isPlayerReady = NetworkManager.Instance.IsPlayerReady(PhotonNetwork.LocalPlayer);
-            readyStartButtonText.text = isPlayerReady ? "Cancel Ready" : "Ready";
+            readyStartButtonText.text = isPlayerReady ? "CANCEL READY" : "READY";
             readyStartButton.interactable = true;
+
+            // 直接设置按钮图像颜色
+            buttonImage.color = isPlayerReady ? cancelReadyColor : readyColor;
         }
     }
 
@@ -99,21 +116,27 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient)
         {
+            // 房主开始游戏
             NetworkManager.Instance.StartGameForAll();
         }
         else
         {
+            // 成员切换准备状态
             bool newReadyState = !isPlayerReady;
             NetworkManager.Instance.SetPlayerReady(newReadyState);
             isPlayerReady = newReadyState;
+
+            // 立即更新UI，不必等待网络回调
             UpdateReadyButton();
         }
     }
-
     public override void OnMasterClientSwitched(Player newMasterClient)
     {
         base.OnMasterClientSwitched(newMasterClient);
+        // 更新按钮状态
         UpdateReadyButton();
+        // 更新团队UI
+        TeamUIManager.Instance?.UpdateTeamUI();
     }
 
     // ����InventoryManager
@@ -191,6 +214,14 @@ public class UIManager : MonoBehaviourPunCallbacks
             StartCoroutine(RetryFindPlayer());
         }
     }
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        base.OnPlayerPropertiesUpdate(targetPlayer, changedProps);
+        if (changedProps.ContainsKey(NetworkManager.PLAYER_READY_KEY))
+        {
+            UpdateReadyButton();
+        }
+    }
 
     private IEnumerator RetryFindPlayer()
     {
@@ -258,6 +289,19 @@ public class UIManager : MonoBehaviourPunCallbacks
         {
             UpdateMoneyUI(MoneyManager.Instance.GetCurrentMoney());
         }
+
+        if (buttonImage != null)
+        {
+            if (PhotonNetwork.IsMasterClient)
+            {
+                buttonImage.color = startDisabledColor;
+            }
+            else
+            {
+                buttonImage.color = readyColor;
+            }
+        }
+        UpdateReadyButton();
     }
 
     // ��ʼ�����UI
