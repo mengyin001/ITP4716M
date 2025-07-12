@@ -82,6 +82,9 @@ MonoBehaviour:
   - PlayDropAnimation
   - RPC_ApplyItemEffects
   - RPC_Revive
+  - StartCountdown
+  - PRC_StartCountdown
+  - RPC_StartCountdown
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

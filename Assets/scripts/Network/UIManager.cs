@@ -41,14 +41,38 @@ public class UIManager : MonoBehaviourPunCallbacks
     public Color startReadyColor = new Color(0.2f, 0.8f, 0.2f); // 可开始的绿色
     public Color startDisabledColor = new Color(0.5f, 0.5f, 0.5f); // 不可开始的灰色
 
+    [Header("倒计时设置")]
+    [SerializeField] private GameObject countdownPanel;
+    [SerializeField] private TextMeshProUGUI countdownText;
+    [SerializeField] private Image countdownBackground;
+    [SerializeField] private float countdownDuration = 5f;
+    [SerializeField] private AudioClip countdownSound;
+    [SerializeField] private AudioClip finalCountdownSound;
+
     private bool isPlayerReady = false;
     public bool IsBagOpen { get; private set; } // ����״̬����
 
     private HealthSystem playerHealthSystem;
     private bool isPlayerRegistered = false;
+    private Coroutine countdownCoroutine;
+    private AudioSource audioSource;
+    private Vector3 originalTextScale;
+    private Color originalTextColor;
+    private PhotonView photonView;
 
     void Awake()
     {
+        photonView = GetComponent<PhotonView>();
+        if (photonView == null)
+        {
+            photonView = gameObject.AddComponent<PhotonView>();
+            // 设置一个唯一的 ViewID
+            photonView.ViewID = 999;
+        }
+        if (photonView.ObservedComponents == null || photonView.ObservedComponents.Count == 0)
+        {
+            photonView.ObservedComponents = new System.Collections.Generic.List<Component> { this };
+        }
         // ȷ��ֻ��һ��ʵ��
         if (Instance != null && Instance != this)
         {
@@ -61,6 +85,15 @@ public class UIManager : MonoBehaviourPunCallbacks
 
         // ���ӳ������ؼ���
         SceneManager.sceneLoaded += OnSceneLoaded;
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+
+        // 保存原始文本属性
+        if (countdownText != null)
+        {
+            originalTextScale = countdownText.transform.localScale;
+            originalTextColor = countdownText.color;
+        }
     }
 
     void OnDestroy()
@@ -116,8 +149,8 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient)
         {
-            // 房主开始游戏
-            NetworkManager.Instance.StartGameForAll();
+            // 房主开始游戏 - 改为启动倒计时
+            photonView.RPC("RPC_StartCountdown", RpcTarget.All);
         }
         else
         {
@@ -300,6 +333,17 @@ public class UIManager : MonoBehaviourPunCallbacks
             {
                 buttonImage.color = readyColor;
             }
+        }
+        if (countdownPanel != null)
+        {
+            countdownPanel.SetActive(false);
+        }
+
+        // 重置文本属性
+        if (countdownText != null)
+        {
+            countdownText.transform.localScale = originalTextScale;
+            countdownText.color = originalTextColor;
         }
         UpdateReadyButton();
     }
@@ -507,4 +551,167 @@ public class UIManager : MonoBehaviourPunCallbacks
             Debug.LogWarning("InventoryManager reference is null in UIManager, cannot notify bag state change.");
         }
     }
+
+    [PunRPC]
+    public void RPC_StartCountdown()
+    {
+        // 防止重复开始
+        if (countdownCoroutine != null)
+        {
+            StopCoroutine(countdownCoroutine);
+        }
+
+        countdownCoroutine = StartCoroutine(CountdownRoutine());
+    }
+
+    private IEnumerator CountdownRoutine()
+    {
+        // 禁用准备按钮
+        if (readyStartButton != null)
+        {
+            readyStartButton.interactable = false;
+        }
+
+        // 激活倒计时面板
+        if (countdownPanel != null)
+        {
+            countdownPanel.SetActive(true);
+        }
+
+        // 背景淡入动画
+        if (countdownBackground != null)
+        {
+            countdownBackground.color = new Color(0, 0, 0, 0);
+            LeanTween.alpha(countdownBackground.rectTransform, 0.7f, 0.5f)
+                .setEase(LeanTweenType.easeOutQuad);
+        }
+
+        float timer = countdownDuration;
+
+        // 播放倒计时音效
+        if (countdownSound != null)
+        {
+            audioSource.PlayOneShot(countdownSound);
+        }
+
+        while (timer > 0)
+        {
+            // 更新倒计时文本
+            if (countdownText != null)
+            {
+                int seconds = Mathf.CeilToInt(timer);
+                countdownText.text = seconds.ToString();
+
+                // 添加新的文本动画
+                SmoothScaleAnimation(seconds);
+
+                // 最后3秒改变颜色
+                if (seconds <= 3)
+                {
+                    // 颜色动画 - 最后3秒变红
+                    LeanTween.value(countdownText.gameObject, countdownText.color, Color.red, 0.3f)
+                        .setOnUpdate((Color c) => countdownText.color = c);
+
+                    // 播放特殊音效
+                    if (finalCountdownSound != null && Mathf.Approximately(timer % 1, 0))
+                    {
+                        audioSource.PlayOneShot(finalCountdownSound);
+                    }
+                }
+                else
+                {
+                    // 常规倒计时颜色
+                    LeanTween.value(countdownText.gameObject, countdownText.color, Color.white, 0.3f)
+                        .setOnUpdate((Color c) => countdownText.color = c);
+                }
+            }
+
+            yield return new WaitForSeconds(0.05f); // 更平滑的更新
+            timer -= 0.05f;
+        }
+
+        // 倒计时结束 - GO! 动画
+        if (countdownText != null)
+        {
+            countdownText.text = "GO!";
+            countdownText.color = Color.green;
+
+            // 放大效果
+            LeanTween.scale(countdownText.gameObject, originalTextScale * 1.8f, 0.3f)
+                .setEase(LeanTweenType.easeOutBack)
+                .setOnComplete(() => {
+                    // 缩小效果
+                    LeanTween.scale(countdownText.gameObject, originalTextScale * 1.2f, 0.2f)
+                        .setEase(LeanTweenType.easeInOutQuad);
+                });
+
+            // 淡出效果
+            LeanTween.value(countdownText.gameObject, 1f, 0f, 0.7f)
+                .setDelay(0.3f)
+                .setOnUpdate((float alpha) => {
+                    Color c = countdownText.color;
+                    c.a = alpha;
+                    countdownText.color = c;
+                });
+        }
+
+        // 背景淡出动画
+        if (countdownBackground != null)
+        {
+            LeanTween.alpha(countdownBackground.rectTransform, 0f, 0.7f)
+                .setEase(LeanTweenType.easeInQuad);
+        }
+
+        yield return new WaitForSeconds(0.7f);
+
+        // 隐藏面板
+        if (countdownPanel != null)
+        {
+            countdownPanel.SetActive(false);
+        }
+
+        // 重置文本属性
+        if (countdownText != null)
+        {
+            countdownText.transform.localScale = originalTextScale;
+            countdownText.color = originalTextColor;
+            countdownText.alpha = 1f; // 重置透明度
+        }
+
+        // 房主加载场景
+        if (PhotonNetwork.IsMasterClient)
+        {
+            NetworkManager.Instance.StartGameForAll();
+        }
+    }
+
+    // 新的平滑缩放动画
+    private void SmoothScaleAnimation(int seconds)
+    {
+        if (countdownText == null) return;
+
+        // 取消之前的动画
+        LeanTween.cancel(countdownText.gameObject);
+
+        // 初始放大效果
+        countdownText.transform.localScale = originalTextScale * 0.8f;
+
+        // 动画1：放大到1.2倍
+        LeanTween.scale(countdownText.gameObject, originalTextScale * 1.2f, 0.2f)
+            .setEase(LeanTweenType.easeOutQuad)
+            .setOnComplete(() => {
+                // 动画2：缩小回原始大小
+                LeanTween.scale(countdownText.gameObject, originalTextScale, 0.3f)
+                    .setEase(LeanTweenType.easeInOutQuad);
+            });
+
+        // 轻微的颜色脉冲效果
+        if (seconds > 3)
+        {
+            LeanTween.value(countdownText.gameObject, Color.white, new Color(1f, 1f, 0.8f, 1f), 0.15f)
+                .setOnUpdate((Color c) => countdownText.color = c)
+                .setLoopPingPong(1);
+        }
+    }
+   
 }

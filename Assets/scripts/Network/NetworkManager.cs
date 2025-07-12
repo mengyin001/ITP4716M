@@ -210,7 +210,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         Debug.LogError($"Join room failed: {message}");
         isSwitchingScene = false; // 加入失败，重置状态
         // 这里可以加载回主菜单
-        // SceneManager.LoadScene("MainMenuScene");
+        SceneManager.LoadScene("Startup");
     }
 
     // 确保连接断开时清理
