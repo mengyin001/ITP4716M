@@ -17549,50 +17549,6 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: UiHorror_655
-      rect:
-        serializedVersion: 2
-        x: 612
-        y: 177
-        width: 10
-        height: 11
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4f6910f3e3db93750800000000000000
-      internalID: 6285262830014928628
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: UiHorror_656
-      rect:
-        serializedVersion: 2
-        x: 626
-        y: 177
-        width: 10
-        height: 11
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: d033d57f4e4081360800000000000000
-      internalID: 7140462590645056269
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: UiHorror_657
       rect:
         serializedVersion: 2
@@ -18468,50 +18424,6 @@ TextureImporter:
       bones: []
       spriteID: d23ab433aa3298d00800000000000000
       internalID: 975350008214430509
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: UiHorror_697
-      rect:
-        serializedVersion: 2
-        x: 612
-        y: 163
-        width: 10
-        height: 11
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 5b88804f231e94bf0800000000000000
-      internalID: -339492687930947403
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: UiHorror_698
-      rect:
-        serializedVersion: 2
-        x: 626
-        y: 163
-        width: 10
-        height: 11
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 7715441594a4382a0800000000000000
-      internalID: -6736458938859630217
       vertices: []
       indices: 
       edges: []
@@ -25521,7 +25433,7 @@ TextureImporter:
         width: 50
         height: 83
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -25543,7 +25455,7 @@ TextureImporter:
         width: 48
         height: 3
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -25565,7 +25477,7 @@ TextureImporter:
         width: 48
         height: 3
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -25587,7 +25499,7 @@ TextureImporter:
         width: 48
         height: 3
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -25609,7 +25521,7 @@ TextureImporter:
         width: 48
         height: 3
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -25631,7 +25543,7 @@ TextureImporter:
         width: 48
         height: 3
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -25653,7 +25565,7 @@ TextureImporter:
         width: 48
         height: 3
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -25675,7 +25587,7 @@ TextureImporter:
         width: 48
         height: 3
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -25684,6 +25596,28 @@ TextureImporter:
       bones: []
       spriteID: a500d5fcff4280144878cba34ccf2a9b
       internalID: 1173853549
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: UiHorror_655
+      rect:
+        serializedVersion: 2
+        x: 611
+        y: 163
+        width: 26
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c9796b79d28bfb2459dd02400a9c8d22
+      internalID: -909295272
       vertices: []
       indices: 
       edges: []
@@ -25710,6 +25644,7 @@ TextureImporter:
       UiHorror_1022: -1872906090
       UiHorror_1023: 1173853549
       UiHorror_353: -341727340
+      UiHorror_655: -909295272
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

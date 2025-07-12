@@ -15,6 +15,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public static NetworkManager Instance;
     private bool isSwitchingScene = false;
+    private const string PLAYER_READY_KEY = "IsReady";
 
     void Awake()
     {
@@ -74,6 +75,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         Debug.Log($"Successfully joined room: {PhotonNetwork.CurrentRoom.Name}.");
 
         // 设置当前玩家的队长状态
+        SetPlayerReady(false);
         UpdatePlayerLeaderStatus();
 
         // 如果是 Master Client，加载场景
@@ -84,6 +86,58 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             PhotonNetwork.LoadLevel(loadingSceneName);
         }
     }
+
+    public void SetPlayerReady(bool isReady)
+    {
+        if (PhotonNetwork.LocalPlayer == null) return;
+
+        ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable
+    {
+        { PLAYER_READY_KEY, isReady }
+    };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+    }
+
+    public bool IsPlayerReady(Player player)
+    {
+        return player.CustomProperties.ContainsKey(PLAYER_READY_KEY) &&
+               (bool)player.CustomProperties[PLAYER_READY_KEY];
+    }
+
+    public bool AreAllPlayersReady()
+    {
+        if (!PhotonNetwork.IsMasterClient) return false;
+
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            // 房主不需要准备
+            if (player.IsMasterClient) continue;
+
+            if (!IsPlayerReady(player)) return false;
+        }
+        return true;
+    }
+
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
+    {
+        base.OnPlayerPropertiesUpdate(targetPlayer, changedProps);
+
+        if (changedProps.ContainsKey(PLAYER_READY_KEY))
+        {
+            UIManager.Instance?.UpdateReadyButton();
+             TeamUIManager.Instance?.UpdateTeamUI();
+        }
+    }
+
+    public void StartGameForAll()
+    {
+        if (PhotonNetwork.IsMasterClient && AreAllPlayersReady())
+        {
+            PhotonNetwork.LoadLevel("Firstlevel"); // 替换为实际游戏场景名
+        }
+    }
+
+
     private void UpdatePlayerLeaderStatus()
     {
         bool isLeader = PhotonNetwork.LocalPlayer.IsMasterClient;
@@ -210,13 +264,4 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRoom(roomName);
     }
 
-    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
-    {
-        // 当玩家属性更新时，通知所有UI更新
-        if (changedProps.ContainsKey("IsTeamLeader"))
-        {
-            // 在实际项目中，这里应该通知UI管理器更新对应玩家的UI
-            Debug.Log($"{targetPlayer.NickName} leader status changed to: {changedProps["IsTeamLeader"]}");
-        }
-    }
 }

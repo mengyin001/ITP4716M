@@ -4,6 +4,7 @@ using TMPro;
 using Photon.Pun;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using Photon.Realtime;
 
 public class UIManager : MonoBehaviourPunCallbacks
 {
@@ -29,7 +30,12 @@ public class UIManager : MonoBehaviourPunCallbacks
     [Header("队伍UI")]
     [SerializeField] private GameObject teamPanel;
 
+    [Header("准备/开始按钮")]
+    [SerializeField] private Button readyStartButton;
+    [SerializeField] private TextMeshProUGUI readyStartButtonText;
 
+
+    private bool isPlayerReady = false;
     public bool IsBagOpen { get; private set; } // 背包状态属性
 
     private HealthSystem playerHealthSystem;
@@ -64,6 +70,50 @@ public class UIManager : MonoBehaviourPunCallbacks
         TryFindLocalPlayer();
         FindInventoryManager();
         SceneManager.sceneLoaded += OnSceneLoaded;
+        if (readyStartButton != null)
+        {
+            readyStartButton.onClick.AddListener(OnReadyStartClicked);
+            UpdateReadyButton();
+        }
+    }
+
+    public void UpdateReadyButton()
+    {
+        if (readyStartButton == null || readyStartButtonText == null) return;
+
+        // 房主显示开始按钮，其他玩家显示准备按钮
+        if (PhotonNetwork.IsMasterClient)
+        {
+            readyStartButtonText.text = "Start";
+            readyStartButton.interactable = NetworkManager.Instance.AreAllPlayersReady();
+        }
+        else
+        {
+            isPlayerReady = NetworkManager.Instance.IsPlayerReady(PhotonNetwork.LocalPlayer);
+            readyStartButtonText.text = isPlayerReady ? "Cancel Ready" : "Ready";
+            readyStartButton.interactable = true;
+        }
+    }
+
+    private void OnReadyStartClicked()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            NetworkManager.Instance.StartGameForAll();
+        }
+        else
+        {
+            bool newReadyState = !isPlayerReady;
+            NetworkManager.Instance.SetPlayerReady(newReadyState);
+            isPlayerReady = newReadyState;
+            UpdateReadyButton();
+        }
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        base.OnMasterClientSwitched(newMasterClient);
+        UpdateReadyButton();
     }
 
     // 查找InventoryManager

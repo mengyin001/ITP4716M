@@ -393,6 +393,14 @@ MonoBehaviour:
     dropPercentage: 37.1
   - prefab: {fileID: 7153547426953709824, guid: 61c6ca7f6d9d4da49a62a1c77c01d372, type: 3}
     dropPercentage: 21.9
+  dropRadius: 1.5
+  dropCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spawnAnimationDuration: 0.5
 --- !u!82 &5195097487528676052
 AudioSource:
   m_ObjectHideFlags: 0

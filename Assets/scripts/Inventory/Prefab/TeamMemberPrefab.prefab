@@ -243,6 +243,11 @@ MonoBehaviour:
   healthSlider: {fileID: 2308960523178104702}
   energySlider: {fileID: 6165990832258083531}
   leaderIcon: {fileID: 6033039660899233179}
+  leaderSprite: {fileID: -5352174201239637189, guid: 4932587bc3659f84d9d2f11cd997b1a5, type: 3}
+  memberSprite: {fileID: -7757238898822311691, guid: d5af0ebde4d63eb419e71dfecdfd1c7e, type: 3}
+  readyStatusImage: {fileID: 6256651858632643297}
+  readyColor: {r: 0, g: 1, b: 0, a: 1}
+  notReadyColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   background: {fileID: 1709131153478291408}
 --- !u!1 &4930826662905315686
 GameObject:

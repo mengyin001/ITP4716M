@@ -17,7 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SafeHouse.unity
     guid: 5aa6eb0b99f7d924abb17aa068724bed
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Firstlevel.unity
     guid: bceecf07196943e4295ff0c18a6a096a
   m_configObjects:
