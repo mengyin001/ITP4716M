@@ -168,7 +168,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         {
             deathOverlay.SetActive(false);
             CanvasGroup cg = deathOverlay.GetComponent<CanvasGroup>();
-            if (cg != null) cg.alpha = 0;
+            if (cg != null) cg.alpha = 0;  // 确保透明度重置为0
         }
 
         if (restartPrompt != null)
@@ -246,29 +246,57 @@ public class UIManager : MonoBehaviourPunCallbacks
     // ��ʾ����UI
     private void ShowDeathUI()
     {
-        if (deathOverlay != null && !deathOverlay.activeSelf)
+        if (deathOverlay != null)
         {
+            // 确保覆盖层处于可激活状态
             deathOverlay.SetActive(true);
-            StartCoroutine(FadeInDeathOverlay());
+            // 启动完整的死亡序列
+            StartCoroutine(DeathOverlaySequence());
         }
     }
 
-    private IEnumerator FadeInDeathOverlay()
+    private IEnumerator DeathOverlaySequence()
     {
         CanvasGroup canvasGroup = deathOverlay.GetComponent<CanvasGroup>();
-        if (canvasGroup == null) yield break;
+        if (canvasGroup == null)
+        {
+            // 如果没有CanvasGroup组件，直接等待3秒然后隐藏
+            yield return new WaitForSeconds(3f);
+            deathOverlay.SetActive(false);
+            yield break;
+        }
 
+        // 淡入效果
         canvasGroup.alpha = 0;
-        float duration = 2f;
-        float elapsed = 0;
-
-        while (elapsed < duration)
+        float fadeInDuration = 2f;
+        float elapsed = 0f; // 在此处声明elapsed变量
+        
+        while (elapsed < fadeInDuration)
         {
             elapsed += Time.deltaTime;
-            canvasGroup.alpha = Mathf.Clamp01(elapsed / duration);
+            canvasGroup.alpha = Mathf.Clamp01(elapsed / fadeInDuration);
             yield return null;
         }
+
+        // 等待3秒
+        yield return new WaitForSeconds(3f);
+
+        // 淡出效果
+        float fadeOutDuration = 2f;
+        elapsed = 0f; // 重置elapsed变量用于淡出
+        float startAlpha = canvasGroup.alpha;
+        
+        while (elapsed < fadeOutDuration)
+        {
+            elapsed += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Clamp01(startAlpha - (elapsed / fadeOutDuration));
+            yield return null;
+        }
+
+        // 重置状态
+        deathOverlay.SetActive(false);
     }
+
 
     // ��ʾ������ʾ
     private void ShowRestartPrompt()
