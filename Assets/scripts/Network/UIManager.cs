@@ -10,7 +10,7 @@ public class UIManager : MonoBehaviourPunCallbacks
 {
     public static UIManager Instance { get; private set; }
 
-    [Header("±¾µØÍæ¼Ò×¨ÊôUI")]
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¨ï¿½ï¿½UI")]
     [SerializeField] private Slider playerHealthSlider;
     [SerializeField] private TextMeshProUGUI playerHealthText;
     [SerializeField] private Slider playerEnergySlider;
@@ -18,32 +18,32 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject deathOverlay;
     [SerializeField] private TextMeshProUGUI restartPrompt;
 
-    [Header("±³°üUI")]
-    [SerializeField] private GameObject bagUI; // ±³°üUIÒıÓÃ
+    [Header("ï¿½ï¿½ï¿½ï¿½UI")]
+    [SerializeField] private GameObject bagUI; // ï¿½ï¿½ï¿½ï¿½UIï¿½ï¿½ï¿½ï¿½
 
-    [Header("»õ±ÒUI")]
+    [Header("ï¿½ï¿½ï¿½ï¿½UI")]
     [SerializeField] private TextMeshProUGUI moneyText;
 
-    [Header("±³°üUIÒıÓÃ")]
-    public InventoryManager inventoryManager; // Ìí¼ÓInventoryManagerÒıÓÃ
+    [Header("ï¿½ï¿½ï¿½ï¿½UIï¿½ï¿½ï¿½ï¿½")]
+    public InventoryManager inventoryManager; // ï¿½ï¿½ï¿½ï¿½InventoryManagerï¿½ï¿½ï¿½ï¿½
 
-    [Header("¶ÓÎéUI")]
+    [Header("ï¿½ï¿½ï¿½ï¿½UI")]
     [SerializeField] private GameObject teamPanel;
 
-    [Header("×¼±¸/¿ªÊ¼°´Å¥")]
+    [Header("×¼ï¿½ï¿½/ï¿½ï¿½Ê¼ï¿½ï¿½Å¥")]
     [SerializeField] private Button readyStartButton;
     [SerializeField] private TextMeshProUGUI readyStartButtonText;
 
 
     private bool isPlayerReady = false;
-    public bool IsBagOpen { get; private set; } // ±³°ü×´Ì¬ÊôĞÔ
+    public bool IsBagOpen { get; private set; } // ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½
 
     private HealthSystem playerHealthSystem;
     private bool isPlayerRegistered = false;
 
     void Awake()
     {
-        // È·±£Ö»ÓĞÒ»¸öÊµÀı
+        // È·ï¿½ï¿½Ö»ï¿½ï¿½Ò»ï¿½ï¿½Êµï¿½ï¿½
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -53,13 +53,13 @@ public class UIManager : MonoBehaviourPunCallbacks
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // Ìí¼Ó³¡¾°¼ÓÔØ¼àÌı
+        // ï¿½ï¿½ï¿½Ó³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½ï¿½ï¿½
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     void OnDestroy()
     {
-        // ÇåÀíÊÂ¼ş¼àÌı
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½
         SceneManager.sceneLoaded -= OnSceneLoaded;
         UnregisterPlayer();
     }
@@ -81,7 +81,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     {
         if (readyStartButton == null || readyStartButtonText == null) return;
 
-        // ·¿Ö÷ÏÔÊ¾¿ªÊ¼°´Å¥£¬ÆäËûÍæ¼ÒÏÔÊ¾×¼±¸°´Å¥
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ê¼ï¿½ï¿½Å¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾×¼ï¿½ï¿½ï¿½ï¿½Å¥
         if (PhotonNetwork.IsMasterClient)
         {
             readyStartButtonText.text = "Start";
@@ -116,7 +116,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         UpdateReadyButton();
     }
 
-    // ²éÕÒInventoryManager
+    // ï¿½ï¿½ï¿½ï¿½InventoryManager
     private void FindInventoryManager()
     {
         if (inventoryManager == null)
@@ -133,7 +133,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // ³¡¾°¼ÓÔØÍê³ÉÊ±µ÷ÓÃ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"Scene loaded: {scene.name}");
@@ -160,21 +160,21 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void ReinitializeUI()
     {
-        // ÖØĞÂ²éÕÒUI×é¼ş
+        // ï¿½ï¿½ï¿½Â²ï¿½ï¿½ï¿½UIï¿½ï¿½ï¿½
         playerHealthSlider = GameObject.Find("HealthSlider")?.GetComponent<Slider>();
-        // ÆäËûUI×é¼ş²éÕÒ...
+        // ï¿½ï¿½ï¿½ï¿½UIï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½...
 
         InitializeUI();
     }
 
-    // ³¢ÊÔ²éÕÒ±¾µØÍæ¼Ò²¢×¢²á
+    // ï¿½ï¿½ï¿½Ô²ï¿½ï¿½Ò±ï¿½ï¿½ï¿½ï¿½ï¿½Ò²ï¿½×¢ï¿½ï¿½
     private void TryFindLocalPlayer()
     {
         if (isPlayerRegistered) return;
 
         Debug.Log("Trying to find local player...");
 
-        // ²éÕÒËùÓĞÍæ¼Ò¶ÔÏó
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò¶ï¿½ï¿½ï¿½
         HealthSystem[] allPlayers = FindObjectsOfType<HealthSystem>();
         foreach (HealthSystem player in allPlayers)
         {
@@ -198,13 +198,13 @@ public class UIManager : MonoBehaviourPunCallbacks
         TryFindLocalPlayer();
     }
 
-    // ×¢²á±¾µØÍæ¼ÒµÄHealthSystem
+    // ×¢ï¿½á±¾ï¿½ï¿½ï¿½ï¿½Òµï¿½HealthSystem
     public void RegisterLocalPlayer(HealthSystem healthSystem)
     {
         if (isPlayerRegistered && playerHealthSystem == healthSystem)
             return;
 
-        // ÇåÀí¾É×¢²á
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½
         UnregisterPlayer();
 
         playerHealthSystem = healthSystem;
@@ -212,10 +212,10 @@ public class UIManager : MonoBehaviourPunCallbacks
 
         Debug.Log($"Registering local player: {healthSystem.gameObject.name}");
 
-        // ³õÊ¼»¯UI
+        // ï¿½ï¿½Ê¼ï¿½ï¿½UI
         InitializePlayerUI();
 
-        // ×¢²áÊÂ¼ş
+        // ×¢ï¿½ï¿½ï¿½Â¼ï¿½
         if (playerHealthSystem != null)
         {
             playerHealthSystem.OnHealthChanged += UpdateHealthUI;
@@ -223,24 +223,24 @@ public class UIManager : MonoBehaviourPunCallbacks
             playerHealthSystem.OnPlayerDeath += ShowDeathUI;
             playerHealthSystem.OnRestartAvailable += ShowRestartPrompt;
 
-            // Á¢¼´¸üĞÂÒ»´ÎUI
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½UI
             UpdateHealthUI(playerHealthSystem.currentHealth, playerHealthSystem.maxHealth);
             UpdateEnergyUI(playerHealthSystem.currentEnergy, playerHealthSystem.maxEnergy);
             TeamUIManager.Instance?.UpdateTeamUI();
         }
     }
 
-    // ³õÊ¼»¯UIÔªËØ×´Ì¬
+    // ï¿½ï¿½Ê¼ï¿½ï¿½UIÔªï¿½ï¿½×´Ì¬
     private void InitializeUI()
     {
         Debug.Log("Initializing UI");
 
-        // ³õÊ¼Òş²ØËÀÍöUI
+        // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½UI
         if (deathOverlay != null)
         {
             deathOverlay.SetActive(false);
             CanvasGroup cg = deathOverlay.GetComponent<CanvasGroup>();
-            if (cg != null) cg.alpha = 0;
+            if (cg != null) cg.alpha = 0;  // ç¡®ä¿é€æ˜åº¦é‡ç½®ä¸º0
         }
 
         if (restartPrompt != null)
@@ -260,7 +260,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // ³õÊ¼»¯Íæ¼ÒUI
+    // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½UI
     private void InitializePlayerUI()
     {
         if (playerHealthSystem == null) return;
@@ -281,10 +281,10 @@ public class UIManager : MonoBehaviourPunCallbacks
         UpdateEnergyUI(playerHealthSystem.currentEnergy, playerHealthSystem.maxEnergy);
     }
 
-    // ¸üĞÂÑªÁ¿UI
+    // ï¿½ï¿½ï¿½ï¿½Ñªï¿½ï¿½UI
     private void UpdateHealthUI(float currentHealth, float maxHealth)
     {
-        // È·±£ÔÚUIÏß³ÌÖ´ĞĞ
+        // È·ï¿½ï¿½ï¿½ï¿½UIï¿½ß³ï¿½Ö´ï¿½ï¿½
         if (this == null) return;
 
         if (playerHealthSlider != null)
@@ -306,10 +306,10 @@ public class UIManager : MonoBehaviourPunCallbacks
         );
     }
 
-    // ¸üĞÂÄÜÁ¿UI
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½UI
     private void UpdateEnergyUI(float currentEnergy, float maxEnergy)
     {
-        // È·±£ÔÚUIÏß³ÌÖ´ĞĞ
+        // È·ï¿½ï¿½ï¿½ï¿½UIï¿½ß³ï¿½Ö´ï¿½ï¿½
         if (this == null) return;
 
         if (playerEnergySlider != null)
@@ -331,34 +331,61 @@ public class UIManager : MonoBehaviourPunCallbacks
        );
     }
 
-    // ÏÔÊ¾ËÀÍöUI
+    // ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½UI
     private void ShowDeathUI()
     {
-        if (deathOverlay != null && !deathOverlay.activeSelf)
+        if (deathOverlay != null)
         {
+            // ç¡®ä¿è¦†ç›–å±‚å¤„äºå¯æ¿€æ´»çŠ¶æ€
             deathOverlay.SetActive(true);
-            StartCoroutine(FadeInDeathOverlay());
+            // å¯åŠ¨å®Œæ•´çš„æ­»äº¡åºåˆ—
+            StartCoroutine(DeathOverlaySequence());
         }
     }
 
-    private IEnumerator FadeInDeathOverlay()
+    private IEnumerator DeathOverlaySequence()
     {
         CanvasGroup canvasGroup = deathOverlay.GetComponent<CanvasGroup>();
-        if (canvasGroup == null) yield break;
+        if (canvasGroup == null)
+        {
+            // å¦‚æœæ²¡æœ‰CanvasGroupç»„ä»¶ï¼Œç›´æ¥ç­‰å¾…3ç§’ç„¶åéšè—
+            yield return new WaitForSeconds(3f);
+            deathOverlay.SetActive(false);
+            yield break;
+        }
 
+        // æ·¡å…¥æ•ˆæœ
         canvasGroup.alpha = 0;
-        float duration = 2f;
-        float elapsed = 0;
-
-        while (elapsed < duration)
+        float fadeInDuration = 2f;
+        float elapsed = 0f; // åœ¨æ­¤å¤„å£°æ˜elapsedå˜é‡
+        
+        while (elapsed < fadeInDuration)
         {
             elapsed += Time.deltaTime;
-            canvasGroup.alpha = Mathf.Clamp01(elapsed / duration);
+            canvasGroup.alpha = Mathf.Clamp01(elapsed / fadeInDuration);
             yield return null;
         }
+
+        // ç­‰å¾…3ç§’
+        yield return new WaitForSeconds(3f);
+
+        // æ·¡å‡ºæ•ˆæœ
+        float fadeOutDuration = 2f;
+        elapsed = 0f; // é‡ç½®elapsedå˜é‡ç”¨äºæ·¡å‡º
+        float startAlpha = canvasGroup.alpha;
+        
+        while (elapsed < fadeOutDuration)
+        {
+            elapsed += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Clamp01(startAlpha - (elapsed / fadeOutDuration));
+            yield return null;
+        }
+
+        // é‡ç½®çŠ¶æ€
+        deathOverlay.SetActive(false);
     }
 
-    // ÏÔÊ¾ÖØÆôÌáÊ¾
+    // ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾
     private void ShowRestartPrompt()
     {
         if (restartPrompt != null && !restartPrompt.gameObject.activeSelf)
@@ -367,7 +394,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // ÇåÀí×¢²á
+    // ï¿½ï¿½ï¿½ï¿½×¢ï¿½ï¿½
     public void UnregisterPlayer()
     {
         if (playerHealthSystem != null)
@@ -393,7 +420,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         IsBagOpen = !bagUI.activeSelf;
         bagUI.SetActive(IsBagOpen);
 
-        // Í¨ÖªInventoryManager±³°ü×´Ì¬±ä»¯
+        // Í¨ÖªInventoryManagerï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ä»¯
         if (inventoryManager != null)
         {
             inventoryManager.OnBagStateChanged(IsBagOpen);
@@ -410,7 +437,7 @@ public class UIManager : MonoBehaviourPunCallbacks
             moneyText.text = amount.ToString();
     }
 
-    // µ÷ÊÔ·½·¨
+    // ï¿½ï¿½ï¿½Ô·ï¿½ï¿½ï¿½
     public void ForceRefreshInventory()
     {
         if (bagUI == null)
@@ -419,20 +446,20 @@ public class UIManager : MonoBehaviourPunCallbacks
             return;
         }
 
-        // ÇĞ“Q±³°üUIµÄï@Ê¾ î‘B
+        // ï¿½Ğ“Qï¿½ï¿½ï¿½ï¿½UIï¿½ï¿½ï¿½@Ê¾ï¿½ï¿½B
         IsBagOpen = !bagUI.activeSelf;
         bagUI.SetActive(IsBagOpen);
 
-        // ¡¾ºËĞÄĞŞÕı¡¿
-        // ²»ÔÙÕ{ÓÃ ForceRefresh()£¬¶øÊÇÕ{ÓÃ OnBagStateChanged()
-        // Œ¢ĞÂµÄ±³°ü î‘BÍ¨Öª½o InventoryManager
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        // ï¿½ï¿½ï¿½ï¿½ï¿½{ï¿½ï¿½ ForceRefresh()ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½{ï¿½ï¿½ OnBagStateChanged()
+        // ï¿½ï¿½ï¿½ÂµÄ±ï¿½ï¿½ï¿½ï¿½ï¿½BÍ¨Öªï¿½o InventoryManager
         if (inventoryManager != null)
         {
             inventoryManager.OnBagStateChanged(IsBagOpen);
         }
         else
         {
-            // ß@‚€¾¯¸æ¬FÔÚ¸üÓĞÓÃ£¬ÒòéÎÒ‚ƒÒÀÙ‡ InventoryManager
+            // ï¿½@ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Fï¿½Ú¸ï¿½ï¿½ï¿½ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½Ò‚ï¿½ï¿½ï¿½Ù‡ InventoryManager
             Debug.LogWarning("InventoryManager reference is null in UIManager, cannot notify bag state change.");
         }
     }
