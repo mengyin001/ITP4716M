@@ -261,7 +261,28 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient && AreAllPlayersReady())
         {
+            CloseRoom();
             PhotonNetwork.LoadLevel(gameSceneName); // 替换为实际游戏场景名
+        }
+    }
+
+    private void CloseRoom()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.CurrentRoom.IsOpen = false;      // 关闭房间，阻止新玩家加入
+            PhotonNetwork.CurrentRoom.IsVisible = false;    // 房间不可见，不会显示在房间列表中
+            Debug.Log("房间已关闭，新玩家无法加入");
+        }
+    }
+
+    public void ReopenRoomIfNeeded()
+    {
+        if (PhotonNetwork.IsMasterClient && PhotonNetwork.InRoom)
+        {
+            PhotonNetwork.CurrentRoom.IsOpen = true;
+            PhotonNetwork.CurrentRoom.IsVisible = true;
+            Debug.Log("房间已重新开放");
         }
     }
 }

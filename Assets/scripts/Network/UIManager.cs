@@ -565,153 +565,133 @@ public class UIManager : MonoBehaviourPunCallbacks
     }
 
     private IEnumerator CountdownRoutine()
+{
+    // 禁用准备按钮
+    if (readyStartButton != null)
     {
-        // 禁用准备按钮
-        if (readyStartButton != null)
-        {
-            readyStartButton.interactable = false;
-        }
+        readyStartButton.interactable = false;
+    }
 
-        // 激活倒计时面板
-        if (countdownPanel != null)
-        {
-            countdownPanel.SetActive(true);
-        }
+    // 激活倒计时面板
+    if (countdownPanel != null)
+    {
+        countdownPanel.SetActive(true);
+    }
 
-        // 背景淡入动画
-        if (countdownBackground != null)
-        {
-            countdownBackground.color = new Color(0, 0, 0, 0);
-            LeanTween.alpha(countdownBackground.rectTransform, 0.7f, 0.5f)
-                .setEase(LeanTweenType.easeOutQuad);
-        }
+    // 背景淡入动画
+    if (countdownBackground != null)
+    {
+        countdownBackground.color = new Color(0, 0, 0, 0);
+        LeanTween.alpha(countdownBackground.rectTransform, 0.7f, 0.5f)
+            .setEase(LeanTweenType.easeOutQuad);
+    }
 
-        float timer = countdownDuration;
+    float timer = countdownDuration;
 
-        // 播放倒计时音效
-        if (countdownSound != null)
-        {
-            audioSource.PlayOneShot(countdownSound);
-        }
+    // 播放倒计时音效
+    if (countdownSound != null)
+    {
+        audioSource.PlayOneShot(countdownSound);
+    }
 
-        while (timer > 0)
+    while (timer > 0)
+    {
+        // 更新倒计时文本
+        if (countdownText != null)
         {
-            // 更新倒计时文本
-            if (countdownText != null)
+            int seconds = Mathf.CeilToInt(timer);
+            countdownText.text = seconds.ToString();
+
+            // 添加稳定的动画效果
+            StableCountdownAnimation(seconds);
+
+            // 最后3秒改变颜色
+            if (seconds <= 3)
             {
-                int seconds = Mathf.CeilToInt(timer);
-                countdownText.text = seconds.ToString();
-
-                // 添加新的文本动画
-                SmoothScaleAnimation(seconds);
-
-                // 最后3秒改变颜色
-                if (seconds <= 3)
+                // 播放特殊音效
+                if (finalCountdownSound != null && Mathf.Approximately(timer % 1, 0))
                 {
-                    // 颜色动画 - 最后3秒变红
-                    LeanTween.value(countdownText.gameObject, countdownText.color, Color.red, 0.3f)
-                        .setOnUpdate((Color c) => countdownText.color = c);
-
-                    // 播放特殊音效
-                    if (finalCountdownSound != null && Mathf.Approximately(timer % 1, 0))
-                    {
-                        audioSource.PlayOneShot(finalCountdownSound);
-                    }
-                }
-                else
-                {
-                    // 常规倒计时颜色
-                    LeanTween.value(countdownText.gameObject, countdownText.color, Color.white, 0.3f)
-                        .setOnUpdate((Color c) => countdownText.color = c);
+                    audioSource.PlayOneShot(finalCountdownSound);
                 }
             }
-
-            yield return new WaitForSeconds(0.05f); // 更平滑的更新
-            timer -= 0.05f;
         }
 
-        // 倒计时结束 - GO! 动画
-        if (countdownText != null)
-        {
-            countdownText.text = "GO!";
-            countdownText.color = Color.green;
-
-            // 放大效果
-            LeanTween.scale(countdownText.gameObject, originalTextScale * 1.8f, 0.3f)
-                .setEase(LeanTweenType.easeOutBack)
-                .setOnComplete(() => {
-                    // 缩小效果
-                    LeanTween.scale(countdownText.gameObject, originalTextScale * 1.2f, 0.2f)
-                        .setEase(LeanTweenType.easeInOutQuad);
-                });
-
-            // 淡出效果
-            LeanTween.value(countdownText.gameObject, 1f, 0f, 0.7f)
-                .setDelay(0.3f)
-                .setOnUpdate((float alpha) => {
-                    Color c = countdownText.color;
-                    c.a = alpha;
-                    countdownText.color = c;
-                });
-        }
-
-        // 背景淡出动画
-        if (countdownBackground != null)
-        {
-            LeanTween.alpha(countdownBackground.rectTransform, 0f, 0.7f)
-                .setEase(LeanTweenType.easeInQuad);
-        }
-
-        yield return new WaitForSeconds(0.7f);
-
-        // 隐藏面板
-        if (countdownPanel != null)
-        {
-            countdownPanel.SetActive(false);
-        }
-
-        // 重置文本属性
-        if (countdownText != null)
-        {
-            countdownText.transform.localScale = originalTextScale;
-            countdownText.color = originalTextColor;
-            countdownText.alpha = 1f; // 重置透明度
-        }
-
-        // 房主加载场景
-        if (PhotonNetwork.IsMasterClient)
-        {
-            NetworkManager.Instance.StartGameForAll();
-        }
+        yield return new WaitForSeconds(0.05f);
+        timer -= 0.05f;
     }
 
-    // 新的平滑缩放动画
-    private void SmoothScaleAnimation(int seconds)
+    // 倒计时结束 - GO! 动画
+    if (countdownText != null)
     {
-        if (countdownText == null) return;
-
-        // 取消之前的动画
-        LeanTween.cancel(countdownText.gameObject);
-
-        // 初始放大效果
-        countdownText.transform.localScale = originalTextScale * 0.8f;
-
-        // 动画1：放大到1.2倍
-        LeanTween.scale(countdownText.gameObject, originalTextScale * 1.2f, 0.2f)
-            .setEase(LeanTweenType.easeOutQuad)
-            .setOnComplete(() => {
-                // 动画2：缩小回原始大小
-                LeanTween.scale(countdownText.gameObject, originalTextScale, 0.3f)
-                    .setEase(LeanTweenType.easeInOutQuad);
+        countdownText.text = "GO!";
+        countdownText.color = Color.green;
+        
+        // 缩放动画（无位移）
+        LeanTween.scale(countdownText.gameObject, originalTextScale * 1.8f, 0.4f)
+            .setEase(LeanTweenType.easeOutBack);
+        
+        // 淡出效果
+        LeanTween.value(countdownText.gameObject, 1f, 0f, 0.6f)
+            .setDelay(0.3f)
+            .setOnUpdate((float alpha) => {
+                Color c = countdownText.color;
+                c.a = alpha;
+                countdownText.color = c;
             });
-
-        // 轻微的颜色脉冲效果
-        if (seconds > 3)
-        {
-            LeanTween.value(countdownText.gameObject, Color.white, new Color(1f, 1f, 0.8f, 1f), 0.15f)
-                .setOnUpdate((Color c) => countdownText.color = c)
-                .setLoopPingPong(1);
-        }
     }
+
+    // 背景淡出动画
+    if (countdownBackground != null)
+    {
+        LeanTween.alpha(countdownBackground.rectTransform, 0f, 0.8f)
+            .setEase(LeanTweenType.easeInQuad);
+    }
+
+    yield return new WaitForSeconds(0.8f);
+
+    // 隐藏面板
+    if (countdownPanel != null)
+    {
+        countdownPanel.SetActive(false);
+    }
+
+    // 重置文本属性
+    if (countdownText != null)
+    {
+        countdownText.transform.localScale = originalTextScale;
+        countdownText.color = originalTextColor;
+        countdownText.alpha = 1f; // 重置透明度
+    }
+
+    // 房主加载场景
+    if (PhotonNetwork.IsMasterClient)
+    {
+        NetworkManager.Instance.StartGameForAll();
+        readyStartButton.gameObject.SetActive(false);
+    }
+}
+
+// 稳定的倒计时动画（无抖动）
+private void StableCountdownAnimation(int seconds)
+{
+    if (countdownText == null) return;
+
+    // 取消之前的动画
+    LeanTween.cancel(countdownText.gameObject);
+    
+    // 缩放动画
+    Vector3 targetScale = originalTextScale * (seconds <= 3 ? 1.4f : 1.2f);
+    LeanTween.scale(countdownText.gameObject, targetScale, 0.2f)
+        .setEase(LeanTweenType.easeOutQuad)
+        .setOnComplete(() => {
+            LeanTween.scale(countdownText.gameObject, originalTextScale, 0.3f)
+                .setEase(LeanTweenType.easeInOutQuad);
+        });
+    
+    // 颜色动画
+    Color targetColor = seconds <= 3 ? Color.red : Color.white;
+    LeanTween.value(countdownText.gameObject, countdownText.color, targetColor, 0.3f)
+        .setOnUpdate((Color c) => countdownText.color = c);
+}
    
 }
