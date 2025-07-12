@@ -12,10 +12,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public int maxPlayers = 4;
     public string loadingSceneName = "LoadingScene";
     public string roomSceneName = "SafeHouse";
+    public string gameSceneName = "FirstLevel";
 
     public static NetworkManager Instance;
     private bool isSwitchingScene = false;
-    private const string PLAYER_READY_KEY = "IsReady";
+    public const string PLAYER_READY_KEY = "IsReady";
 
     void Awake()
     {
@@ -30,20 +31,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         }
     }
 
-      public override void OnEnable()
+    public override void OnEnable()
     {
-        // 首先，調用父類的 OnEnable 是個好習慣
         base.OnEnable();
-        // 訂閱 SceneManager.sceneLoaded 事件
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    // 【核心修正 2】: 使用 OnDisable 取消訂閱，防止內存洩漏
     public override void OnDisable()
     {
-        // 同樣，調用父類的 OnDisable
         base.OnDisable();
-        // 取消訂閱 SceneManager.sceneLoaded 事件
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
@@ -70,6 +66,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
         PhotonNetwork.JoinOrCreateRoom("GameRoom", roomOptions, TypedLobby.Default);
     }
+
     public override void OnJoinedRoom()
     {
         Debug.Log($"Successfully joined room: {PhotonNetwork.CurrentRoom.Name}.");
@@ -92,9 +89,9 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.LocalPlayer == null) return;
 
         ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable
-    {
-        { PLAYER_READY_KEY, isReady }
-    };
+        {
+            { PLAYER_READY_KEY, isReady }
+        };
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
     }
 
@@ -125,18 +122,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         if (changedProps.ContainsKey(PLAYER_READY_KEY))
         {
             UIManager.Instance?.UpdateReadyButton();
-             TeamUIManager.Instance?.UpdateTeamUI();
+            TeamUIManager.Instance?.UpdateTeamUI();
+
+            // 通知TeamUIManager更新准备状态
+            bool isReady = IsPlayerReady(targetPlayer);
+            TeamUIManager.Instance?.SetPlayerReadyStatus(targetPlayer.ActorNumber, isReady);
         }
     }
-
-    public void StartGameForAll()
-    {
-        if (PhotonNetwork.IsMasterClient && AreAllPlayersReady())
-        {
-            PhotonNetwork.LoadLevel("Firstlevel"); // 替换为实际游戏场景名
-        }
-    }
-
 
     private void UpdatePlayerLeaderStatus()
     {
@@ -167,21 +159,21 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 確保這個邏輯只在 Master Client 進入最終的 RoomScene 時執行一次
+        // 确保这个逻辑只在 Master Client 进入最终的 RoomScene 时执行一次
         if (scene.name == roomSceneName && PhotonNetwork.IsMasterClient)
         {
             Debug.Log("Master Client has loaded the RoomScene. Opening the room to public.");
 
-            // 開門迎客！
+            // 开门迎客！
             PhotonNetwork.CurrentRoom.IsOpen = true;
             PhotonNetwork.CurrentRoom.IsVisible = true;
 
-            // 重置標記
+            // 重置标记
             isSwitchingScene = false;
         }
         else if (scene.name != roomSceneName)
         {
-            // 如果加載的不是最終場景（例如返回主菜單），也重置標記
+            // 如果加载的不是最终场景（例如返回主菜单），也重置标记
             isSwitchingScene = false;
         }
     }
@@ -189,7 +181,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         Debug.Log($"{newPlayer.NickName} has joined the room.");
-        // 在這裡可以更新玩家列表等 UI
+        // 在这里可以更新玩家列表等 UI
     }
 
     // 提供给加载场景的"准备完成"按钮
@@ -216,8 +208,8 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
         Debug.LogError($"Join room failed: {message}");
-        isSwitchingScene = false; // 加入失敗，重置狀態
-        // 這裡可以加載回主菜單
+        isSwitchingScene = false; // 加入失败，重置状态
+        // 这里可以加载回主菜单
         // SceneManager.LoadScene("MainMenuScene");
     }
 
@@ -252,16 +244,24 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         Debug.LogError($"Create room failed: {message}");
         // 可以在这里显示错误提示
     }
+
     public void JoinRoom(string roomName)
     {
         if (!PhotonNetwork.IsConnectedAndReady || isSwitchingScene) return;
 
         isSwitchingScene = true;
-        SceneLoader.targetScene = roomSceneName; // 先設置好目標
-        SceneManager.LoadScene(loadingSceneName); // 手動加載 LoadingScene
+        SceneLoader.targetScene = roomSceneName; // 先设置好目标
+        SceneManager.LoadScene(loadingSceneName); // 手动加载 LoadingScene
 
-        // 在加載 LoadingScene 的同時，異步加入 Photon 房間
+        // 在加载 LoadingScene 的同时，异步加入 Photon 房间
         PhotonNetwork.JoinRoom(roomName);
     }
 
+    public void StartGameForAll()
+    {
+        if (PhotonNetwork.IsMasterClient && AreAllPlayersReady())
+        {
+            PhotonNetwork.LoadLevel(gameSceneName); // 替换为实际游戏场景名
+        }
+    }
 }

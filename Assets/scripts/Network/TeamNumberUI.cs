@@ -9,14 +9,19 @@ public class TeamMemberUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI playerNameText;
     [SerializeField] private Slider healthSlider;
     [SerializeField] private Slider energySlider;
-    [SerializeField] private GameObject leaderIcon;
+    [SerializeField] private GameObject leaderIcon; // 队长图标对象
+
+    [Header("准备状态图标")]
+    [SerializeField] private Image readyStatusIcon; // 准备状态图标
+    [SerializeField] private Color readyColor = Color.green; // 准备状态颜色
+    [SerializeField] private Color notReadyColor = Color.gray; // 未准备状态颜色
 
     [SerializeField] private Image background;
 
     private Player player;
     private HealthSystem healthSystem;
+    private bool isLeader; // 标记是否是队长
 
-    // 修改Initialize方法接受两个参数
     public void Initialize(Player player, HealthSystem healthSystem)
     {
         this.player = player;
@@ -25,14 +30,8 @@ public class TeamMemberUI : MonoBehaviour
 
         UpdateLeaderStatus();
 
-        // 检查是否是队长
-        object isLeaderObj;
-        bool isLeader = false;
-        if (player.CustomProperties.TryGetValue("IsTeamLeader", out isLeaderObj))
-        {
-            isLeader = (bool)isLeaderObj;
-        }
-        leaderIcon.gameObject.SetActive(isLeader);
+        // 初始设置准备状态图标
+        SetReadyStatus(false);
 
         // 如果有HealthSystem，订阅事件
         if (healthSystem != null)
@@ -56,29 +55,60 @@ public class TeamMemberUI : MonoBehaviour
         }
     }
 
-   private void UpdateLeaderStatus()
+    // 设置队长状态
+    public void SetLeaderStatus(bool isLeader)
     {
-        // 方法1：直接检查是否是Master Client
-        bool isLeader = player.IsMasterClient;
-        
-        // 方法2：检查自定义属性（更可靠）
+        this.isLeader = isLeader;
+
+        // 更新队长图标
+        if (leaderIcon != null)
+        {
+            leaderIcon.SetActive(isLeader);
+        }
+
+        // 队长不显示准备状态图标
+        if (readyStatusIcon != null)
+        {
+            readyStatusIcon.gameObject.SetActive(!isLeader);
+        }
+    }
+
+    // 设置准备状态
+    public void SetReadyStatus(bool isReady)
+    {
+        // 如果是队长，不显示准备状态
+        if (isLeader || readyStatusIcon == null) return;
+
+        readyStatusIcon.gameObject.SetActive(true);
+        readyStatusIcon.color = isReady ? readyColor : notReadyColor;
+    }
+
+    // 更新队长状态
+    private void UpdateLeaderStatus()
+    {
+        isLeader = false;
+
+        // 优先使用自定义属性判断
         if (player.CustomProperties.TryGetValue("IsTeamLeader", out object isLeaderObj))
         {
             isLeader = (bool)isLeaderObj;
         }
-        
-        leaderIcon.gameObject.SetActive(isLeader);
-    }
-
-    private void OnPlayerPropertiesChanged(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
-    {
-        if (targetPlayer.Equals(player))
+        // 如果没有自定义属性，使用IsMasterClient作为备用
+        else
         {
-            // 如果IsTeamLeader属性变化，更新UI
-            if (changedProps.ContainsKey("IsTeamLeader"))
-            {
-                UpdateLeaderStatus();
-            }
+            isLeader = player.IsMasterClient;
+        }
+
+        // 确保leaderIcon不为空
+        if (leaderIcon != null)
+        {
+            leaderIcon.SetActive(isLeader);
+        }
+
+        // 队长不显示准备状态图标
+        if (readyStatusIcon != null)
+        {
+            readyStatusIcon.gameObject.SetActive(!isLeader);
         }
     }
 
@@ -137,7 +167,6 @@ public class TeamMemberUI : MonoBehaviour
 
     private void OnDestroy()
     {
-
         // 取消订阅事件
         if (healthSystem != null)
         {
@@ -145,6 +174,7 @@ public class TeamMemberUI : MonoBehaviour
             healthSystem.OnEnergyChanged -= HandleEnergyChanged;
         }
     }
+
     public void RebindHealthSystem(HealthSystem newHealthSystem)
     {
         // 解除旧事件绑定
@@ -169,13 +199,6 @@ public class TeamMemberUI : MonoBehaviour
                 healthSystem.currentEnergy,
                 healthSystem.maxEnergy
             );
-        }
-    }
-    public void SetLeaderStatus(bool isLeader)
-    {
-        if (leaderIcon != null) // 确保有队长图标引用
-        {
-            leaderIcon.SetActive(isLeader);
         }
     }
 }

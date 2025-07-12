@@ -590,6 +590,9 @@ MonoBehaviour:
   - {fileID: 7565515423173365012}
   - {fileID: 6414608655021536432}
   playerName: {fileID: 1047830407474866690}
+  reviveRange: 1.5
+  reviveTime: 3
+  reviveKey: 114
 --- !u!114 &8786287489346416177
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -646,6 +649,8 @@ MonoBehaviour:
   restartPrompt: {fileID: 0}
   restartDelay: 1
   restartSceneName: SafeHouse
+  canBeRevived: 1
+  reviveHealthPercent: 0.3
 --- !u!70 &1571607846234698523
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

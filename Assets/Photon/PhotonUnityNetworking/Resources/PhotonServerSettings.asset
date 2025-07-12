@@ -81,6 +81,7 @@ MonoBehaviour:
   - RPC_SyncScene
   - PlayDropAnimation
   - RPC_ApplyItemEffects
+  - RPC_Revive
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

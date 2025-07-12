@@ -4,30 +4,31 @@ using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
+using System.Collections;
 
 public class TeamUIManager : MonoBehaviourPunCallbacks
 {
     public static TeamUIManager Instance { get; private set; }
 
     [Header("队伍UI元素")]
-    [SerializeField] private RectTransform teamListPanel; // 新增：TeamList 的 RectTransform
+    [SerializeField] private RectTransform teamListPanel;
     [SerializeField] private Transform teamMembersContainer;
     [SerializeField] private GameObject teamMemberPrefab;
     [SerializeField] private TextMeshProUGUI teamStatusText;
 
     [Header("滑动按钮元素")]
-    [SerializeField] private Button toggleButton; // 新增：控制滑动的按钮
-    [SerializeField] private Image arrowIcon; // 新增：按钮上的箭头图标
-    [SerializeField] private Sprite arrowRightIcon; // 新增：向右箭头的Sprite
-    [SerializeField] private Sprite arrowLeftIcon; // 新增：向左箭头的Sprite
+    [SerializeField] private Button toggleButton;
+    [SerializeField] private Image arrowIcon;
+    [SerializeField] private Sprite arrowRightIcon;
+    [SerializeField] private Sprite arrowLeftIcon;
 
     private Dictionary<int, TeamMemberUI> memberUIs = new Dictionary<int, TeamMemberUI>();
     private Dictionary<int, HealthSystem> playerHealthSystems = new Dictionary<int, HealthSystem>();
 
-    private bool isTeamListVisible = true; // 新增：TeamList 的可见状态
-    private Vector2 teamListVisiblePosition; // 新增：TeamList 可见时的位置
-    private Vector2 teamListHiddenPosition; // 新增：TeamList 隐藏时的位置
-    private float slideDuration = 0.3f; // 新增：滑动动画持续时间
+    private bool isTeamListVisible = true;
+    private Vector2 teamListVisiblePosition;
+    private Vector2 teamListHiddenPosition;
+    private float slideDuration = 0.3f;
 
     void Awake()
     {
@@ -48,20 +49,22 @@ public class TeamUIManager : MonoBehaviourPunCallbacks
         UpdateTeamUI();
         teamStatusText.text = "Team Player";
 
-        // 新增：初始化 TeamList 的位置和按钮事件
+        // 初始化 TeamList 的位置和按钮事件
         if (teamListPanel != null)
         {
-            teamListVisiblePosition = teamListPanel.anchoredPosition; // 记录初始可见位置
-            // 计算隐藏位置：假设向右滑动隐藏，隐藏位置在可见位置的右侧，宽度等于 TeamListPanel 的宽度
-            teamListHiddenPosition = new Vector2(teamListVisiblePosition.x + teamListPanel.rect.width, teamListVisiblePosition.y);
+            teamListVisiblePosition = teamListPanel.anchoredPosition;
+            teamListHiddenPosition = new Vector2(
+                teamListVisiblePosition.x + teamListPanel.rect.width,
+                teamListVisiblePosition.y
+            );
         }
 
         if (toggleButton != null)
         {
-            toggleButton.onClick.AddListener(ToggleTeamListVisibility); // 绑定按钮点击事件
+            toggleButton.onClick.AddListener(ToggleTeamListVisibility);
         }
 
-        UpdateToggleButtonIcon(); // 初始化按钮图标
+        UpdateToggleButtonIcon();
     }
 
     // 更新队伍UI - 显示所有玩家
@@ -84,7 +87,7 @@ public class TeamUIManager : MonoBehaviourPunCallbacks
             return;
         }
 
-        teamStatusText.text = $"Team Player :{PhotonNetwork.PlayerList.Length}";
+        teamStatusText.text = $"Team Player: {PhotonNetwork.PlayerList.Length}";
 
         // 显示所有房间玩家
         foreach (Player player in PhotonNetwork.PlayerList)
@@ -104,6 +107,10 @@ public class TeamUIManager : MonoBehaviourPunCallbacks
 
         // 调用Initialize方法
         memberComponent.Initialize(player, healthSystem);
+
+        // 设置准备状态
+        bool isReady = NetworkManager.Instance.IsPlayerReady(player);
+        memberComponent.SetReadyStatus(isReady);
 
         memberUIs.Add(player.ActorNumber, memberComponent);
     }
@@ -149,46 +156,45 @@ public class TeamUIManager : MonoBehaviourPunCallbacks
         return null;
     }
 
-    // 更新特定玩家的状态
-    public void UpdatePlayerStatus(int actorNumber, float health, float maxHealth, float energy, float maxEnergy)
+    // 更新玩家准备状态
+    public void SetPlayerReadyStatus(int actorNumber, bool isReady)
     {
-        if (memberUIs.ContainsKey(actorNumber))
+        if (memberUIs.TryGetValue(actorNumber, out TeamMemberUI memberUI))
         {
-            memberUIs[actorNumber].UpdateStatus(health, maxHealth, energy, maxEnergy);
+            memberUI.SetReadyStatus(isReady);
         }
     }
 
-    // 新增：切换 TeamList 的可见性
+    // 切换 TeamList 的可见性
     public void ToggleTeamListVisibility()
     {
         isTeamListVisible = !isTeamListVisible;
         Vector2 targetPosition = isTeamListVisible ? teamListVisiblePosition : teamListHiddenPosition;
 
-        // 使用 LeanTween 或 DOTween 等第三方动画库可以实现更平滑的动画
-        // 这里使用简单的协程实现动画，需要自行添加 using System.Collections; 到文件顶部
-        // 或者直接设置位置，如果不需要动画
-        // teamListPanel.anchoredPosition = targetPosition;
-
         StartCoroutine(AnimateTeamList(targetPosition));
         UpdateToggleButtonIcon();
     }
 
-    // 新增：TeamList 滑动动画协程
-    private System.Collections.IEnumerator AnimateTeamList(Vector2 targetPosition)
+    // TeamList 滑动动画协程
+    private IEnumerator AnimateTeamList(Vector2 targetPosition)
     {
         float elapsedTime = 0;
         Vector2 startingPosition = teamListPanel.anchoredPosition;
 
         while (elapsedTime < slideDuration)
         {
-            teamListPanel.anchoredPosition = Vector2.Lerp(startingPosition, targetPosition, (elapsedTime / slideDuration));
+            teamListPanel.anchoredPosition = Vector2.Lerp(
+                startingPosition,
+                targetPosition,
+                (elapsedTime / slideDuration)
+            );
             elapsedTime += Time.deltaTime;
             yield return null;
         }
-        teamListPanel.anchoredPosition = targetPosition; // 确保最终位置精确
+        teamListPanel.anchoredPosition = targetPosition;
     }
 
-    // 新增：更新按钮图标
+    // 更新按钮图标
     private void UpdateToggleButtonIcon()
     {
         if (arrowIcon != null)
@@ -213,6 +219,30 @@ public class TeamUIManager : MonoBehaviourPunCallbacks
         }
 
         UpdateTeamUI();
+    }
+
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    {
+        base.OnPlayerPropertiesUpdate(targetPlayer, changedProps);
+
+        // 检查是否是队长状态更新
+        if (changedProps.ContainsKey("IsTeamLeader") && memberUIs.ContainsKey(targetPlayer.ActorNumber))
+        {
+            bool isLeader = (bool)changedProps["IsTeamLeader"];
+            memberUIs[targetPlayer.ActorNumber].SetLeaderStatus(isLeader);
+
+            // 同时更新准备状态显示
+            bool isReady = NetworkManager.Instance.IsPlayerReady(targetPlayer);
+            memberUIs[targetPlayer.ActorNumber].SetReadyStatus(isReady);
+        }
+
+        // 检查准备状态更新
+        if (changedProps.ContainsKey(NetworkManager.PLAYER_READY_KEY) &&
+            memberUIs.ContainsKey(targetPlayer.ActorNumber))
+        {
+            bool isReady = (bool)changedProps[NetworkManager.PLAYER_READY_KEY];
+            memberUIs[targetPlayer.ActorNumber].SetReadyStatus(isReady);
+        }
     }
 
     // 当场景加载时清除缓存
@@ -244,17 +274,11 @@ public class TeamUIManager : MonoBehaviourPunCallbacks
         }
     }
 
-    public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    public void UpdatePlayerStatus(int actorNumber, float health, float maxHealth, float energy, float maxEnergy)
     {
-        base.OnPlayerPropertiesUpdate(targetPlayer, changedProps);
-
-        // 检查是否是队长状态更新
-        if (changedProps.ContainsKey("IsTeamLeader") && memberUIs.ContainsKey(targetPlayer.ActorNumber))
+        if (memberUIs.ContainsKey(actorNumber))
         {
-            bool isLeader = (bool)changedProps["IsTeamLeader"];
-            memberUIs[targetPlayer.ActorNumber].SetLeaderStatus(isLeader);
+            memberUIs[actorNumber].UpdateStatus(health, maxHealth, energy, maxEnergy);
         }
     }
 }
-
-
