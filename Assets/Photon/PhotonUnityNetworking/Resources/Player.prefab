@@ -1901,7 +1901,7 @@ Transform:
   m_GameObject: {fileID: 6851506695543343754}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.09278695, y: 0.1492552, z: -0.33333334}
+  m_LocalPosition: {x: -0.09278695, y: 0.1492552, z: -2}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1948,7 +1948,7 @@ MonoBehaviour:
     materials:
     - {fileID: 0}
     sortingLayer:
-      name: Default
+      name: Player
       Order: 0
   bumpMap:
     intensity: 1

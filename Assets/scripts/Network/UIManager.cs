@@ -125,7 +125,8 @@ public class UIManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient)
         {
             readyStartButtonText.text = "START";
-            bool allReady = NetworkManager.Instance.AreAllPlayersReady();
+            bool allReady = PhotonNetwork.CurrentRoom.PlayerCount == 1 ||
+                             NetworkManager.Instance.AreAllPlayersReady();
 
             // 设置按钮状态
             readyStartButton.interactable = allReady;
@@ -694,5 +695,16 @@ private void StableCountdownAnimation(int seconds)
     LeanTween.value(countdownText.gameObject, countdownText.color, targetColor, 0.3f)
         .setOnUpdate((Color c) => countdownText.color = c);
 }
-   
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        base.OnPlayerLeftRoom(otherPlayer);
+        Debug.Log($"Player left: {otherPlayer.NickName}");
+
+        // 更新按钮状态
+        UpdateReadyButton();
+
+        // 更新队伍UI
+        TeamUIManager.Instance?.UpdateTeamUI();
+    }
+
 }
