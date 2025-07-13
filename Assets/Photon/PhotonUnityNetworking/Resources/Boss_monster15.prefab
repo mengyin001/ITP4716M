@@ -43,7 +43,7 @@ Transform:
   m_GameObject: {fileID: 5399959637803383070}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.93, y: 3.67, z: 0}
+  m_LocalPosition: {x: -1.93, y: 3.67, z: -2}
   m_LocalScale: {x: 4, y: 4, z: 4}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -345,13 +345,17 @@ MonoBehaviour:
   propPrefabs:
   - prefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
     dropPercentage: 100
-  - prefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
+  - prefab: {fileID: 7153547426953709824, guid: 61c6ca7f6d9d4da49a62a1c77c01d372, type: 3}
     dropPercentage: 100
-  - prefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
+  - prefab: {fileID: 8654074269076141900, guid: a6f4214ef9eb7584390abc900b89ca87, type: 3}
+    dropPercentage: 100
+  - prefab: {fileID: 8654074269076141900, guid: bf353173b0163f44482289070ba67044, type: 3}
     dropPercentage: 100
   - prefab: {fileID: 7153547426953709824, guid: 61c6ca7f6d9d4da49a62a1c77c01d372, type: 3}
     dropPercentage: 100
-  - prefab: {fileID: 7153547426953709824, guid: 61c6ca7f6d9d4da49a62a1c77c01d372, type: 3}
+  - prefab: {fileID: 8654074269076141900, guid: 4219a95da49275e4aa6816b9c6d28fb9, type: 3}
+    dropPercentage: 100
+  - prefab: {fileID: 782630537697650885, guid: ffe820688c24b7b449df0c6db5770fc3, type: 3}
     dropPercentage: 100
   dropRadius: 1.5
   dropCurve:

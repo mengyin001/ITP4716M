@@ -14,6 +14,7 @@ public class PickupSpawner : MonoBehaviourPun
     public void DropItems()
     {
         if (!PhotonNetwork.IsMasterClient) return;
+        Debug.Log($"开始掉落物品，位置: {transform.position}");
 
         foreach (var propPrefab in propPrefabs)
         {
@@ -28,24 +29,9 @@ public class PickupSpawner : MonoBehaviourPun
                     Quaternion.identity
                 );
 
-                // 关键修复：立即重置缩放比例
-                photonView.RPC("ResetPickupScale", RpcTarget.AllBuffered,
-                    pickup.GetComponent<PhotonView>().ViewID);
-
                 photonView.RPC("PlayDropAnimation", RpcTarget.All,
                     pickup.GetComponent<PhotonView>().ViewID);
             }
-        }
-    }
-
-    [PunRPC]
-    private void ResetPickupScale(int viewId)
-    {
-        PhotonView pv = PhotonView.Find(viewId);
-        if (pv != null)
-        {
-            // 强制重置为正常比例（1,1,1）
-            pv.transform.localScale = Vector3.one;
         }
     }
 
