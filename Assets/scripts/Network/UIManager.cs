@@ -211,7 +211,6 @@ public class UIManager : MonoBehaviourPunCallbacks
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"Scene loaded: {scene.name}");
-        ReinitializeUI();
         TryFindLocalPlayer();
         FindInventoryManager();
 
@@ -246,15 +245,6 @@ public class UIManager : MonoBehaviourPunCallbacks
                 TeamUIManager.Instance.UpdateTeamUI();
             }
         }
-    }
-
-    private void ReinitializeUI()
-    {
-        // 重新查找UI元素
-        playerHealthSlider = GameObject.Find("HealthSlider")?.GetComponent<Slider>();
-        // 其他UI元素查找...
-
-        InitializeUI();
     }
 
     // 尝试查找本地玩家并注册

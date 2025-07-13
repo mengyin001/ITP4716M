@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 using ExitGames.Client.Photon;
+using System;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
@@ -25,9 +26,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (Instance != this)
         {
             Destroy(gameObject);
+            return; // 确保后续代码不会执行
+        }
+
+        // 确保在重新连接时不会重复初始化
+        if (!PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.ConnectUsingSettings();
         }
     }
 
@@ -159,6 +167,11 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        Debug.Log($"Scene loaded: {scene.name}");
+        if (scene.name == gameSceneName)
+        {
+            MovePlayersToScene(scene);
+        }
         // 确保这个逻辑只在 Master Client 进入最终的 RoomScene 时执行一次
         if (scene.name == roomSceneName && PhotonNetwork.IsMasterClient)
         {
@@ -175,6 +188,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             // 如果加载的不是最终场景（例如返回主菜单），也重置标记
             isSwitchingScene = false;
+        }
+        if (this != null && gameObject != null)
+        {
+            DontDestroyOnLoad(gameObject);
         }
     }
 
@@ -261,9 +278,99 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient && AreAllPlayersReady())
         {
-            PhotonNetwork.LoadLevel(gameSceneName); // 替换为实际游戏场景名
+            // 确保所有玩家对象迁移到新场景
+            photonView.RPC("RPC_MovePlayersToGameScene", RpcTarget.AllBuffered);
         }
     }
+
+    [PunRPC]
+    private void RPC_MovePlayersToGameScene()
+    {
+        // 先确保目标场景已加载
+        Scene targetScene = SceneManager.GetSceneByName(gameSceneName);
+
+        if (!targetScene.IsValid())
+        {
+            // 如果场景未加载，先加载场景
+            if (PhotonNetwork.IsMasterClient)
+            {
+                // 主客户端加载场景
+                PhotonNetwork.LoadLevel(gameSceneName);
+            }
+
+            // 所有客户端等待场景加载完成
+            StartCoroutine(MovePlayersAfterSceneLoad());
+            return;
+        }
+
+        // 如果场景已加载，直接移动玩家
+        MovePlayersToScene(targetScene);
+    }
+
+    private System.Collections.IEnumerator MovePlayersAfterSceneLoad()
+    {
+        // 等待场景加载完成
+        while (!SceneManager.GetSceneByName(gameSceneName).IsValid() ||
+               !SceneManager.GetSceneByName(gameSceneName).isLoaded)
+        {
+            yield return null;
+        }
+
+        Scene targetScene = SceneManager.GetSceneByName(gameSceneName);
+        MovePlayersToScene(targetScene);
+    }
+
+    private void MovePlayersToScene(Scene targetScene)
+    {
+        // 将所有玩家对象移到新场景
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            if (player.TagObject is GameObject playerObj && playerObj != null)
+            {
+                try
+                {
+                    // 确保对象不在目标场景中
+                    if (playerObj.scene != targetScene)
+                    {
+                        SceneManager.MoveGameObjectToScene(playerObj, targetScene);
+                        Debug.Log($"Moved player {playerObj.name} to scene {targetScene.name}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Error moving player to scene: {e.Message}");
+                }
+            }
+        }
+        if (PhotonNetwork.IsMasterClient)
+        {
+            ResetPlayerPositions();
+        }
+    }
+
+    private void ResetPlayerPositions()
+    {
+        // 在第一关场景中查找重生点
+        var spawner = FindObjectOfType<GameLevelPlayerSpawner>();
+        if (spawner == null)
+        {
+            Debug.LogError("GameLevelPlayerSpawner not found in the scene!");
+            return;
+        }
+
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        foreach (GameObject player in players)
+        {
+            PhotonView pv = player.GetComponent<PhotonView>();
+            if (pv != null && pv.IsMine)
+            {
+                int spawnIndex = (pv.Owner.ActorNumber - 1) % spawner.spawnPoints.Length;
+                player.transform.position = spawner.spawnPoints[spawnIndex].position;
+                player.transform.rotation = spawner.spawnPoints[spawnIndex].rotation;
+            }
+        }
+    }
+
 
     public void CloseRoom()
     {
