@@ -1,33 +1,62 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
-using Pathfinding; // ĞèÒª A* Pathfinding Project ²å¼ş
+using Pathfinding;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class SummonMinions : MonoBehaviour
+public class SummonMinions : MonoBehaviourPunCallbacks
 {
     [Header("Minion Settings")]
-    public GameObject minionPrefab; // Ğ¡µÜÔ¤ÖÆÌå
-    public int minionsPerSummon = 3; // Ã¿´ÎÕÙ»½ÊıÁ¿
-    public float summonRadius = 3f; // ÕÙ»½°ë¾¶
+    public GameObject minionPrefab; // ç›´æ¥å¼•ç”¨å°æ€ªé¢„åˆ¶ä½“
+    public int minionsPerSummon = 3;
+    public float summonRadius = 3f;
 
     [Header("Summon Interval")]
-    public float summonInterval = 10f; // ÕÙ»½¼ä¸ô
-    public float summonTimer; // ¼ÆÊ±Æ÷
+    public float summonInterval = 10f;
+    public float summonTimer;
 
     [Header("Absorb Settings")]
-    public float absorbRadius = 1f; // ÎüÊÕ°ë¾¶
-    public float healthRestoreAmount = 10f; // ÎüÊÕ»ØÑªÁ¿
+    public float absorbRadius = 1f;
+    public float healthRestoreAmount = 10f;
 
     [Header("Boundary Settings")]
-    public LayerMask walkableLayer; // ¿ÉĞĞ×ß²ã£¨±¸ÓÃ·½°¸£©
-    public float maxSpawnAttempts = 10; // ×î´ó³¢ÊÔ´ÎÊı
+    public LayerMask walkableLayer;
+    public float maxSpawnAttempts = 10;
 
-    private Character bossCharacter; // Boss ½ÇÉ«½Å±¾
-    private List<GameObject> minions = new List<GameObject>(); // Ğ¡µÜÁĞ±í
+    private Character bossCharacter;
+    private List<GameObject> minions = new List<GameObject>();
+    private List<int> minionViewIDs = new List<int>();
 
     private void Awake()
     {
         bossCharacter = GetComponent<Character>();
         summonTimer = summonInterval;
+    }
+
+    private void Start()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            summonTimer = summonInterval;
+        }
+
+        // æ£€æŸ¥é¢„åˆ¶ä½“æ˜¯å¦å·²èµ‹å€¼
+        if (minionPrefab == null)
+        {
+            Debug.LogError("è¯·åœ¨Inspectorä¸­ä¸ºSummonMinionsç»„ä»¶èµ‹å€¼minionPrefabï¼");
+        }
+        else
+        {
+            // æ£€æŸ¥é¢„åˆ¶ä½“æ˜¯å¦åŒ…å«å¿…è¦ç»„ä»¶
+            if (minionPrefab.GetComponent<PhotonView>() == null)
+            {
+                Debug.LogWarning("å°æ€ªé¢„åˆ¶ä½“ç¼ºå°‘PhotonViewç»„ä»¶ï¼Œç½‘ç»œåŒæ­¥å¯èƒ½å¼‚å¸¸ï¼");
+            }
+            if (minionPrefab.GetComponent<Enemy>() == null)
+            {
+                Debug.LogWarning("å°æ€ªé¢„åˆ¶ä½“ç¼ºå°‘Enemyç»„ä»¶ï¼Œå¯èƒ½æ— æ³•æ­£å¸¸æ”»å‡»ï¼");
+            }
+        }
     }
 
     private void Update()
@@ -38,19 +67,36 @@ public class SummonMinions : MonoBehaviour
             return;
         }
 
-        // ÕÙ»½¼ÆÊ±
-        summonTimer -= Time.deltaTime;
-        if (summonTimer <= 0f)
+        if (PhotonNetwork.IsMasterClient)
         {
-            SummonMinionsBatch();
-            summonTimer = summonInterval;
+            summonTimer -= Time.deltaTime;
+            if (summonTimer <= 0f)
+            {
+                SummonMinionsBatch();
+                summonTimer = summonInterval;
+            }
         }
 
         AbsorbMinions();
     }
 
+    // å…¬å…±å±æ€§ï¼šä¾›UIè·å–å†·å´è¿›åº¦
+    public float SummonTimerRemaining
+    {
+        get { return summonTimer; }
+    }
+
+    public float SummonTimerProgress
+    {
+        get { return 1 - (summonTimer / summonInterval); }
+    }
+
+    [PunRPC]
     private void SummonMinionsBatch()
     {
+        // é¢„åˆ¶ä½“æœªèµ‹å€¼æ—¶ä¸æ‰§è¡Œå¬å”¤
+        if (minionPrefab == null) return;
+
         for (int i = 0; i < minionsPerSummon; i++)
         {
             TrySpawnMinion();
@@ -59,6 +105,9 @@ public class SummonMinions : MonoBehaviour
 
     private void TrySpawnMinion()
     {
+        // é¢„åˆ¶ä½“æœªèµ‹å€¼æ—¶ç›´æ¥è¿”å›
+        if (minionPrefab == null) return;
+
         for (int attempt = 0; attempt < maxSpawnAttempts; attempt++)
         {
             Vector2 randomOffset = Random.insideUnitCircle * summonRadius;
@@ -66,20 +115,39 @@ public class SummonMinions : MonoBehaviour
 
             if (IsPositionWalkable(spawnPosition))
             {
-                GameObject minion = Instantiate(minionPrefab, spawnPosition, Quaternion.identity);
-                minions.Add(minion);
+                // ä½¿ç”¨Photonç½‘ç»œå®ä¾‹åŒ–é¢„åˆ¶ä½“
+                GameObject minion = PhotonNetwork.Instantiate(
+                    minionPrefab.name,  // ä½¿ç”¨é¢„åˆ¶ä½“åç§°ä½œä¸ºæ ‡è¯†
+                    spawnPosition,
+                    Quaternion.identity
+                );
+
+                if (minion != null)
+                {
+                    minions.Add(minion);
+                    minionViewIDs.Add(minion.GetComponent<PhotonView>().ViewID);
+
+                    // è®¾ç½®å°æ€ªç›®æ ‡
+                    Enemy enemyScript = minion.GetComponent<Enemy>();
+                    if (enemyScript != null)
+                    {
+                        GameObject player = GameObject.FindGameObjectWithTag("Player");
+                        if (player != null)
+                        {
+                            enemyScript.SetTarget(player.transform);
+                        }
+                    }
+                }
+
                 return;
             }
         }
-        Debug.LogWarning("Failed to find valid spawn position after " + maxSpawnAttempts + " attempts");
+
+        Debug.LogWarning("å°è¯•" + maxSpawnAttempts + "æ¬¡åä»æœªæ‰¾åˆ°åˆé€‚çš„ç”Ÿæˆä½ç½®");
     }
 
-    /// <summary>
-    /// ¼ì²éÎ»ÖÃÊÇ·ñ¿ÉĞĞ×ß£¨ÓÅÏÈÓÃ A*£¬±¸ÓÃ Physics2D ¼ì²â£©
-    /// </summary>
     private bool IsPositionWalkable(Vector3 position)
     {
-        // ·½°¸1£ºÊ¹ÓÃ A* Pathfinding Project ¼ì²â
         if (AstarPath.active != null)
         {
             var node = AstarPath.active.GetNearest(position).node;
@@ -87,19 +155,22 @@ public class SummonMinions : MonoBehaviour
                 return true;
         }
 
-        // ·½°¸2£º±¸ÓÃ Physics2D ¼ì²â£¨ÊÊÓÃÓÚ Tilemap »ò Collider ±ê¼Ç¿ÉĞĞ×ßÇøÓò£©
         Collider2D hit = Physics2D.OverlapCircle(position, 0.5f, walkableLayer);
         return hit != null;
     }
 
     private void AbsorbMinions()
     {
+        if (!PhotonNetwork.IsMasterClient) return;
+
         for (int i = minions.Count - 1; i >= 0; i--)
         {
             GameObject minion = minions[i];
             if (minion == null)
             {
                 minions.RemoveAt(i);
+                if (i < minionViewIDs.Count)
+                    minionViewIDs.RemoveAt(i);
                 continue;
             }
 
@@ -110,19 +181,56 @@ public class SummonMinions : MonoBehaviour
                     bossCharacter.currentHealth + healthRestoreAmount,
                     bossCharacter.MaxHealth);
 
-                Destroy(minion);
+                PhotonView minionView = minion.GetComponent<PhotonView>();
+                if (minionView != null)
+                {
+                    PhotonNetwork.Destroy(minionView);
+                }
+                else
+                {
+                    Destroy(minion);
+                }
+
                 minions.RemoveAt(i);
+                if (i < minionViewIDs.Count)
+                    minionViewIDs.RemoveAt(i);
+            }
+        }
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(minionViewIDs.Count);
+            foreach (int viewID in minionViewIDs)
+            {
+                stream.SendNext(viewID);
+            }
+        }
+        else
+        {
+            minionViewIDs.Clear();
+            int count = (int)stream.ReceiveNext();
+            for (int i = 0; i < count; i++)
+            {
+                int viewID = (int)stream.ReceiveNext();
+                minionViewIDs.Add(viewID);
+
+                PhotonView view = PhotonView.Find(viewID);
+                if (view != null && !minions.Contains(view.gameObject))
+                {
+                    minions.Add(view.gameObject);
+                }
             }
         }
     }
 
     private void OnDrawGizmosSelected()
     {
-        // ÕÙ»½·¶Î§£¨À¶É«£©
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, summonRadius);
 
-        // ÎüÊÕ·¶Î§£¨ºìÉ«£©
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, absorbRadius);
     }
