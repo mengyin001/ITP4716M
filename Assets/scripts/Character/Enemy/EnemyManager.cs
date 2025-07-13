@@ -199,8 +199,7 @@ public class EnemyManager : MonoBehaviour
                 meleeEnemy.patrolPoints = new List<Transform>(patrolPoints);
             }
 
-            // 不再直接设置玩家引用，由Enemy脚本自己定期更新
-            // meleeEnemy.player = playerTarget;
+            meleeEnemy.SetTarget(playerTarget);
 
             meleeEnemy.OnDie.AddListener(() => OnEnemyDied(meleeEnemy.gameObject));
             return true;
@@ -212,8 +211,7 @@ public class EnemyManager : MonoBehaviour
                 rangedEnemy.patrolPoints = new List<Transform>(patrolPoints);
             }
 
-            // 不再直接设置玩家引用，由Enemy脚本自己定期更新
-            // rangedEnemy.player = playerTarget;
+            rangedEnemy.SetTarget(playerTarget);
 
             rangedEnemy.OnDie.AddListener(() => OnEnemyDied(rangedEnemy.gameObject));
             return true;
