@@ -201,7 +201,7 @@ public class UnlimitedEnemyManager : MonoBehaviour
             {
                 rangedEnemy.patrolPoints = new List<Transform>(patrolPoints);
             }
-            rangedEnemy.SetTarget(playerTarget);
+            rangedEnemy.player = playerTarget;
             rangedEnemy.OnDie.AddListener(() => OnEnemyDied(rangedEnemy.gameObject));
             return true;
         }

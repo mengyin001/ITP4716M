@@ -458,8 +458,8 @@ public class Enemy : Character, IPunObservable
 
         if (animator != null)
         {
-            animator.SetBool("isWalk", networkMovementDirection != Vector2.zero);
-            animator.SetBool("isAttack", networkIsAttacking);
+            animator.SetBool("IsMoving", networkMovementDirection != Vector2.zero);
+            animator.SetBool("IsAttacking", networkIsAttacking);
         }
     }
     #endregion

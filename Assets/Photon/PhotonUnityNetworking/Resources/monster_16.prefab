@@ -353,6 +353,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  player: {fileID: 0}
   chaseDistance: 9
   attackDistance: 7
   shouldPatrol: 1
@@ -370,8 +371,6 @@ MonoBehaviour:
   bulletSpeed: 2
   initialPoolSize: 20
   bulletSpawnPoint: {fileID: 3094904388301418936}
-  targetDetectionRadius: 15
-  prioritizeThreats: 0
   forceChaseMode: 0
   publicMode: 1
   pickupSpawner: {fileID: 9192020753057309946}
@@ -682,7 +681,6 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: 7633091332884551747}
-  - {fileID: 190991816411841654}
   - {fileID: 3467102981555421043}
   - {fileID: 5810123973146234838}
   - {fileID: 8555149736755069095}
