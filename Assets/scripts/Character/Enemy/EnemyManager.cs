@@ -254,10 +254,21 @@ public class EnemyManager : MonoBehaviour
         if (activeEnemies.Contains(enemy))
         {
             activeEnemies.Remove(enemy);
-            Destroy(enemy);
+
+            // 在销毁前调用掉落物品
+            var spawner = enemy.GetComponent<PickupSpawner>();
+            if (spawner != null)
+            {
+                // 确保敌人在掉落前处于正常缩放
+                enemy.transform.localScale = Vector3.one;
+                spawner.DropItems();
+            }
+
+            // 销毁敌人
+            PhotonNetwork.Destroy(enemy);
         }
 
-        // 只有当所有波次都完成并且没有存活的敌人时才生成传送门
+        // 检查是否生成传送门
         if (AllWavesCompleted && AliveEnemyCount <= 0)
         {
             GenerateTeleportationCircle();
