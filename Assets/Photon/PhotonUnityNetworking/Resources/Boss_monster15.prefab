@@ -320,16 +320,15 @@ MonoBehaviour:
   patrolPoints: []
   patrolPointReachedDistance: 2
   waitTimeAtPoint: 1
-  meleeAttackDamage: 0
+  meleetAttackDamage: 15
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
   AttackCooldownDuration: 2
-  targetDetectionRadius: 10
-  prioritizeThreats: 0
   forceChaseMode: 0
   publicMode: 1
   pickupSpawner: {fileID: 4650037836069216572}
+  player: {fileID: 0}
 --- !u!114 &4650037836069216572
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -659,7 +658,7 @@ MonoBehaviour:
   ObservedComponentsFoldoutOpen: 1
   Group: 0
   prefixField: -1
-  Synchronization: 1
+  Synchronization: 3
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:

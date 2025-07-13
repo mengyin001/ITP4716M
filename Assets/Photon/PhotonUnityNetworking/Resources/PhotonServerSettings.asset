@@ -85,9 +85,6 @@ MonoBehaviour:
   - StartCountdown
   - PRC_StartCountdown
   - RPC_StartCountdown
-  - RPC_AbsorbMinion
-  - RPC_SummonMinionsBatch
-  - SummonMinionsBatch
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

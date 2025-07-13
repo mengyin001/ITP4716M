@@ -188,7 +188,7 @@ public class UnlimitedEnemyManager : MonoBehaviour
             {
                 meleeEnemy.patrolPoints = new List<Transform>(patrolPoints);
             }
-            meleeEnemy.SetTarget(playerTarget);
+            meleeEnemy.player = playerTarget;
             meleeEnemy.OnDie.AddListener(() => OnEnemyDied(meleeEnemy.gameObject));
             return true;
         }
