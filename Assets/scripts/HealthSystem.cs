@@ -214,6 +214,7 @@ public class HealthSystem : MonoBehaviourPunCallbacks, IPunObservable
             {
                 OnHealthChanged?.Invoke(currentHealth, maxHealth);
                 PlayHurtSound();
+                Debug.Log($"Player took {damage} damage. Current health: {currentHealth}/{maxHealth}");
             }
 
             if (currentHealth <= 0)

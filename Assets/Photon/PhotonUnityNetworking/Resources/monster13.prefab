@@ -292,18 +292,19 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  player: {fileID: 0}
   chaseDistance: 8
   attackDistance: 1
   shouldPatrol: 1
   patrolPoints: []
   patrolPointReachedDistance: 4
   waitTimeAtPoint: 1
-  meleetAttackDamage: 10
+  meleeAttackDamage: 10
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
   AttackCooldownDuration: 1
+  targetDetectionRadius: 10
+  prioritizeThreats: 0
   forceChaseMode: 0
   publicMode: 1
   pickupSpawner: {fileID: 453379470401198784}
@@ -326,6 +327,14 @@ MonoBehaviour:
     dropPercentage: 28.5
   - prefab: {fileID: 7153547426953709824, guid: 61c6ca7f6d9d4da49a62a1c77c01d372, type: 3}
     dropPercentage: 40.2
+  dropRadius: 1.5
+  dropCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spawnAnimationDuration: 0.5
 --- !u!114 &5437350505921305044
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -629,11 +638,12 @@ MonoBehaviour:
   ObservedComponentsFoldoutOpen: 1
   Group: 0
   prefixField: -1
-  Synchronization: 3
+  Synchronization: 1
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
   - {fileID: 7934389025991844418}
+  - {fileID: 4112752322977396189}
   - {fileID: -4575224213537400806}
   - {fileID: 597099566696976535}
   sceneViewId: 0

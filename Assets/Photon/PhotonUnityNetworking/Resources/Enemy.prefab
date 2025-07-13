@@ -42,7 +42,7 @@ Transform:
   m_GameObject: {fileID: 3602681120093151928}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.78, y: 0.3, z: -2}
+  m_LocalPosition: {x: 2.78, y: 0.3, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -301,15 +301,16 @@ MonoBehaviour:
   - {fileID: 0}
   patrolPointReachedDistance: 4
   waitTimeAtPoint: 1
-  meleetAttackDamage: 10
+  meleeAttackDamage: 10
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
   AttackCooldownDuration: 1
+  targetDetectionRadius: 10
+  prioritizeThreats: 0
   forceChaseMode: 0
   publicMode: 1
   pickupSpawner: {fileID: 8203703573622415227}
-  player: {fileID: 0}
 --- !u!114 &8203703573622415227
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -662,7 +663,7 @@ MonoBehaviour:
   ObservedComponentsFoldoutOpen: 1
   Group: 0
   prefixField: -1
-  Synchronization: 3
+  Synchronization: 1
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
