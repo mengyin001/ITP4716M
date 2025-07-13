@@ -95,6 +95,9 @@ MonoBehaviour:
   - ApplyGlobalScale
   - ApplyFixedScale
   - ResetPickupScale
+  - ActivateBullet
+  - DeactivateBullet
+  - SetupBullet
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
