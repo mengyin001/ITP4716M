@@ -43,6 +43,8 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
         {
             Debug.LogError("[NetworkInventory] HealthSystem component not found on this GameObject!");
         }
+
+        LoadInventory();
     }
 
     // AddItem 和 RemoveItem 保持不變，因為它們已經有 IsMine 檢查，確保只有擁有者能修改數據。
@@ -75,6 +77,7 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
         items.Add(new InventorySlot(itemID, amount));
         OnInventoryChanged?.Invoke();
         Debug.Log($"[NetworkInventory] AddItem: Added new item: {itemID} x{amount}");
+        SaveInventory();
     }
 
     public void AddItem(ItemData itemData, int amount = 1)
@@ -122,6 +125,7 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         Debug.LogWarning($"[NetworkInventory] RemoveItem: Item {itemID} not found in inventory.");
+        SaveInventory();
         return false;
     }
 
@@ -307,4 +311,49 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
 
         Debug.Log(sb.ToString());
     }
+    public void SaveInventory()
+    {
+        if (!photonView.IsMine) return;
+
+        // 将物品列表转换为字符串数组
+        string[] inventoryData = new string[items.Count * 2];
+        for (int i = 0; i < items.Count; i++)
+        {
+            inventoryData[i * 2] = items[i].itemID;
+            inventoryData[i * 2 + 1] = items[i].quantity.ToString();
+        }
+
+        ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable
+        {
+            { "PlayerInventory", inventoryData }
+        };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+        Debug.Log("Inventory saved");
+    }
+
+    public void LoadInventory()
+    {
+        if (!photonView.IsMine) return;
+
+        if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("PlayerInventory"))
+        {
+            string[] inventoryData = (string[])PhotonNetwork.LocalPlayer.CustomProperties["PlayerInventory"];
+
+            items.Clear();
+            for (int i = 0; i < inventoryData.Length; i += 2)
+            {
+                string itemID = inventoryData[i];
+                int quantity = int.Parse(inventoryData[i + 1]);
+                items.Add(new InventorySlot(itemID, quantity));
+            }
+
+            OnInventoryChanged?.Invoke();
+            Debug.Log("Inventory loaded from saved data");
+        }
+        else
+        {
+            Debug.Log("No saved inventory found");
+        }
+    }
+
 }

@@ -89,20 +89,12 @@ MonoBehaviour:
   - RPC_SummonMinionsBatch
   - SummonMinionsBatch
   - RPC_HideReadyButton
-  - DisableBullet
-  - HideBullet
-  - SetupBullet
-  - SetActiveRPC
-  - ActivateBullet
-  - DeactivateBullet
-  - ReturnToPoolRPC
-  - InitializeBulletPoolRPC
-  - InitializeBullet
-  - ExpandPool
-  - InitializePool
-  - ReturnBullet
-  - OnBulletHit
-  - RequestDamage
+  - RPC_MovePlayersToGameScene
+  - RPC_DestroyPlayerObjects
+  - RPC_SavePlayerData
+  - ApplyGlobalScale
+  - ApplyFixedScale
+  - ResetPickupScale
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 using ExitGames.Client.Photon;
+using System;
+using System.Collections.Generic;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
@@ -25,9 +27,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (Instance != this)
         {
             Destroy(gameObject);
+            return; // 确保后续代码不会执行
+        }
+
+        // 确保在重新连接时不会重复初始化
+        if (!PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.ConnectUsingSettings();
         }
     }
 
@@ -156,9 +165,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         }
     }
 
-
     public void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        Debug.Log($"Scene loaded: {scene.name}");
+       /* if (scene.name == gameSceneName)
+        {
+            MovePlayersToScene(scene);
+        }*/
         // 确保这个逻辑只在 Master Client 进入最终的 RoomScene 时执行一次
         if (scene.name == roomSceneName && PhotonNetwork.IsMasterClient)
         {
@@ -175,6 +188,10 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             // 如果加载的不是最终场景（例如返回主菜单），也重置标记
             isSwitchingScene = false;
+        }
+        if (this != null && gameObject != null)
+        {
+            DontDestroyOnLoad(gameObject);
         }
     }
 
@@ -261,7 +278,26 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsMasterClient && AreAllPlayersReady())
         {
-            PhotonNetwork.LoadLevel(gameSceneName); // 替换为实际游戏场景名
+            // 确保所有玩家销毁当前对象
+            photonView.RPC("RPC_DestroyPlayerObjects", RpcTarget.All);
+            SavePlayerDataBeforeSceneChange();
+
+            // 主客户端加载场景
+            PhotonNetwork.LoadLevel(gameSceneName);
+        }
+    }
+
+    [PunRPC]
+    private void RPC_DestroyPlayerObjects()
+    {
+        // 销毁当前玩家的游戏对象
+        if (PhotonNetwork.LocalPlayer.TagObject is GameObject playerObj)
+        {
+            if (playerObj != null)
+            {
+                PhotonNetwork.Destroy(playerObj);
+            }
+            PhotonNetwork.LocalPlayer.TagObject = null;
         }
     }
 
@@ -283,5 +319,30 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             PhotonNetwork.CurrentRoom.IsVisible = true;
             Debug.Log("房间已重新开放");
         }
+    }
+    public void SavePlayerDataBeforeSceneChange()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            photonView.RPC("RPC_SavePlayerData", RpcTarget.All);
+        }
+    }
+
+    [PunRPC]
+    private void RPC_SavePlayerData()
+    {
+        // 保存金币数据
+        if (MoneyManager.Instance != null)
+        {
+            MoneyManager.Instance.SaveMoney();
+        }
+
+        // 保存物品数据
+        if (GetComponent<NetworkInventory>() != null)
+        {
+            GetComponent<NetworkInventory>().SaveInventory();
+        }
+
+        Debug.Log("Player data saved before scene change");
     }
 }

@@ -7,9 +7,9 @@ public class PickupSpawner : MonoBehaviourPun
 {
     public PropPrefab[] propPrefabs;
     [Header("Drop Settings")]
-    public float dropRadius = 1.5f; // 掉落范围半径
-    public AnimationCurve dropCurve; // 掉落动画曲线
-    public float spawnAnimationDuration = 0.5f; // 生成动画持续时间
+    public float dropRadius = 1.5f;
+    public AnimationCurve dropCurve;
+    public float spawnAnimationDuration = 0.5f;
 
     public void DropItems()
     {
@@ -19,20 +19,33 @@ public class PickupSpawner : MonoBehaviourPun
         {
             if (Random.Range(0f, 100f) <= propPrefab.dropPercentage)
             {
-                // 计算随机偏移位置
                 Vector2 randomOffset = Random.insideUnitCircle * dropRadius;
                 Vector3 spawnPosition = transform.position + new Vector3(randomOffset.x, randomOffset.y, 0);
 
-                // 使用PUN实例化道具
                 GameObject pickup = PhotonNetwork.Instantiate(
                     propPrefab.prefab.name,
                     spawnPosition,
                     Quaternion.identity
                 );
 
-                // 启动掉落动画协程
-                photonView.RPC("PlayDropAnimation", RpcTarget.All, pickup.GetComponent<PhotonView>().ViewID);
+                // 关键修复：立即重置缩放比例
+                photonView.RPC("ResetPickupScale", RpcTarget.AllBuffered,
+                    pickup.GetComponent<PhotonView>().ViewID);
+
+                photonView.RPC("PlayDropAnimation", RpcTarget.All,
+                    pickup.GetComponent<PhotonView>().ViewID);
             }
+        }
+    }
+
+    [PunRPC]
+    private void ResetPickupScale(int viewId)
+    {
+        PhotonView pv = PhotonView.Find(viewId);
+        if (pv != null)
+        {
+            // 强制重置为正常比例（1,1,1）
+            pv.transform.localScale = Vector3.one;
         }
     }
 
@@ -40,7 +53,7 @@ public class PickupSpawner : MonoBehaviourPun
     private void PlayDropAnimation(int viewId)
     {
         PhotonView pv = PhotonView.Find(viewId);
-        if (pv != null && pv.IsMine)
+        if (pv != null)
         {
             StartCoroutine(DropAnimationCoroutine(pv.gameObject));
         }
@@ -48,19 +61,19 @@ public class PickupSpawner : MonoBehaviourPun
 
     private IEnumerator DropAnimationCoroutine(GameObject pickup)
     {
+        // 保存重置后的缩放值
+        Vector3 targetScale = pickup.transform.localScale;
+
         // 初始设置
         Vector3 startScale = Vector3.zero;
-        Vector3 targetScale = pickup.transform.localScale;
         float timer = 0f;
 
-        // 如果有刚体组件，暂时禁用物理模拟
         Rigidbody2D rb = pickup.GetComponent<Rigidbody2D>();
-        if (rb != null)
-        {
-            rb.simulated = false;
-        }
+        if (rb != null) rb.simulated = false;
 
-        // 缩放动画
+        // 从零开始缩放
+        pickup.transform.localScale = startScale;
+
         while (timer < spawnAnimationDuration)
         {
             timer += Time.deltaTime;
@@ -69,14 +82,9 @@ public class PickupSpawner : MonoBehaviourPun
             yield return null;
         }
 
-        // 确保最终缩放比例正确
         pickup.transform.localScale = targetScale;
 
-        // 如果有刚体组件，重新启用物理模拟
-        if (rb != null)
-        {
-            rb.simulated = true;
-        }
+        if (rb != null) rb.simulated = true;
     }
 }
 
