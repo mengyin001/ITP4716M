@@ -20,6 +20,11 @@ public class MoneyManager : MonoBehaviourPun, IPunObservable
     public void Start()
     {
         InitializeMoney();
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        LoadMoney();
     }
 
     private void InitializeMoney()
@@ -41,6 +46,7 @@ public class MoneyManager : MonoBehaviourPun, IPunObservable
         {
             playerMoney += amount;
             UIManager.Instance.UpdateMoneyUI(playerMoney);
+            SaveMoney();
             photonView.RPC("SyncMoneyRPC", RpcTarget.Others, playerMoney);
         }
     }
@@ -51,6 +57,7 @@ public class MoneyManager : MonoBehaviourPun, IPunObservable
         {
             playerMoney -= amount;
             UIManager.Instance.UpdateMoneyUI(playerMoney);
+            SaveMoney();
             photonView.RPC("SyncMoneyRPC", RpcTarget.Others, playerMoney);
             return true;
         }
@@ -106,4 +113,34 @@ public class MoneyManager : MonoBehaviourPun, IPunObservable
             }
         }
     }
+    public void SaveMoney()
+    {
+        if (!photonView.IsMine) return;
+
+        ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable
+        {
+            { "PlayerMoney", playerMoney }
+        };
+        PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+        Debug.Log($"Money saved: {playerMoney}");
+    }
+
+    public void LoadMoney()
+    {
+        if (!photonView.IsMine) return;
+
+        if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey("PlayerMoney"))
+        {
+            playerMoney = (int)PhotonNetwork.LocalPlayer.CustomProperties["PlayerMoney"];
+            UIManager.Instance.UpdateMoneyUI(playerMoney);
+            Debug.Log($"Money loaded: {playerMoney}");
+        }
+        else
+        {
+            // 第一次进入游戏，初始化金币
+            playerMoney = 100;
+            Debug.Log("No saved money found. Initializing to 100.");
+        }
+    }
+
 }

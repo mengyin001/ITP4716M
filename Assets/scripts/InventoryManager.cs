@@ -35,12 +35,14 @@ public class InventoryManager : MonoBehaviourPunCallbacks
 
         // 【核心】訂閱來自 PlayerSpawner 的靜態事件
         PlayerSpawner.OnLocalPlayerSpawned += BindToLocalPlayer;
+        GameLevelPlayerSpawner.OnLocalPlayerSpawned += BindToLocalPlayer;
     }
 
     private void OnDestroy()
     {
         // 【核心】清理事件訂閱
         PlayerSpawner.OnLocalPlayerSpawned -= BindToLocalPlayer;
+        GameLevelPlayerSpawner.OnLocalPlayerSpawned -= BindToLocalPlayer;
         UnbindFromLocalPlayer(); // 確保銷毀時也清理引用
     }
 
@@ -232,6 +234,5 @@ public class InventoryManager : MonoBehaviourPunCallbacks
             currentlySelectedIndex = -1;
         }
     }
-
 
 }
