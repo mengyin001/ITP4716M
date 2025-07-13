@@ -10,7 +10,7 @@ public class UIManager : MonoBehaviourPunCallbacks
 {
     public static UIManager Instance { get; private set; }
 
-    [Header("�������ר��UI")]
+    [Header("Player Health UI")]
     [SerializeField] private Slider playerHealthSlider;
     [SerializeField] private TextMeshProUGUI playerHealthText;
     [SerializeField] private Slider playerEnergySlider;
@@ -18,30 +18,30 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject deathOverlay;
     [SerializeField] private TextMeshProUGUI restartPrompt;
 
-    [Header("����UI")]
-    [SerializeField] private GameObject bagUI; // ����UI����
+    [Header("Inventory UI")]
+    [SerializeField] private GameObject bagUI; // 背包UI对象
 
-    [Header("����UI")]
+    [Header("Money UI")]
     [SerializeField] private TextMeshProUGUI moneyText;
 
-    [Header("����UI����")]
-    public InventoryManager inventoryManager; // ����InventoryManager����
+    [Header("Inventory Reference")]
+    public InventoryManager inventoryManager; // 引用InventoryManager组件
 
-    [Header("����UI")]
+    [Header("Team UI")]
     [SerializeField] private GameObject teamPanel;
 
-    [Header("׼��/��ʼ��ť")]
+    [Header("Ready/Start Button")]
     [SerializeField] private Button readyStartButton;
     [SerializeField] private TextMeshProUGUI readyStartButtonText;
 
-    [Header("按钮颜色设置")]
+    [Header("Button Color Settings")]
     [SerializeField] private Image buttonImage;
     public Color readyColor = new Color(0.2f, 0.8f, 0.2f); // 准备就绪的绿色
     public Color cancelReadyColor = new Color(0.9f, 0.8f, 0.1f); // 取消准备的黄色
     public Color startReadyColor = new Color(0.2f, 0.8f, 0.2f); // 可开始的绿色
     public Color startDisabledColor = new Color(0.5f, 0.5f, 0.5f); // 不可开始的灰色
 
-    [Header("倒计时设置")]
+    [Header("Countdown Settings")]
     [SerializeField] private GameObject countdownPanel;
     [SerializeField] private TextMeshProUGUI countdownText;
     [SerializeField] private Image countdownBackground;
@@ -50,7 +50,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private AudioClip finalCountdownSound;
 
     private bool isPlayerReady = false;
-    public bool IsBagOpen { get; private set; } // ����״̬����
+    public bool IsBagOpen { get; private set; } // 背包状态标志
 
     private HealthSystem playerHealthSystem;
     private bool isPlayerRegistered = false;
@@ -73,7 +73,8 @@ public class UIManager : MonoBehaviourPunCallbacks
         {
             photonView.ObservedComponents = new System.Collections.Generic.List<Component> { this };
         }
-        // ȷ��ֻ��һ��ʵ��
+
+        // 确保只有一个实例
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -83,7 +84,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // ���ӳ������ؼ���
+        // 添加场景加载监听器
         SceneManager.sceneLoaded += OnSceneLoaded;
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
@@ -98,7 +99,7 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     void OnDestroy()
     {
-        // �����¼�����
+        // 移除事件监听
         SceneManager.sceneLoaded -= OnSceneLoaded;
         UnregisterPlayer();
     }
@@ -108,7 +109,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         InitializeUI();
         TryFindLocalPlayer();
         FindInventoryManager();
-        SceneManager.sceneLoaded += OnSceneLoaded;
+
         if (readyStartButton != null)
         {
             readyStartButton.onClick.AddListener(OnReadyStartClicked);
@@ -118,6 +119,16 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     public void UpdateReadyButton()
     {
+        // 非安全屋场景直接隐藏准备按钮
+        if (SceneTypeManager.CurrentSceneType != SceneTypeManager.SceneType.SafeHouse)
+        {
+            if (readyStartButton != null && readyStartButton.gameObject.activeSelf)
+            {
+                readyStartButton.gameObject.SetActive(false);
+            }
+            return;
+        }
+
         if (readyStartButton == null || readyStartButtonText == null || buttonImage == null)
             return;
 
@@ -148,6 +159,9 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void OnReadyStartClicked()
     {
+        if (SceneTypeManager.CurrentSceneType != SceneTypeManager.SceneType.SafeHouse)
+            return;
+
         if (PhotonNetwork.IsMasterClient)
         {
             // 房主开始游戏 - 改为启动倒计时
@@ -166,6 +180,7 @@ public class UIManager : MonoBehaviourPunCallbacks
             UpdateReadyButton();
         }
     }
+
     public override void OnMasterClientSwitched(Player newMasterClient)
     {
         base.OnMasterClientSwitched(newMasterClient);
@@ -175,7 +190,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         TeamUIManager.Instance?.UpdateTeamUI();
     }
 
-    // ����InventoryManager
+    // 查找InventoryManager
     private void FindInventoryManager()
     {
         if (inventoryManager == null)
@@ -192,13 +207,29 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // �����������ʱ����
+    // 场景加载时调用
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"Scene loaded: {scene.name}");
         ReinitializeUI();
         TryFindLocalPlayer();
         FindInventoryManager();
+
+        // 根据场景类型调整UI
+        if (SceneTypeManager.CurrentSceneType == SceneTypeManager.SceneType.GameLevel)
+        {
+            // 确保在游戏关卡中隐藏准备按钮
+            if (readyStartButton != null && readyStartButton.gameObject.activeSelf)
+            {
+                readyStartButton.gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            // 安全屋中更新UI
+            UpdateReadyButton();
+        }
+
         if (TeamUIManager.Instance != null)
         {
             TeamUIManager.Instance.OnSceneLoaded();
@@ -219,21 +250,21 @@ public class UIManager : MonoBehaviourPunCallbacks
 
     private void ReinitializeUI()
     {
-        // ���²���UI���
+        // 重新查找UI元素
         playerHealthSlider = GameObject.Find("HealthSlider")?.GetComponent<Slider>();
-        // ����UI�������...
+        // 其他UI元素查找...
 
         InitializeUI();
     }
 
-    // ���Բ��ұ�����Ҳ�ע��
+    // 尝试查找本地玩家并注册
     private void TryFindLocalPlayer()
     {
         if (isPlayerRegistered) return;
 
         Debug.Log("Trying to find local player...");
 
-        // ����������Ҷ���
+        // 查找所有玩家对象
         HealthSystem[] allPlayers = FindObjectsOfType<HealthSystem>();
         foreach (HealthSystem player in allPlayers)
         {
@@ -250,6 +281,7 @@ public class UIManager : MonoBehaviourPunCallbacks
             StartCoroutine(RetryFindPlayer());
         }
     }
+
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
     {
         base.OnPlayerPropertiesUpdate(targetPlayer, changedProps);
@@ -265,13 +297,13 @@ public class UIManager : MonoBehaviourPunCallbacks
         TryFindLocalPlayer();
     }
 
-    // ע�᱾����ҵ�HealthSystem
+    // 注册本地玩家的HealthSystem
     public void RegisterLocalPlayer(HealthSystem healthSystem)
     {
         if (isPlayerRegistered && playerHealthSystem == healthSystem)
             return;
 
-        // ������ע��
+        // 取消旧注册
         UnregisterPlayer();
 
         playerHealthSystem = healthSystem;
@@ -279,10 +311,10 @@ public class UIManager : MonoBehaviourPunCallbacks
 
         Debug.Log($"Registering local player: {healthSystem.gameObject.name}");
 
-        // ��ʼ��UI
+        // 初始化UI
         InitializePlayerUI();
 
-        // ע���¼�
+        // 注册事件
         if (playerHealthSystem != null)
         {
             playerHealthSystem.OnHealthChanged += UpdateHealthUI;
@@ -290,19 +322,19 @@ public class UIManager : MonoBehaviourPunCallbacks
             playerHealthSystem.OnPlayerDeath += ShowDeathUI;
             playerHealthSystem.OnRestartAvailable += ShowRestartPrompt;
 
-            // ��������һ��UI
+            // 强制更新一次UI
             UpdateHealthUI(playerHealthSystem.currentHealth, playerHealthSystem.maxHealth);
             UpdateEnergyUI(playerHealthSystem.currentEnergy, playerHealthSystem.maxEnergy);
             TeamUIManager.Instance?.UpdateTeamUI();
         }
     }
 
-    // ��ʼ��UIԪ��״̬
+    // 初始化UI元素状态
     private void InitializeUI()
     {
         Debug.Log("Initializing UI");
 
-        // ��ʼ��������UI
+        // 初始化死亡UI
         if (deathOverlay != null)
         {
             deathOverlay.SetActive(false);
@@ -337,6 +369,7 @@ public class UIManager : MonoBehaviourPunCallbacks
                 buttonImage.color = readyColor;
             }
         }
+
         if (countdownPanel != null)
         {
             countdownPanel.SetActive(false);
@@ -348,10 +381,22 @@ public class UIManager : MonoBehaviourPunCallbacks
             countdownText.transform.localScale = originalTextScale;
             countdownText.color = originalTextColor;
         }
-        UpdateReadyButton();
+
+        // 只在安全屋显示准备按钮
+        if (SceneTypeManager.CurrentSceneType == SceneTypeManager.SceneType.SafeHouse)
+        {
+            UpdateReadyButton();
+        }
+        else
+        {
+            if (readyStartButton != null)
+            {
+                readyStartButton.gameObject.SetActive(false);
+            }
+        }
     }
 
-    // ��ʼ�����UI
+    // 初始化玩家UI
     private void InitializePlayerUI()
     {
         if (playerHealthSystem == null) return;
@@ -372,10 +417,10 @@ public class UIManager : MonoBehaviourPunCallbacks
         UpdateEnergyUI(playerHealthSystem.currentEnergy, playerHealthSystem.maxEnergy);
     }
 
-    // ����Ѫ��UI
+    // 更新血量UI
     private void UpdateHealthUI(float currentHealth, float maxHealth)
     {
-        // ȷ����UI�߳�ִ��
+        // 确保在UI线程执行
         if (this == null) return;
 
         if (playerHealthSlider != null)
@@ -397,10 +442,10 @@ public class UIManager : MonoBehaviourPunCallbacks
         );
     }
 
-    // ��������UI
+    // 更新能量UI
     private void UpdateEnergyUI(float currentEnergy, float maxEnergy)
     {
-        // ȷ����UI�߳�ִ��
+        // 确保在UI线程执行
         if (this == null) return;
 
         if (playerEnergySlider != null)
@@ -422,7 +467,7 @@ public class UIManager : MonoBehaviourPunCallbacks
        );
     }
 
-    // ��ʾ����UI
+    // 显示死亡UI
     private void ShowDeathUI()
     {
         if (deathOverlay != null)
@@ -449,7 +494,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         canvasGroup.alpha = 0;
         float fadeInDuration = 2f;
         float elapsed = 0f; // 在此处声明elapsed变量
-        
+
         while (elapsed < fadeInDuration)
         {
             elapsed += Time.deltaTime;
@@ -464,7 +509,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         float fadeOutDuration = 2f;
         elapsed = 0f; // 重置elapsed变量用于淡出
         float startAlpha = canvasGroup.alpha;
-        
+
         while (elapsed < fadeOutDuration)
         {
             elapsed += Time.deltaTime;
@@ -476,7 +521,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         deathOverlay.SetActive(false);
     }
 
-    // ��ʾ������ʾ
+    // 显示重启提示
     private void ShowRestartPrompt()
     {
         if (restartPrompt != null && !restartPrompt.gameObject.activeSelf)
@@ -485,7 +530,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // ����ע��
+    // 取消注册
     public void UnregisterPlayer()
     {
         if (playerHealthSystem != null)
@@ -511,7 +556,7 @@ public class UIManager : MonoBehaviourPunCallbacks
         IsBagOpen = !bagUI.activeSelf;
         bagUI.SetActive(IsBagOpen);
 
-        // ֪ͨInventoryManager����״̬�仯
+        // 通知InventoryManager状态变化
         if (inventoryManager != null)
         {
             inventoryManager.OnBagStateChanged(IsBagOpen);
@@ -528,7 +573,7 @@ public class UIManager : MonoBehaviourPunCallbacks
             moneyText.text = amount.ToString();
     }
 
-    // ���Է���
+    // 强制刷新
     public void ForceRefreshInventory()
     {
         if (bagUI == null)
@@ -537,20 +582,17 @@ public class UIManager : MonoBehaviourPunCallbacks
             return;
         }
 
-        // �ГQ����UI���@ʾ��B
+        // 切换背包UI显示状态
         IsBagOpen = !bagUI.activeSelf;
         bagUI.SetActive(IsBagOpen);
 
-        // ������������
-        // �����{�� ForceRefresh()�������{�� OnBagStateChanged()
-        // ���µı�����B֪ͨ�o InventoryManager
+        // 通知InventoryManager
         if (inventoryManager != null)
         {
             inventoryManager.OnBagStateChanged(IsBagOpen);
         }
         else
         {
-            // �@������F�ڸ����ã�����҂���ه InventoryManager
             Debug.LogWarning("InventoryManager reference is null in UIManager, cannot notify bag state change.");
         }
     }
@@ -568,133 +610,146 @@ public class UIManager : MonoBehaviourPunCallbacks
     }
 
     private IEnumerator CountdownRoutine()
-{
-    // 禁用准备按钮
-    if (readyStartButton != null)
     {
-        readyStartButton.interactable = false;
-    }
-
-    // 激活倒计时面板
-    if (countdownPanel != null)
-    {
-        countdownPanel.SetActive(true);
-    }
-
-    // 背景淡入动画
-    if (countdownBackground != null)
-    {
-        countdownBackground.color = new Color(0, 0, 0, 0);
-        LeanTween.alpha(countdownBackground.rectTransform, 0.7f, 0.5f)
-            .setEase(LeanTweenType.easeOutQuad);
-    }
-
-    float timer = countdownDuration;
-
-    // 播放倒计时音效
-    if (countdownSound != null)
-    {
-        audioSource.PlayOneShot(countdownSound);
-    }
-
-    while (timer > 0)
-    {
-        // 更新倒计时文本
-        if (countdownText != null)
+        // 禁用准备按钮
+        if (readyStartButton != null)
         {
-            int seconds = Mathf.CeilToInt(timer);
-            countdownText.text = seconds.ToString();
-
-            // 添加稳定的动画效果
-            StableCountdownAnimation(seconds);
-
-            // 最后3秒改变颜色
-            if (seconds <= 3)
-            {
-                // 播放特殊音效
-                if (finalCountdownSound != null && Mathf.Approximately(timer % 1, 0))
-                {
-                    audioSource.PlayOneShot(finalCountdownSound);
-                }
-            }
+            readyStartButton.interactable = false;
         }
 
-        yield return new WaitForSeconds(0.05f);
-        timer -= 0.05f;
+        // 激活倒计时面板
+        if (countdownPanel != null)
+        {
+            countdownPanel.SetActive(true);
+        }
+
+        // 背景淡入动画
+        if (countdownBackground != null)
+        {
+            countdownBackground.color = new Color(0, 0, 0, 0);
+            LeanTween.alpha(countdownBackground.rectTransform, 0.7f, 0.5f)
+                .setEase(LeanTweenType.easeOutQuad);
+        }
+
+        float timer = countdownDuration;
+
+        // 播放倒计时音效
+        if (countdownSound != null)
+        {
+            audioSource.PlayOneShot(countdownSound);
+        }
+
+        while (timer > 0)
+        {
+            // 更新倒计时文本
+            if (countdownText != null)
+            {
+                int seconds = Mathf.CeilToInt(timer);
+                countdownText.text = seconds.ToString();
+
+                // 添加稳定的动画效果
+                StableCountdownAnimation(seconds);
+
+                // 最后3秒改变颜色
+                if (seconds <= 3)
+                {
+                    // 播放特殊音效
+                    if (finalCountdownSound != null && Mathf.Approximately(timer % 1, 0))
+                    {
+                        audioSource.PlayOneShot(finalCountdownSound);
+                    }
+                }
+            }
+
+            yield return new WaitForSeconds(0.05f);
+            timer -= 0.05f;
+        }
+
+        // 倒计时结束 - GO! 动画
+        if (countdownText != null)
+        {
+            countdownText.text = "GO!";
+            countdownText.color = Color.green;
+
+            // 缩放动画（无位移）
+            LeanTween.scale(countdownText.gameObject, originalTextScale * 1.8f, 0.4f)
+                .setEase(LeanTweenType.easeOutBack);
+
+            // 淡出效果
+            LeanTween.value(countdownText.gameObject, 1f, 0f, 0.6f)
+                .setDelay(0.3f)
+                .setOnUpdate((float alpha) => {
+                    Color c = countdownText.color;
+                    c.a = alpha;
+                    countdownText.color = c;
+                });
+        }
+
+        // 背景淡出动画
+        if (countdownBackground != null)
+        {
+            LeanTween.alpha(countdownBackground.rectTransform, 0f, 0.8f)
+                .setEase(LeanTweenType.easeInQuad);
+        }
+
+        yield return new WaitForSeconds(0.8f);
+
+        // 隐藏面板
+        if (countdownPanel != null)
+        {
+            countdownPanel.SetActive(false);
+        }
+
+        // 重置文本属性
+        if (countdownText != null)
+        {
+            countdownText.transform.localScale = originalTextScale;
+            countdownText.color = originalTextColor;
+            countdownText.alpha = 1f; // 重置透明度
+        }
+
+        // 隐藏准备按钮（所有客户端）
+        photonView.RPC("RPC_HideReadyButton", RpcTarget.All);
+
+        // 房主加载场景
+        if (PhotonNetwork.IsMasterClient)
+        {
+            NetworkManager.Instance.StartGameForAll();
+        }
     }
 
-    // 倒计时结束 - GO! 动画
-    if (countdownText != null)
+    // 稳定的倒计时动画（无抖动）
+    private void StableCountdownAnimation(int seconds)
     {
-        countdownText.text = "GO!";
-        countdownText.color = Color.green;
-        
-        // 缩放动画（无位移）
-        LeanTween.scale(countdownText.gameObject, originalTextScale * 1.8f, 0.4f)
-            .setEase(LeanTweenType.easeOutBack);
-        
-        // 淡出效果
-        LeanTween.value(countdownText.gameObject, 1f, 0f, 0.6f)
-            .setDelay(0.3f)
-            .setOnUpdate((float alpha) => {
-                Color c = countdownText.color;
-                c.a = alpha;
-                countdownText.color = c;
+        if (countdownText == null) return;
+
+        // 取消之前的动画
+        LeanTween.cancel(countdownText.gameObject);
+
+        // 缩放动画
+        Vector3 targetScale = originalTextScale * (seconds <= 3 ? 1.4f : 1.2f);
+        LeanTween.scale(countdownText.gameObject, targetScale, 0.2f)
+            .setEase(LeanTweenType.easeOutQuad)
+            .setOnComplete(() => {
+                LeanTween.scale(countdownText.gameObject, originalTextScale, 0.3f)
+                    .setEase(LeanTweenType.easeInOutQuad);
             });
+
+        // 颜色动画
+        Color targetColor = seconds <= 3 ? Color.red : Color.white;
+        LeanTween.value(countdownText.gameObject, countdownText.color, targetColor, 0.3f)
+            .setOnUpdate((Color c) => countdownText.color = c);
     }
 
-    // 背景淡出动画
-    if (countdownBackground != null)
+    [PunRPC]
+    private void RPC_HideReadyButton()
     {
-        LeanTween.alpha(countdownBackground.rectTransform, 0f, 0.8f)
-            .setEase(LeanTweenType.easeInQuad);
+        if (readyStartButton != null && readyStartButton.gameObject.activeSelf)
+        {
+            readyStartButton.gameObject.SetActive(false);
+        }
     }
 
-    yield return new WaitForSeconds(0.8f);
-
-    // 隐藏面板
-    if (countdownPanel != null)
-    {
-        countdownPanel.SetActive(false);
-    }
-
-    // 重置文本属性
-    if (countdownText != null)
-    {
-        countdownText.transform.localScale = originalTextScale;
-        countdownText.color = originalTextColor;
-        countdownText.alpha = 1f; // 重置透明度
-    }
-
-    // 房主加载场景
-    if (PhotonNetwork.IsMasterClient)
-    {
-        NetworkManager.Instance.StartGameForAll();
-    }
-}
-
-// 稳定的倒计时动画（无抖动）
-private void StableCountdownAnimation(int seconds)
-{
-    if (countdownText == null) return;
-
-    // 取消之前的动画
-    LeanTween.cancel(countdownText.gameObject);
-    
-    // 缩放动画
-    Vector3 targetScale = originalTextScale * (seconds <= 3 ? 1.4f : 1.2f);
-    LeanTween.scale(countdownText.gameObject, targetScale, 0.2f)
-        .setEase(LeanTweenType.easeOutQuad)
-        .setOnComplete(() => {
-            LeanTween.scale(countdownText.gameObject, originalTextScale, 0.3f)
-                .setEase(LeanTweenType.easeInOutQuad);
-        });
-    
-    // 颜色动画
-    Color targetColor = seconds <= 3 ? Color.red : Color.white;
-    LeanTween.value(countdownText.gameObject, countdownText.color, targetColor, 0.3f)
-        .setOnUpdate((Color c) => countdownText.color = c);
-}
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         base.OnPlayerLeftRoom(otherPlayer);
@@ -706,5 +761,4 @@ private void StableCountdownAnimation(int seconds)
         // 更新队伍UI
         TeamUIManager.Instance?.UpdateTeamUI();
     }
-
 }
