@@ -92,6 +92,9 @@ MonoBehaviour:
   - RPC_MovePlayersToGameScene
   - RPC_DestroyPlayerObjects
   - RPC_SavePlayerData
+  - ApplyGlobalScale
+  - ApplyFixedScale
+  - ResetPickupScale
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
