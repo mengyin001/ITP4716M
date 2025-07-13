@@ -47,7 +47,46 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
         LoadInventory();
     }
 
-    // AddItem 和 RemoveItem 保持不變，因為它們已經有 IsMine 檢查，確保只有擁有者能修改數據。
+    // 新增的 ClearInventory() 方法
+    /// <summary>
+    /// 清空玩家的背包
+    /// </summary>
+    public void ClearInventory()
+    {
+        // 只有背包的所有者可以执行清空操作
+        if (!photonView.IsMine)
+        {
+            Debug.LogWarning("[NetworkInventory] ClearInventory: Only the owner can clear this inventory.");
+            return;
+        }
+
+        Debug.Log("[NetworkInventory] Clearing inventory");
+
+        // 1. 清空本地物品列表
+        items.Clear();
+
+        // 2. 触发库存变更事件
+        OnInventoryChanged?.Invoke();
+
+        // 3. 保存到自定义属性
+        SaveInventory();
+
+        // 4. 同步给其他玩家
+        photonView.RPC("RPCSyncClearInventory", RpcTarget.Others);
+    }
+
+    // RPC方法：同步清空背包给其他客户端
+    [PunRPC]
+    private void RPCSyncClearInventory()
+    {
+        Debug.Log("[NetworkInventory] Received RPCSyncClearInventory");
+
+        // 1. 清空本地物品列表
+        items.Clear();
+
+        // 2. 触发库存变更事件
+        OnInventoryChanged?.Invoke();
+    }
 
     public void AddItem(string itemID, int amount = 1)
     {
@@ -70,6 +109,7 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
                 items[i].quantity += amount;
                 OnInventoryChanged?.Invoke();
                 Debug.Log($"[NetworkInventory] AddItem: Added to stack: {itemID} (+{amount}) Total: {items[i].quantity}");
+                SaveInventory();
                 return;
             }
         }
@@ -117,6 +157,7 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
                     }
 
                     OnInventoryChanged?.Invoke(); // 觸發本地 UI 刷新
+                    SaveInventory();
                     return true;
                 }
                 Debug.LogWarning($"[NetworkInventory] RemoveItem: Not enough {itemID} to remove ({items[i].quantity} < {amount})");
@@ -125,7 +166,6 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
         }
 
         Debug.LogWarning($"[NetworkInventory] RemoveItem: Item {itemID} not found in inventory.");
-        SaveInventory();
         return false;
     }
 
@@ -311,6 +351,7 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
 
         Debug.Log(sb.ToString());
     }
+
     public void SaveInventory()
     {
         if (!photonView.IsMine) return;
@@ -355,5 +396,4 @@ public class NetworkInventory : MonoBehaviourPunCallbacks, IPunObservable
             Debug.Log("No saved inventory found");
         }
     }
-
 }

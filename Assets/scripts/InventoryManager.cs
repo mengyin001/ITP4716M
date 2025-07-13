@@ -23,6 +23,8 @@ public class InventoryManager : MonoBehaviourPunCallbacks
     private bool isPlayerBound = false; // 用於標記是否已成功綁定玩家
     private int currentlySelectedIndex = -1;
 
+    public static InventoryManager Instance { get; internal set; }
+
     private void Awake()
     {
         if (instance != null && instance != this)
@@ -31,7 +33,6 @@ public class InventoryManager : MonoBehaviourPunCallbacks
             return;
         }
         instance = this;
-        DontDestroyOnLoad(gameObject);
 
         // 【核心】訂閱來自 PlayerSpawner 的靜態事件
         PlayerSpawner.OnLocalPlayerSpawned += BindToLocalPlayer;
@@ -235,4 +236,27 @@ public class InventoryManager : MonoBehaviourPunCallbacks
         }
     }
 
+    public void ClearInventory()
+    {
+        Debug.Log("[InventoryManager] Clearing inventory");
+
+        // 1. 清空UI显示
+        foreach (Slot slot in slots)
+        {
+            slot.ClearSlot();
+        }
+
+        // 2. 重置选中状态
+        DeselectCurrentSlot();
+
+        // 3. 清空网络数据（如果已绑定玩家）
+        if (isPlayerBound && networkInventory != null)
+        {
+            networkInventory.ClearInventory();
+        }
+        else
+        {
+            Debug.LogWarning("[InventoryManager] Cannot clear network inventory - player not bound or networkInventory missing");
+        }
+    }
 }

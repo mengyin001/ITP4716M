@@ -39,7 +39,6 @@ public class TeamUIManager : MonoBehaviourPunCallbacks
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
     }
 
     void Start()

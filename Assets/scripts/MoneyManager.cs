@@ -142,5 +142,24 @@ public class MoneyManager : MonoBehaviourPun, IPunObservable
             Debug.Log("No saved money found. Initializing to 100.");
         }
     }
+    public void ResetMoney()
+    {
+        if (photonView.IsMine)
+        {
+            playerMoney = 100; // 重置为初始值
+
+            // 更新UI
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.UpdateMoneyUI(playerMoney);
+            }
+
+            // 保存到自定义属性
+            SaveMoney();
+
+            // 同步给其他玩家
+            photonView.RPC("SyncMoneyRPC", RpcTarget.Others, playerMoney);
+        }
+    }
 
 }

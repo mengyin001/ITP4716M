@@ -55,6 +55,9 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private AudioClip teleportFinalCountdownSound;
     [SerializeField] private AudioClip teleportCompleteSound;
 
+    [Header("Exit Button")]
+    [SerializeField] private Button exitButton;
+
     private bool isPlayerReady = false;
     public bool IsBagOpen { get; private set; } // 背包状态标志
 
@@ -88,7 +91,6 @@ public class UIManager : MonoBehaviourPunCallbacks
         }
 
         Instance = this;
-        DontDestroyOnLoad(gameObject);
 
         // 添加场景加载监听器
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -115,11 +117,16 @@ public class UIManager : MonoBehaviourPunCallbacks
         InitializeUI();
         TryFindLocalPlayer();
         FindInventoryManager();
+        NetworkManager.Instance.ResetAllPlayerReadyStates();
 
         if (readyStartButton != null)
         {
             readyStartButton.onClick.AddListener(OnReadyStartClicked);
             UpdateReadyButton();
+        }
+        if (exitButton != null)
+        {
+            exitButton.onClick.AddListener(OnExitButtonClicked);
         }
     }
 
@@ -162,6 +169,19 @@ public class UIManager : MonoBehaviourPunCallbacks
             buttonImage.color = isPlayerReady ? cancelReadyColor : readyColor;
         }
     }
+
+    private void OnExitButtonClicked()
+    {
+        if (NetworkManager.Instance != null)
+        {
+            NetworkManager.Instance.LeaveRoomAndReturnToStartup();
+        }
+        else
+        {
+            Debug.LogWarning("NetworkManager instance not found!");
+        }
+    }
+
 
     private void OnReadyStartClicked()
     {
@@ -876,6 +896,8 @@ public class UIManager : MonoBehaviourPunCallbacks
         // 主机加载安全屋场景
         if (PhotonNetwork.IsMasterClient)
         {
+            NetworkManager.Instance.ReopenRoomIfNeeded();
+            NetworkManager.Instance.SavePlayerDataBeforeSceneChange();
             PhotonNetwork.LoadLevel("SafeHouse");
         }
     }

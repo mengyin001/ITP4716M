@@ -233,9 +233,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     // 确保连接断开时清理
     public override void OnDisconnected(DisconnectCause cause)
     {
-        Debug.Log($"Disconnected: {cause}");
-        // 重连逻辑可以加在这里
+        base.OnDisconnected(cause);
+        Debug.Log($"Disconnected from Photon server: {cause}");
+
+        // 确保加载启动场景
+        if (SceneManager.GetActiveScene().name != "Startup")
+        {
+            SceneManager.LoadScene("Startup");
+        }
     }
+
 
     public void CreateRoom(string roomName, int playerCount)
     {
@@ -345,4 +352,76 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
         Debug.Log("Player data saved before scene change");
     }
+
+    public void ResetAllPlayerReadyStates()
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            if (!player.IsMasterClient)
+            {
+                SetPlayerReady(false);
+            }
+        }
+    }
+
+    public void LeaveRoomAndReturnToStartup()
+    {
+        // 确保只有本地客户端执行
+        if (!PhotonNetwork.IsConnected) return;
+
+        Debug.Log("Leaving room and returning to startup scene");
+
+        // 重置玩家准备状态
+        SetPlayerReady(false);
+
+        // 清理玩家数据
+        CleanupPlayerData();
+
+        // 离开房间
+        PhotonNetwork.LeaveRoom();
+        OnLeftRoom();
+        // 确保 UI 更新
+        UIManager.Instance?.UpdateReadyButton();
+    }
+
+    public override void OnLeftRoom()
+    {
+        base.OnLeftRoom();
+        Debug.Log("Successfully left the room");
+
+        // 断开与 Photon 的连接
+        PhotonNetwork.Disconnect();
+
+        // 加载启动场景
+        SceneManager.LoadScene("Startup");
+    }
+
+    private void CleanupPlayerData()
+    {
+        // 清理金币数据
+        if (MoneyManager.Instance != null)
+        {
+            MoneyManager.Instance.ResetMoney();
+        }
+
+        // 清理物品数据
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.ClearInventory();
+        }
+
+        // 销毁本地玩家对象
+        if (PhotonNetwork.LocalPlayer.TagObject is GameObject playerObj && playerObj != null)
+        {
+            Destroy(playerObj);
+            PhotonNetwork.LocalPlayer.TagObject = null;
+        }
+
+        // 重置单例实例
+        Destroy(gameObject);
+        Instance = null;
+    }
+
 }
