@@ -26,8 +26,6 @@ public class EnemyManager : MonoBehaviour
 
     private Transform playerTarget;
     private List<GameObject> activeEnemies = new List<GameObject>();
-    public GameObject teleportationCirclePrefab; // 传送阵预制件
-    public Transform teleportationSpawnPoint; // 传送阵生成点
 
     [System.Serializable]
     public class EnemyData
@@ -199,9 +197,6 @@ public class EnemyManager : MonoBehaviour
                 meleeEnemy.patrolPoints = new List<Transform>(patrolPoints);
             }
 
-            // 不再直接设置玩家引用，由Enemy脚本自己定期更新
-            // meleeEnemy.player = playerTarget;
-
             meleeEnemy.OnDie.AddListener(() => OnEnemyDied(meleeEnemy.gameObject));
             return true;
         }
@@ -211,9 +206,6 @@ public class EnemyManager : MonoBehaviour
             {
                 rangedEnemy.patrolPoints = new List<Transform>(patrolPoints);
             }
-
-            // 不再直接设置玩家引用，由Enemy脚本自己定期更新
-            // rangedEnemy.player = playerTarget;
 
             rangedEnemy.OnDie.AddListener(() => OnEnemyDied(rangedEnemy.gameObject));
             return true;
@@ -255,15 +247,6 @@ public class EnemyManager : MonoBehaviour
         {
             activeEnemies.Remove(enemy);
 
-            // 在销毁前调用掉落物品
-            var spawner = enemy.GetComponent<PickupSpawner>();
-            if (spawner != null)
-            {
-                // 确保敌人在掉落前处于正常缩放
-                enemy.transform.localScale = Vector3.one;
-                spawner.DropItems();
-            }
-
             // 销毁敌人
             PhotonNetwork.Destroy(enemy);
         }
@@ -271,20 +254,26 @@ public class EnemyManager : MonoBehaviour
         // 检查是否生成传送门
         if (AllWavesCompleted && AliveEnemyCount <= 0)
         {
-            GenerateTeleportationCircle();
+            // 改为返回安全屋
+            ReturnToSafeHouse();
         }
     }
-
-    private void GenerateTeleportationCircle()
+    private void ReturnToSafeHouse()
     {
-        if (teleportationCirclePrefab != null && teleportationSpawnPoint != null)
+        // 确保只有主机执行场景切换
+        if (!PhotonNetwork.IsMasterClient) return;
+
+        Debug.Log("所有波次已完成，准备返回安全屋");
+
+        // 使用UIManager启动传送倒计时
+        if (UIManager.Instance != null)
         {
-            // 使用PhotonNetwork.Instantiate生成网络对象
-            PhotonNetwork.Instantiate(
-                teleportationCirclePrefab.name,
-                teleportationSpawnPoint.position,
-                Quaternion.identity
-            );
+            UIManager.Instance.StartTeleportCountdown();
+        }
+        else
+        {
+            Debug.LogWarning("UIManager实例未找到，直接传送");
+            PhotonNetwork.LoadLevel("SafeHouse");
         }
     }
 
@@ -299,7 +288,7 @@ public class EnemyManager : MonoBehaviour
         {
             if (enemy != null)
             {
-                Destroy(enemy);
+                PhotonNetwork.Destroy(enemy);
             }
         }
 

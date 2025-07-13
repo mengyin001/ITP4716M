@@ -49,6 +49,12 @@ public class UIManager : MonoBehaviourPunCallbacks
     [SerializeField] private AudioClip countdownSound;
     [SerializeField] private AudioClip finalCountdownSound;
 
+    [Header("Teleport Settings")]
+    [SerializeField] private float teleportCountdownDuration = 10f;
+    [SerializeField] private AudioClip teleportCountdownSound;
+    [SerializeField] private AudioClip teleportFinalCountdownSound;
+    [SerializeField] private AudioClip teleportCompleteSound;
+
     private bool isPlayerReady = false;
     public bool IsBagOpen { get; private set; } // 背包状态标志
 
@@ -709,7 +715,7 @@ public class UIManager : MonoBehaviourPunCallbacks
     }
 
     // 稳定的倒计时动画（无抖动）
-    private void StableCountdownAnimation(int seconds)
+    public void StableCountdownAnimation(int seconds)
     {
         if (countdownText == null) return;
 
@@ -751,4 +757,127 @@ public class UIManager : MonoBehaviourPunCallbacks
         // 更新队伍UI
         TeamUIManager.Instance?.UpdateTeamUI();
     }
+
+    public void StartTeleportCountdown()
+    {
+        if (!PhotonNetwork.IsMasterClient) return;
+        photonView.RPC("RPC_StartTeleportCountdown", RpcTarget.All);
+    }
+
+    [PunRPC]
+    public void RPC_StartTeleportCountdown()
+    {
+        // 防止重复开始
+        if (countdownCoroutine != null)
+        {
+            StopCoroutine(countdownCoroutine);
+        }
+
+        countdownCoroutine = StartCoroutine(TeleportCountdownRoutine());
+    }
+
+    private IEnumerator TeleportCountdownRoutine()
+    {
+        // 激活倒计时面板
+        if (countdownPanel != null)
+        {
+            countdownPanel.SetActive(true);
+        }
+
+        // 背景淡入动画
+        if (countdownBackground != null)
+        {
+            countdownBackground.color = new Color(0, 0, 0, 0);
+            LeanTween.alpha(countdownBackground.rectTransform, 0.7f, 0.5f)
+                .setEase(LeanTweenType.easeOutQuad);
+        }
+
+        float timer = teleportCountdownDuration;
+
+        // 播放倒计时音效
+        if (teleportCountdownSound != null)
+        {
+            audioSource.PlayOneShot(teleportCountdownSound);
+        }
+
+        while (timer > 0)
+        {
+            // 更新倒计时文本
+            if (countdownText != null)
+            {
+                int seconds = Mathf.CeilToInt(timer);
+                countdownText.text = $"Transmission countdown:{seconds}";
+
+                // 使用稳定的动画效果
+                StableCountdownAnimation(seconds);
+
+                // 最后3秒改变颜色和音效
+                if (seconds <= 3)
+                {
+                    countdownText.color = Color.red;
+
+                    // 播放特殊音效
+                    if (teleportFinalCountdownSound != null && Mathf.Approximately(timer % 1, 0))
+                    {
+                        audioSource.PlayOneShot(teleportFinalCountdownSound);
+                    }
+                }
+                else
+                {
+                    countdownText.color = Color.yellow;
+                }
+            }
+
+            yield return new WaitForSeconds(0.05f);
+            timer -= 0.05f;
+        }
+
+        // 倒计时结束 - 传送!
+        if (countdownText != null)
+        {
+            countdownText.text = "Transmitting...";
+            countdownText.color = Color.green;
+
+            // 缩放动画
+            LeanTween.scale(countdownText.gameObject, originalTextScale * 1.5f, 0.5f)
+                .setEase(LeanTweenType.easeOutBack);
+        }
+
+        // 播放传送完成音效
+        if (teleportCompleteSound != null)
+        {
+            audioSource.PlayOneShot(teleportCompleteSound);
+        }
+
+        yield return new WaitForSeconds(1.5f);
+
+        // 背景淡出动画
+        if (countdownBackground != null)
+        {
+            LeanTween.alpha(countdownBackground.rectTransform, 0f, 0.8f)
+                .setEase(LeanTweenType.easeInQuad);
+        }
+
+        yield return new WaitForSeconds(0.8f);
+
+        // 隐藏面板
+        if (countdownPanel != null)
+        {
+            countdownPanel.SetActive(false);
+        }
+
+        // 重置文本属性
+        if (countdownText != null)
+        {
+            countdownText.transform.localScale = originalTextScale;
+            countdownText.color = originalTextColor;
+        }
+
+        // 主机加载安全屋场景
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.LoadLevel("SafeHouse");
+        }
+    }
+
 }
