@@ -1,90 +1,76 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Photon.Pun;
+
 public class EnemyBullet : MonoBehaviourPun
 {
     private float damage;
-    private LayerMask targetLayer;
     private float speed;
     private Vector2 direction;
     private Rigidbody2D rb;
-  
     private EnemyBulletPool bulletPool;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        
-        bulletPool = transform.root.GetComponentInChildren<EnemyBulletPool>();
     }
 
-    public void Setup(float damage, LayerMask targetLayer, float speed, Vector2 direction)
+    private void Start()
+    {
+        bulletPool = GetComponentInParent<EnemyBulletPool>();
+    }
+
+    [PunRPC]
+    public void ActivateBullet(Vector3 spawnPosition)
+    {
+        gameObject.SetActive(true);
+        transform.position = spawnPosition;
+    }
+
+    [PunRPC]
+    public void DeactivateBullet()
+    {
+        gameObject.SetActive(false);
+        rb.linearVelocity = Vector2.zero;
+    }
+
+    [PunRPC]
+    public void SetupBullet(float damage, float speed, Vector2 direction)
     {
         this.damage = damage;
-        this.targetLayer = targetLayer;
         this.speed = speed;
         this.direction = direction;
 
-        // 设置子弹的速度
         rb.linearVelocity = direction * speed;
-
-        // 计算并设置子弹的旋转角度，使其重心朝向玩家
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-
-        // 播放飞行动画
-
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (targetLayer == (targetLayer | (1 << other.gameObject.layer)))
+        // 仅由子弹所有者（MasterClient）处理碰撞逻辑
+        if (!photonView.IsMine) return;
+
+        if (other.CompareTag("Player"))
         {
-            HealthSystem playerHealth = other.GetComponent<HealthSystem>();
-            if (playerHealth != null)
+            PhotonView playerView = other.GetComponent<PhotonView>();
+            if (playerView != null)
             {
-                playerHealth.RPC_TakeDamage(damage);
+                // 直接调用玩家的 RPC_TakeDamage，通过 RpcTarget.All 确保所有客户端同步
+                playerView.RPC("RPC_TakeDamage", RpcTarget.All, damage);
             }
-          
-            ReturnToPool();
+            bulletPool.ReturnBullet(gameObject);
         }
         else if (other.CompareTag("Wall"))
         {
-           
-            ReturnToPool();
+            bulletPool.ReturnBullet(gameObject);
         }
     }
 
     private void OnBecameInvisible()
     {
-        ReturnToPool();
-    }
-
-    private void ReturnToPool()
-    {
-
-        if (bulletPool != null)
+        if (photonView.IsMine)
         {
             bulletPool.ReturnBullet(gameObject);
         }
-        else
-        {
-            Destroy(gameObject);
-        }
     }
-
-    private void OnEnable()
-    {
-        if (rb != null && direction != Vector2.zero)
-        {
-            // 确保在启用时也设置速度
-            rb.linearVelocity = direction * speed;
-
-            // 计算并设置子弹的旋转角度，使其重心朝向玩家
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-
-        }
-    }
-
-
 }

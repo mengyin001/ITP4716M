@@ -88,6 +88,21 @@ MonoBehaviour:
   - RPC_AbsorbMinion
   - RPC_SummonMinionsBatch
   - SummonMinionsBatch
+  - RPC_HideReadyButton
+  - DisableBullet
+  - HideBullet
+  - SetupBullet
+  - SetActiveRPC
+  - ActivateBullet
+  - DeactivateBullet
+  - ReturnToPoolRPC
+  - InitializeBulletPoolRPC
+  - InitializeBullet
+  - ExpandPool
+  - InitializePool
+  - ReturnBullet
+  - OnBulletHit
+  - RequestDamage
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
