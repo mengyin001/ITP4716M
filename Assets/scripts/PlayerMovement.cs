@@ -264,6 +264,8 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
             // 发送当前武器索引和朝向状态
             stream.SendNext(currentWeaponIndex);
             stream.SendNext(isFacingRight);
+            stream.SendNext(transform.position); // 同步位置
+            stream.SendNext(transform.rotation); // 同步旋转
         }
         else
         {
@@ -272,6 +274,17 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
 
             // 接收朝向状态并更新
             isFacingRight = (bool)stream.ReceiveNext();
+
+            Vector3 newPosition = (Vector3)stream.ReceiveNext();
+            Quaternion newRotation = (Quaternion)stream.ReceiveNext();
+
+            // 应用位置和旋转（避免瞬移）
+            if (Vector3.Distance(transform.position, newPosition) > 1f)
+            {
+                transform.position = newPosition;
+            }
+
+            transform.rotation = newRotation;
 
             // 更新名字标签方向
             UpdateNameTagOrientation();

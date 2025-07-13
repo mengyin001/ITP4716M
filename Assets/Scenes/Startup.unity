@@ -153,6 +153,9 @@ MonoBehaviour:
   loadingSceneName: LoadingScence
   roomSceneName: SafeHouse
   gameSceneName: FirstLevel
+  playerPrefab: {fileID: 0}
+  safeHouseSpawnPoints: []
+  gameLevelSpawnPoints: []
 --- !u!4 &65133641
 Transform:
   m_ObjectHideFlags: 0

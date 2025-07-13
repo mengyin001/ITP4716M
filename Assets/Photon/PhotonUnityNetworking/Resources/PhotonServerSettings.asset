@@ -90,6 +90,7 @@ MonoBehaviour:
   - SummonMinionsBatch
   - RPC_HideReadyButton
   - RPC_MovePlayersToGameScene
+  - RPC_DestroyPlayerObjects
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

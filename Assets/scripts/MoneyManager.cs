@@ -14,17 +14,6 @@ public class MoneyManager : MonoBehaviourPun, IPunObservable
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            PhotonNetwork.Destroy(gameObject);
-            return;
-        }
-
         InitializeMoney();
     }
 

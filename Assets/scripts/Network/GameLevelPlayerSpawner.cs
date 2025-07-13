@@ -1,36 +1,39 @@
-using UnityEngine;
+// ===== GameLevelPlayerSpawner 修改部分 =====
 using Photon.Pun;
-using Photon.Realtime;
+using UnityEngine;
 
 public class GameLevelPlayerSpawner : MonoBehaviourPunCallbacks
 {
     public Transform[] spawnPoints;
+    public GameObject playerPrefab;
 
     void Start()
     {
-        ResetPlayerPositions();
+        // 确保在场景完全加载后生成玩家
+        Invoke("SpawnPlayer", 0.5f);
     }
 
-    void ResetPlayerPositions()
+    void SpawnPlayer()
     {
-        if (!PhotonNetwork.InRoom) return;
-
-        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-        foreach (GameObject player in players)
+        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom)
         {
-            PhotonView pv = player.GetComponent<PhotonView>();
-            if (pv != null && pv.IsMine)
+            // 检查是否已有玩家对象
+            if (PhotonNetwork.LocalPlayer.TagObject == null)
             {
-                int spawnIndex = (pv.Owner.ActorNumber - 1) % spawnPoints.Length;
-                player.transform.position = spawnPoints[spawnIndex].position;
-                player.transform.rotation = spawnPoints[spawnIndex].rotation;
+                int spawnIndex = (PhotonNetwork.LocalPlayer.ActorNumber - 1) % spawnPoints.Length;
+
+                GameObject player = PhotonNetwork.Instantiate(
+                    playerPrefab.name, // 使用预制体名称直接实例化
+                    spawnPoints[spawnIndex].position,
+                    spawnPoints[spawnIndex].rotation);
+
+                PhotonNetwork.LocalPlayer.TagObject = player;
+                Debug.Log($"Player spawned at index {spawnIndex}");
+            }
+            else
+            {
+                Debug.Log("Player already exists in game scene");
             }
         }
-    }
-
-    // 当新玩家加入房间时重置位置
-    public override void OnPlayerEnteredRoom(Player newPlayer)
-    {
-        ResetPlayerPositions();
     }
 }
