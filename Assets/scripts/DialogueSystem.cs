@@ -66,7 +66,6 @@ public class DialogueSystem : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
 
             if (dialogueFile != null)
             {
